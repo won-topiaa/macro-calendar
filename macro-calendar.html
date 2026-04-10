@@ -94,37 +94,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal-desc{background:var(--bg2);border-radius:10px;padding:13px 15px;margin-bottom:16px;font-size:12px;color:var(--txt2);line-height:1.65;}
 .modal-link{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:var(--txt2);text-decoration:none;font-size:12px;font-weight:500;margin-bottom:18px;transition:all .15s;}
 .modal-link:hover{border-color:var(--blue);color:var(--blue);background:var(--blue2);}
-.vote-section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;}
-.vote-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
-.vote-title{font-size:13px;font-weight:700;}
-.vote-badge-closed{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(100,110,145,.15);color:var(--txt3);font-weight:600;}
-.vote-sub{font-size:11px;color:var(--txt3);margin-bottom:14px;}
-.vote-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
-.vote-btn{padding:10px 6px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;}
-.vote-btn:hover:not(:disabled){background:var(--bg4);}
-.vote-btn:disabled{cursor:default;opacity:.6;}
-.vote-btn .vico{font-size:17px;}
-.vote-btn.active-high{background:var(--green2);border-color:var(--green);color:var(--green);}
-.vote-btn.active-low{background:var(--red2);border-color:var(--red);color:var(--red);}
-.vote-btn.active-inline{background:rgba(100,110,145,.2);border-color:var(--border2);color:var(--txt);}
-.vr-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
-.vr-label{font-size:11px;font-weight:600;width:50px;flex-shrink:0;}
-.vr-label.high{color:var(--green);}
-.vr-label.low{color:var(--red);}
-.vr-label.inline{color:var(--txt2);}
-.vr-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;}
-.vr-fill{height:100%;border-radius:4px;transition:width .5s ease;}
-.vr-fill.high{background:var(--green);}
-.vr-fill.low{background:var(--red);}
-.vr-fill.inline{background:var(--border2);}
-.vr-pct{font-size:11px;font-weight:700;width:34px;text-align:right;flex-shrink:0;}
-.vr-pct.high{color:var(--green);}
-.vr-pct.low{color:var(--red);}
-.vr-pct.inline{color:var(--txt2);}
-.vr-total{font-size:10px;color:var(--txt3);text-align:right;margin-top:6px;}
-.community-result{margin-top:10px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;text-align:center;}
-.cr-right{background:var(--green2);color:var(--green);}
-.cr-wrong{background:var(--red2);color:var(--red);}
 .cat-fomc{color:var(--gold);}
 .cat-employment{color:var(--green);}
 .cat-inflation{color:var(--red);}
@@ -349,14 +318,6 @@ const LINKS={
   pending:'https://www.nar.realtor/research-and-statistics/housing-statistics/pending-home-sales',
 };
 
-/* ============================================================
-   VOTE SEED (deterministic random per event ID)
-============================================================ */
-function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return Math.abs(h);}
-function seededRng(seed){let x=seed;return()=>{x=(x*1664525+1013904223)&0xffffffff;return(x>>>0)/0xffffffff;};}
-function genVotes(){
-  return{high:0,inline:0,low:0};
-}
 
 /* ============================================================
    EVENT FACTORY
@@ -371,7 +332,6 @@ function makeEv(id,date,time,name,nameKo,cat,imp,linkKey,series,calc,ref){
     released,beat:released?'inline':null,
     link:LINKS[linkKey]||LINKS['fomc']||'#',
     desc:DESCS[name]||'–',
-    votes:genVotes(id,imp),
     _series:series,_calc:calc,_ref:ref
   };
 }
@@ -538,17 +498,6 @@ const CAT_LABELS={fomc:'FOMC',employment:'고용',inflation:'물가',growth:'성
 const MONTHS_KO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 const DAYS_KO=['일','월','화','수','목','금','토'];
 
-/* ============================================================
-   VOTE HELPERS
-============================================================ */
-function getUserVote(id){return localStorage.getItem('uv_'+id);}
-function getVoteCounts(ev){const s=localStorage.getItem('vc_'+ev.id);return s?JSON.parse(s):{...ev.votes};}
-function saveVote(ev,choice){
-  if(getUserVote(ev.id))return;
-  localStorage.setItem('uv_'+ev.id,choice);
-  const c=getVoteCounts(ev); c[choice]++;
-  localStorage.setItem('vc_'+ev.id,JSON.stringify(c));
-}
 
 /* ============================================================
    RENDER
@@ -624,13 +573,7 @@ function handleOverlayClick(e){if(e.target===document.getElementById('overlay'))
 function renderModal(ev){
   const catLabel=CAT_LABELS[ev.category]||ev.category;
   const catCls='cat-'+ev.category;
-  const uv=getUserVote(ev.id), vc=getVoteCounts(ev);
-  const total=vc.high+vc.inline+vc.low;
-  const pH=total>0?Math.round(vc.high/total*100):0;
-  const pI=total>0?Math.round(vc.inline/total*100):0;
-  const pL=total>0?Math.round(vc.low/total*100):0;
 
-  // Stats
   let statsHtml='';
   if(ev.released&&ev.actual){
     const ac=ev.beat==='beat'?'beat':ev.beat==='miss'?'miss':'neutral';
@@ -648,40 +591,6 @@ function renderModal(ev){
     statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
       <div class="stat-box"><div class="stat-box-label">발표 시간</div><div class="stat-box-val ${vc2}" style="font-size:15px">${ev.time||'–'} KST</div></div>
       <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
-    </div>`;
-  }
-
-  // Voting
-  const votingClosed=ev.released, canVote=!votingClosed&&!uv;
-  let communityHtml='';
-  if(votingClosed&&total>0){
-    const maj=pH>=pL&&pH>=pI?'high':pL>=pH&&pL>=pI?'low':'inline';
-    const correct=(maj==='high'&&ev.beat==='beat')||(maj==='low'&&ev.beat==='miss')||(maj==='inline'&&ev.beat==='inline');
-    communityHtml=`<div class="community-result ${correct?'cr-right':'cr-wrong'}">${correct?'✓ 커뮤니티 예측 성공!':'✗ 커뮤니티 예측 빗나감'}</div>`;
-  }
-
-  const noVote=ev.id.includes('fomc-day1')||ev.id.includes('fomc-pc')||ev.id.includes('beige');
-  let voteHtml='';
-  if(!noVote){
-    voteHtml=`<div class="vote-section">
-      <div class="vote-hdr"><div class="vote-title">📊 예측 투표</div>${votingClosed?'<span class="vote-badge-closed">투표 마감</span>':''}</div>
-      <div class="vote-sub">${votingClosed?'발표 전 커뮤니티 예측 결과입니다.':uv?'이미 투표하셨습니다.':'이전값 대비 이번 수치가 어떻게 나올지 예측해보세요!'}</div>
-      ${!votingClosed?`<div class="vote-btns">
-        <button class="vote-btn ${uv==='high'?'active-high':''}" onclick="castVote('high')" ${canVote?'':'disabled'}>
-          <span class="vico">🔼</span><span>높다</span><span style="font-size:9px;opacity:.7">이전값 상회</span>
-        </button>
-        <button class="vote-btn ${uv==='inline'?'active-inline':''}" onclick="castVote('inline')" ${canVote?'':'disabled'}>
-          <span class="vico">➡️</span><span>비슷</span><span style="font-size:9px;opacity:.7">이전값 유사</span>
-        </button>
-        <button class="vote-btn ${uv==='low'?'active-low':''}" onclick="castVote('low')" ${canVote?'':'disabled'}>
-          <span class="vico">🔽</span><span>낮다</span><span style="font-size:9px;opacity:.7">이전값 하회</span>
-        </button>
-      </div>`:''}
-      <div class="vr-row"><span class="vr-label high">높다</span><div class="vr-track"><div class="vr-fill high" style="width:${pH}%"></div></div><span class="vr-pct high">${pH}%</span></div>
-      <div class="vr-row"><span class="vr-label inline">비슷</span><div class="vr-track"><div class="vr-fill inline" style="width:${pI}%"></div></div><span class="vr-pct inline">${pI}%</span></div>
-      <div class="vr-row"><span class="vr-label low">낮다</span><div class="vr-track"><div class="vr-fill low" style="width:${pL}%"></div></div><span class="vr-pct low">${pL}%</span></div>
-      <div class="vr-total">총 ${total.toLocaleString()}표</div>
-      ${communityHtml}
     </div>`;
   }
 
@@ -705,13 +614,7 @@ function renderModal(ev){
         <span>🔗 상세 데이터 바로가기</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       </a>
-      ${voteHtml}
     </div>`;
-}
-
-function castVote(choice){
-  if(!activeEvent||activeEvent.released||getUserVote(activeEvent.id))return;
-  saveVote(activeEvent,choice); renderModal(activeEvent);
 }
 
 function showAllDay(ds){
