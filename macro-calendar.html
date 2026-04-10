@@ -143,7 +143,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
     <div class="hdr-logo">📊</div>
     <div class="hdr-title">
       <h1>US Macro Calendar</h1>
-      <p>미국 거시경제 지표 &amp; FOMC 달력 · FRED 실시간 연동</p>
+      <p>미국 거시경제 지표 &amp; FOMC 달력 · FRED 실시간 · 한국 시간(KST) 기준</p>
     </div>
   </div>
   <div class="hdr-right">
@@ -254,6 +254,28 @@ function nthBD(y,m,n){let d=new Date(y,m,1),c=0;while(true){if(d.getDay()!==0&&d
 function offM(y,m,o){let nm=m+o,ny=y;while(nm<0){nm+=12;ny--;}while(nm>11){nm-=12;ny++;}return{y:ny,m:nm};}
 
 /* ============================================================
+   KST (한국 표준시, UTC+9) 변환
+   EDT(UTC-4)→KST: +13h / EST(UTC-5)→KST: +14h
+   US DST: 3월 둘째 일요일 ~ 11월 첫째 일요일
+============================================================ */
+function isUSEDT(dateStr){
+  const d=new Date(dateStr+'T12:00:00'),y=d.getFullYear();
+  return d>=nthWD(y,2,0,2)&&d<nthWD(y,10,0,1);
+}
+function etToKST(dateStr,timeStr){
+  if(!timeStr||timeStr==='–')return{date:dateStr,time:'–'};
+  const [h,m]=timeStr.split(':').map(Number);
+  const off=isUSEDT(dateStr)?13:14;
+  const tot=h*60+m+off*60;
+  const kstH=Math.floor(tot/60)%24,kstM=tot%60;
+  const kstTime=`${String(kstH).padStart(2,'0')}:${String(kstM).padStart(2,'0')}`;
+  const dayOff=Math.floor(tot/(24*60));
+  let kstDate=dateStr;
+  if(dayOff>0){const nd=new Date(dateStr+'T12:00:00');nd.setDate(nd.getDate()+dayOff);kstDate=toDS(nd);}
+  return{date:kstDate,time:kstTime};
+}
+
+/* ============================================================
    DESCRIPTIONS & LINKS
 ============================================================ */
 const DESCS={
@@ -341,9 +363,10 @@ function genVotes(){
 ============================================================ */
 const TODAY=new Date();
 function makeEv(id,date,time,name,nameKo,cat,imp,linkKey,series,calc,ref){
-  const released=date&&new Date(date+'T23:59:59')<=TODAY;
+  const kst=etToKST(date,time);
+  const released=kst.date&&new Date(kst.date+'T23:59:59')<=TODAY;
   return{
-    id,date,time,name,nameKo,category:cat,importance:imp,
+    id,date:kst.date,time:kst.time,name,nameKo,category:cat,importance:imp,
     actual:null,previous:null,
     released,beat:released?'inline':null,
     link:LINKS[linkKey]||LINKS['fomc']||'#',
@@ -552,8 +575,8 @@ function renderCalendar(){
 
   // Update next FOMC display
   const now=new Date();
-  const next=FOMC_SCHEDULE.find(f=>new Date(f.dec+'T15:00:00')>=now);
-  if(next)document.getElementById('nextFomcDisplay').textContent=next.dec.slice(5).replace('-','.');
+  const next=FOMC_SCHEDULE.find(f=>{const k=etToKST(f.dec,'14:00');return new Date(k.date+'T'+k.time+':00')>=now;});
+  if(next){const k=etToKST(next.dec,'14:00');document.getElementById('nextFomcDisplay').textContent=k.date.slice(5).replace('-','.');}
 }
 
 function eventsForDate(d){
@@ -618,7 +641,7 @@ function renderModal(ev){
   }else{
     const vc2=ev.category==='fomc'?'fomc-val':'upcoming';
     statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
-      <div class="stat-box"><div class="stat-box-label">발표 시간</div><div class="stat-box-val ${vc2}" style="font-size:15px">${ev.time||'–'} ET</div></div>
+      <div class="stat-box"><div class="stat-box-label">발표 시간</div><div class="stat-box-val ${vc2}" style="font-size:15px">${ev.time||'–'} KST</div></div>
       <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
     </div>`;
   }
@@ -658,7 +681,7 @@ function renderModal(ev){
   }
 
   const dateObj=new Date(ev.date+'T12:00:00');
-  const dateLabel=`${dateObj.getFullYear()}년 ${MONTHS_KO[dateObj.getMonth()]} ${dateObj.getDate()}일${ev.time&&ev.time!=='–'?' · '+ev.time+' ET':''}`;
+  const dateLabel=`${dateObj.getFullYear()}년 ${MONTHS_KO[dateObj.getMonth()]} ${dateObj.getDate()}일${ev.time&&ev.time!=='–'?' · '+ev.time+' KST':''}`;
   const impLabel=ev.importance==='high'?'🔴 중요도 높음':ev.importance==='medium'?'🟡 중요도 중간':'🔵 중요도 낮음';
 
   document.getElementById('modal').innerHTML=`
@@ -703,7 +726,7 @@ function showAllDay(ds){
         onclick="openModal('${ev.id}')" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg2)'">
         <div class="imp ${ev.importance}" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
         <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${ev.name}</div>
-        <div style="font-size:11px;color:var(--txt3);">${ev.nameKo} · ${ev.time||'–'} ET</div></div>
+        <div style="font-size:11px;color:var(--txt3);">${ev.nameKo} · ${ev.time||'–'} KST</div></div>
         <div style="font-size:12px;font-weight:700;${ev.released&&ev.actual?(ev.beat==='beat'?'color:var(--green)':ev.beat==='miss'?'color:var(--red)':'color:var(--txt2)'):'color:var(--blue)'}">
           ${ev.released&&ev.actual?ev.actual:'예정'}
         </div>›</div>`).join('')}
