@@ -6,82 +6,54 @@
 <title>US Macro Calendar | 미국 거시경제 달력</title>
 <style>
 :root {
-  --bg: #0c0f1a;
-  --bg2: #141828;
-  --bg3: #1c2238;
-  --bg4: #242a42;
-  --border: #2a3050;
-  --border2: #353d5e;
-  --txt: #e4e8f5;
-  --txt2: #8a94b8;
-  --txt3: #555f80;
-  --blue: #4f8ef7;
-  --blue2: rgba(79,142,247,0.12);
-  --green: #00d09c;
-  --green2: rgba(0,208,156,0.12);
-  --red: #ff4d5e;
-  --red2: rgba(255,77,94,0.12);
-  --gold: #f5a623;
-  --gold2: rgba(245,166,35,0.12);
-  --purple: #a78bfa;
-  --purple2: rgba(167,139,250,0.12);
+  --bg:#0c0f1a;--bg2:#141828;--bg3:#1c2238;--bg4:#242a42;
+  --border:#2a3050;--border2:#353d5e;
+  --txt:#e4e8f5;--txt2:#8a94b8;--txt3:#555f80;
+  --blue:#4f8ef7;--blue2:rgba(79,142,247,.12);
+  --green:#00d09c;--green2:rgba(0,208,156,.12);
+  --red:#ff4d5e;--red2:rgba(255,77,94,.12);
+  --gold:#f5a623;--gold2:rgba(245,166,35,.12);
+  --purple:#a78bfa;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
-
-/* HEADER */
 .site-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
 .hdr-left{display:flex;align-items:center;gap:12px;}
 .hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#4f8ef7,#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
-.hdr-title h1{font-size:17px;font-weight:700;letter-spacing:-0.2px;}
+.hdr-title h1{font-size:17px;font-weight:700;}
 .hdr-title p{font-size:11px;color:var(--txt3);margin-top:1px;}
-.hdr-right{display:flex;gap:24px;align-items:center;}
+.hdr-right{display:flex;gap:24px;}
 .hdr-stat{text-align:right;}
-.hdr-stat-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:0.5px;display:block;}
-.hdr-stat-val{font-size:15px;font-weight:700;color:var(--txt);}
+.hdr-stat-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;display:block;}
+.hdr-stat-val{font-size:15px;font-weight:700;}
 .hdr-stat-val.rate{color:var(--gold);}
-.hdr-next{font-size:12px;color:var(--txt2);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
-
-/* CONTAINER */
 .container{max-width:1360px;margin:0 auto;padding:24px 20px;}
-
-/* CALENDAR HEADER */
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
 .cal-nav{display:flex;align-items:center;gap:12px;}
-.nav-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.15s;}
+.nav-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;}
 .nav-btn:hover{background:var(--bg4);color:var(--txt);}
 .cal-title{font-size:22px;font-weight:700;min-width:160px;text-align:center;}
-.today-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:12px;font-weight:500;transition:all 0.15s;}
+.today-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;}
 .today-btn:hover{background:var(--blue);border-color:var(--blue);color:#fff;}
 .cal-filters{display:flex;gap:6px;flex-wrap:wrap;}
-.filter-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--txt3);cursor:pointer;font-size:11px;font-weight:500;transition:all 0.15s;white-space:nowrap;}
+.filter-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--txt3);cursor:pointer;font-size:11px;font-weight:500;transition:all .15s;white-space:nowrap;}
 .filter-btn:hover{color:var(--txt2);border-color:var(--border2);}
 .filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
-.filter-btn.active.fomc{background:var(--gold);border-color:var(--gold);}
-.filter-btn.active.employment{background:var(--green);border-color:var(--green);color:#0a2a1f;}
-.filter-btn.active.inflation{background:var(--red);border-color:var(--red);}
-
-/* LEGEND */
-.legend{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+.legend{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt3);}
 .leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-
-/* CALENDAR GRID */
 .cal-grid{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
 .day-headers{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg3);border-bottom:1px solid var(--border);}
-.day-hdr{padding:10px 8px;text-align:center;font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:0.4px;}
-.day-hdr.sun,.day-hdr.sat{color:var(--txt3);opacity:0.7;}
+.day-hdr{padding:10px 8px;text-align:center;font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;}
 .cal-body{display:grid;grid-template-columns:repeat(7,1fr);}
-.day-cell{min-height:108px;padding:7px 6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;vertical-align:top;}
+.day-cell{min-height:108px;padding:7px 6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);vertical-align:top;}
 .day-cell:nth-child(7n){border-right:none;}
-.day-cell.other-month{opacity:0.28;pointer-events:none;}
-.day-cell.today{background:rgba(79,142,247,0.04);}
+.day-cell.other-month{opacity:.25;pointer-events:none;}
+.day-cell.today{background:rgba(79,142,247,.04);}
 .day-cell.weekend .day-num{color:var(--txt3);}
 .day-num{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:5px;display:flex;align-items:center;gap:4px;}
 .today-circle{width:19px;height:19px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
-
-/* EVENT CHIPS */
-.event-chip{display:flex;align-items:center;gap:3px;padding:3px 6px;border-radius:4px;margin-bottom:2px;cursor:pointer;transition:all 0.15s;font-size:10.5px;font-weight:500;line-height:1.3;border:1px solid transparent;max-width:100%;overflow:hidden;}
+.event-chip{display:flex;align-items:center;gap:3px;padding:3px 6px;border-radius:4px;margin-bottom:2px;cursor:pointer;transition:all .15s;font-size:10.5px;font-weight:500;line-height:1.3;border:1px solid transparent;max-width:100%;overflow:hidden;}
 .event-chip:hover{transform:translateX(2px);filter:brightness(1.15);}
 .event-chip .imp{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .imp.high{background:var(--red);}
@@ -89,75 +61,59 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .imp.low{background:var(--blue);}
 .chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
 .chip-val{font-weight:700;white-space:nowrap;flex-shrink:0;font-size:10px;}
-
-/* chip color variants */
-.chip-beat{background:var(--green2);border-color:rgba(0,208,156,0.25);color:var(--green);}
-.chip-miss{background:var(--red2);border-color:rgba(255,77,94,0.25);color:var(--red);}
-.chip-inline{background:rgba(100,110,145,0.15);border-color:rgba(100,110,145,0.25);color:var(--txt2);}
-.chip-upcoming{background:var(--blue2);border-color:rgba(79,142,247,0.25);color:var(--blue);}
-.chip-fomc{background:var(--gold2);border-color:rgba(245,166,35,0.3);color:var(--gold);}
-
+.chip-beat{background:var(--green2);border-color:rgba(0,208,156,.25);color:var(--green);}
+.chip-miss{background:var(--red2);border-color:rgba(255,77,94,.25);color:var(--red);}
+.chip-inline{background:rgba(100,110,145,.15);border-color:rgba(100,110,145,.25);color:var(--txt2);}
+.chip-upcoming{background:var(--blue2);border-color:rgba(79,142,247,.25);color:var(--blue);}
+.chip-fomc{background:var(--gold2);border-color:rgba(245,166,35,.3);color:var(--gold);}
 .more-chip{font-size:10px;color:var(--txt3);cursor:pointer;padding:1px 3px;border-radius:3px;margin-top:1px;display:inline-block;}
 .more-chip:hover{color:var(--txt2);background:var(--bg4);}
-
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(3px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s;}
 .overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--bg3);border:1px solid var(--border);border-radius:16px;width:100%;max-width:540px;max-height:88vh;overflow-y:auto;transform:translateY(16px) scale(0.98);transition:transform 0.2s;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.modal{background:var(--bg3);border:1px solid var(--border);border-radius:16px;width:100%;max-width:540px;max-height:88vh;overflow-y:auto;transform:translateY(16px) scale(.98);transition:transform .2s;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .overlay.open .modal{transform:translateY(0) scale(1);}
 .modal::-webkit-scrollbar{width:4px;}
 .modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-
 .modal-hdr{padding:20px 22px 14px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:flex-start;}
 .modal-hdr-left{flex:1;}
-.modal-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+.modal-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
 .modal-name{font-size:19px;font-weight:700;line-height:1.2;margin-bottom:4px;}
 .modal-name-ko{font-size:12px;color:var(--txt2);}
-.modal-close{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:background 0.15s;}
+.modal-close{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:background .15s;}
 .modal-close:hover{background:var(--bg4);}
 .modal-body{padding:18px 22px;}
-
-.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.stats-row{display:grid;gap:10px;margin-bottom:16px;}
 .stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
-.stat-box-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;}
+.stat-box-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
 .stat-box-val{font-size:19px;font-weight:700;}
 .stat-box-val.beat{color:var(--green);}
 .stat-box-val.miss{color:var(--red);}
 .stat-box-val.neutral{color:var(--txt);}
 .stat-box-val.upcoming{color:var(--blue);}
 .stat-box-val.fomc-val{color:var(--gold);}
-.result-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-top:5px;letter-spacing:0.3px;}
-.rb-beat{background:var(--green2);color:var(--green);}
-.rb-miss{background:var(--red2);color:var(--red);}
-.rb-inline{background:rgba(100,110,145,0.15);color:var(--txt2);}
-
 .modal-desc{background:var(--bg2);border-radius:10px;padding:13px 15px;margin-bottom:16px;font-size:12px;color:var(--txt2);line-height:1.65;}
-.modal-link{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:var(--txt2);text-decoration:none;font-size:12px;font-weight:500;margin-bottom:18px;transition:all 0.15s;}
+.modal-link{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:var(--txt2);text-decoration:none;font-size:12px;font-weight:500;margin-bottom:18px;transition:all .15s;}
 .modal-link:hover{border-color:var(--blue);color:var(--blue);background:var(--blue2);}
-.modal-link svg{flex-shrink:0;}
-
-/* VOTING */
 .vote-section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;}
 .vote-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
 .vote-title{font-size:13px;font-weight:700;}
-.vote-badge-closed{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(100,110,145,0.15);color:var(--txt3);font-weight:600;}
+.vote-badge-closed{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(100,110,145,.15);color:var(--txt3);font-weight:600;}
 .vote-sub{font-size:11px;color:var(--txt3);margin-bottom:14px;}
 .vote-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
-.vote-btn{padding:10px 6px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.15s;}
+.vote-btn{padding:10px 6px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;}
 .vote-btn:hover:not(:disabled){background:var(--bg4);}
-.vote-btn:disabled{cursor:default;opacity:0.6;}
+.vote-btn:disabled{cursor:default;opacity:.6;}
 .vote-btn .vico{font-size:17px;}
 .vote-btn.active-high{background:var(--green2);border-color:var(--green);color:var(--green);}
 .vote-btn.active-low{background:var(--red2);border-color:var(--red);color:var(--red);}
-.vote-btn.active-inline{background:rgba(100,110,145,0.2);border-color:var(--border2);color:var(--txt);}
-.vote-results{}
+.vote-btn.active-inline{background:rgba(100,110,145,.2);border-color:var(--border2);color:var(--txt);}
 .vr-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
 .vr-label{font-size:11px;font-weight:600;width:50px;flex-shrink:0;}
 .vr-label.high{color:var(--green);}
 .vr-label.low{color:var(--red);}
 .vr-label.inline{color:var(--txt2);}
 .vr-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;}
-.vr-fill{height:100%;border-radius:4px;transition:width 0.5s ease;}
+.vr-fill{height:100%;border-radius:4px;transition:width .5s ease;}
 .vr-fill.high{background:var(--green);}
 .vr-fill.low{background:var(--red);}
 .vr-fill.inline{background:var(--border2);}
@@ -169,8 +125,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .community-result{margin-top:10px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;text-align:center;}
 .cr-right{background:var(--green2);color:var(--green);}
 .cr-wrong{background:var(--red2);color:var(--red);}
-
-/* CATEGORY COLORS */
 .cat-fomc{color:var(--gold);}
 .cat-employment{color:var(--green);}
 .cat-inflation{color:var(--red);}
@@ -179,46 +133,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cat-consumer{color:#f472b6;}
 .cat-manufacturing{color:#38bdf8;}
 .cat-trade{color:#34d399;}
-
-/* SCROLLBAR */
 html{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-
-@media(max-width:768px){
-  .container{padding:12px;}
-  .day-cell{min-height:72px;padding:4px 3px;}
-  .event-chip{font-size:9.5px;padding:2px 4px;}
-  .hdr-right{display:none;}
-  .cal-filters{display:none;}
-  .cal-title{font-size:18px;}
-}
+@media(max-width:768px){.container{padding:12px;}.day-cell{min-height:72px;padding:4px 3px;}.event-chip{font-size:9.5px;padding:2px 4px;}.hdr-right{display:none;}.cal-filters{display:none;}.cal-title{font-size:18px;}}
 </style>
 </head>
 <body>
-
 <header class="site-header">
   <div class="hdr-left">
     <div class="hdr-logo">📊</div>
     <div class="hdr-title">
       <h1>US Macro Calendar</h1>
-      <p>미국 거시경제 지표 &amp; FOMC 달력</p>
+      <p>미국 거시경제 지표 &amp; FOMC 달력 · FRED 실시간 연동</p>
     </div>
   </div>
   <div class="hdr-right">
     <div class="hdr-stat">
       <span class="hdr-stat-label">연방기금금리</span>
-      <span class="hdr-stat-val rate">4.25 – 4.50%</span>
-    </div>
-    <div class="hdr-stat">
-      <span class="hdr-stat-label">10Y Treasury</span>
-      <span class="hdr-stat-val">4.38%</span>
+      <span class="hdr-stat-val rate" id="ffrDisplay">–</span>
     </div>
     <div class="hdr-stat">
       <span class="hdr-stat-label">다음 FOMC</span>
-      <span class="hdr-stat-val">2026.05.01</span>
+      <span class="hdr-stat-val" id="nextFomcDisplay">–</span>
     </div>
   </div>
 </header>
-
 <main class="container">
   <div class="cal-header">
     <div class="cal-nav">
@@ -229,7 +167,6 @@ html{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
     </div>
     <div class="cal-filters" id="filterBar"></div>
   </div>
-
   <div class="legend">
     <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>이전값 상회</div>
     <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>이전값 하회</div>
@@ -240,578 +177,499 @@ html{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
     <div class="leg-item"><div class="imp medium" style="display:inline-block;width:8px;height:8px;border-radius:50%"></div>중요도 중간</div>
     <div class="leg-item" style="margin-left:auto;"><span id="fredStatus" style="font-size:11px;color:var(--txt3);"></span></div>
   </div>
-
   <div class="cal-grid">
     <div class="day-headers" id="dayHeaders"></div>
     <div class="cal-body" id="calBody"></div>
   </div>
 </main>
-
-<!-- Modal -->
 <div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
   <div class="modal" id="modal"></div>
 </div>
-
 <script>
-/* ===== DATA ===== */
-const EVENTS = [
-/* ---- APRIL 2026 RELEASED ---- */
-{id:'adp-apr26',date:'2026-04-01',time:'08:15',name:'ADP Nonfarm Employment',nameKo:'ADP 비농업 고용',category:'employment',importance:'medium',
- expected:'120K',actual:'102K',previous:'140K',released:true,beat:'miss',
- link:'https://adpemploymentreport.com/',
- desc:'ADP 민간 부문 고용 변화를 측정합니다. 공식 NFP 발표 이틀 전에 선행 지표로 발표됩니다.',
- votes:{high:312,inline:198,low:487}},
+/* ============================================================
+   CONFIG
+============================================================ */
+const FRED_KEY = 'eabdbbc9f6d3d4300c5ad940b27a1a16';
 
-{id:'ism-mfg-apr26',date:'2026-04-01',time:'10:00',name:'ISM Manufacturing PMI',nameKo:'ISM 제조업 PMI',category:'manufacturing',importance:'high',
- expected:'49.5',actual:'49.8',previous:'50.3',released:true,beat:'beat',
- link:'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/manufacturing/',
- desc:'ISM 제조업 구매관리자지수. 50 이상이면 경기 확장, 미만이면 수축을 나타냅니다.',
- votes:{high:621,inline:245,low:310}},
-
-{id:'jolts-apr26',date:'2026-04-02',time:'10:00',name:'JOLTS Job Openings',nameKo:'JOLTS 구인건수',category:'employment',importance:'high',
- expected:'7.60M',actual:'7.89M',previous:'7.74M',released:true,beat:'beat',
- link:'https://www.bls.gov/jlt/',
- desc:'미국 노동통계국이 발표하는 구인·이직 현황 보고서. 노동시장의 수요를 보여주는 핵심 지표입니다.',
- votes:{high:1243,inline:421,low:334}},
-
-{id:'factory-orders-apr26',date:'2026-04-02',time:'10:00',name:'Factory Orders MoM',nameKo:'공장주문 (전월 대비)',category:'manufacturing',importance:'medium',
- expected:'0.4%',actual:'0.7%',previous:'-0.3%',released:true,beat:'beat',
- link:'https://www.census.gov/manufacturing/m3/index.html',
- desc:'미국 제조업체가 받은 신규 주문 변화를 측정합니다.',
- votes:{high:398,inline:215,low:187}},
-
-{id:'nfp-apr26',date:'2026-04-03',time:'08:30',name:'Nonfarm Payrolls',nameKo:'비농업 고용자수',category:'employment',importance:'high',
- expected:'150K',actual:'228K',previous:'151K',released:true,beat:'beat',
- link:'https://www.bls.gov/news.release/empsit.nr0.htm',
- desc:'전국 비농업 부문 신규 고용자 수. 연방준비제도가 통화정책 결정 시 가장 중시하는 지표 중 하나입니다.',
- votes:{high:1876,inline:543,low:621}},
-
-{id:'unemp-apr26',date:'2026-04-03',time:'08:30',name:'Unemployment Rate',nameKo:'실업률',category:'employment',importance:'high',
- expected:'4.2%',actual:'4.1%',previous:'4.1%',released:true,beat:'beat',
- link:'https://www.bls.gov/news.release/empsit.nr0.htm',
- desc:'경제활동인구 중 실업자 비율. 노동시장 건전성의 핵심 지표입니다.',
- votes:{high:1102,inline:876,low:445}},
-
-{id:'ahe-apr26',date:'2026-04-03',time:'08:30',name:'Avg Hourly Earnings MoM',nameKo:'평균 시간당 임금 (전월 대비)',category:'employment',importance:'high',
- expected:'0.3%',actual:'0.3%',previous:'0.3%',released:true,beat:'inline',
- link:'https://www.bls.gov/news.release/empsit.nr0.htm',
- desc:'전월 대비 평균 시간당 임금 변화율. 인플레이션 압력 및 소비자 구매력의 선행 지표입니다.',
- votes:{high:654,inline:1203,low:487}},
-
-{id:'trade-bal-apr26',date:'2026-04-03',time:'08:30',name:'Trade Balance',nameKo:'무역수지',category:'trade',importance:'medium',
- expected:'-$93.0B',actual:'-$71.8B',previous:'-$131.4B',released:true,beat:'beat',
- link:'https://www.census.gov/foreign-trade/Press-Release/current_press_release/index.html',
- desc:'상품·서비스 수출입 차이. 적자 축소는 달러 강세 요인이 될 수 있습니다.',
- votes:{high:432,inline:287,low:198}},
-
-{id:'ism-svc-apr26',date:'2026-04-07',time:'10:00',name:'ISM Services PMI',nameKo:'ISM 서비스 PMI',category:'manufacturing',importance:'high',
- expected:'52.5',actual:'50.8',previous:'53.5',released:true,beat:'miss',
- link:'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/services/',
- desc:'서비스업 구매관리자지수. 미국 경제의 약 75%를 차지하는 서비스 부문의 경기 상황을 반영합니다.',
- votes:{high:543,inline:321,low:876}},
-
-{id:'cons-credit-apr26',date:'2026-04-08',time:'15:00',name:'Consumer Credit MoM',nameKo:'소비자 신용 (전월 대비)',category:'consumer',importance:'medium',
- expected:'$15.0B',actual:'$0.8B',previous:'$8.9B',released:true,beat:'miss',
- link:'https://www.federalreserve.gov/releases/g19/',
- desc:'소비자 부채 변화. 신용카드 및 자동차 할부 등 회전·비회전 신용을 포함합니다.',
- votes:{high:267,inline:312,low:398}},
-
-{id:'claims-0409',date:'2026-04-09',time:'08:30',name:'Initial Jobless Claims',nameKo:'신규 실업수당 청구건수',category:'employment',importance:'medium',
- expected:'222K',actual:'223K',previous:'219K',released:true,beat:'inline',
- link:'https://www.dol.gov/ui/data.pdf',
- desc:'주간 신규 실업급여 신청 건수. 매주 목요일 발표되는 노동시장의 실시간 지표입니다.',
- votes:{high:312,inline:876,low:245}},
-
-/* ---- APRIL 2026 UPCOMING ---- */
-{id:'cpi-apr26',date:'2026-04-10',time:'08:30',name:'CPI YoY',nameKo:'소비자물가지수 (전년 대비)',category:'inflation',importance:'high',
- expected:'2.4%',actual:null,previous:'2.8%',released:false,beat:null,
- link:'https://www.bls.gov/cpi/',
- desc:'소비자물가지수(CPI)는 소비자가 구입하는 재화·서비스의 평균 가격 변화를 측정합니다. 연준의 통화정책 결정에 가장 큰 영향을 미치는 지표입니다.',
- votes:{high:1234,inline:876,low:2341}},
-
-{id:'cpi-mom-apr26',date:'2026-04-10',time:'08:30',name:'CPI MoM',nameKo:'소비자물가지수 (전월 대비)',category:'inflation',importance:'high',
- expected:'0.1%',actual:null,previous:'0.2%',released:false,beat:null,
- link:'https://www.bls.gov/cpi/',
- desc:'전월 대비 소비자물가지수 변화율입니다.',
- votes:{high:987,inline:1102,low:1876}},
-
-{id:'core-cpi-apr26',date:'2026-04-10',time:'08:30',name:'Core CPI MoM',nameKo:'근원 CPI (전월 대비)',category:'inflation',importance:'high',
- expected:'0.3%',actual:null,previous:'0.4%',released:false,beat:null,
- link:'https://www.bls.gov/cpi/',
- desc:'식품·에너지를 제외한 근원 CPI. 기저적 인플레이션 트렌드를 파악하는 데 활용됩니다.',
- votes:{high:876,inline:1245,low:1987}},
-
-{id:'mich-prelim-apr26',date:'2026-04-11',time:'10:00',name:'Michigan Consumer Sentiment (Prelim)',nameKo:'미시간 소비자심리지수 (예비)',category:'consumer',importance:'medium',
- expected:'75.5',actual:null,previous:'74.0',released:false,beat:null,
- link:'https://lsa.umich.edu/ses/research/consumer-research.html',
- desc:'미시간대학교가 발표하는 소비자 신뢰도 및 소비 의향 측정 지수입니다.',
- votes:{high:432,inline:567,low:398}},
-
-{id:'ppi-apr26',date:'2026-04-14',time:'08:30',name:'PPI MoM',nameKo:'생산자물가지수 (전월 대비)',category:'inflation',importance:'high',
- expected:'0.2%',actual:null,previous:'0.1%',released:false,beat:null,
- link:'https://www.bls.gov/ppi/',
- desc:'생산자물가지수는 생산자가 받는 재화·서비스 가격의 변화를 측정합니다. CPI의 선행 지표로 활용됩니다.',
- votes:{high:654,inline:876,low:1102}},
-
-{id:'core-ppi-apr26',date:'2026-04-14',time:'08:30',name:'Core PPI MoM',nameKo:'근원 PPI (전월 대비)',category:'inflation',importance:'medium',
- expected:'0.3%',actual:null,previous:'0.3%',released:false,beat:null,
- link:'https://www.bls.gov/ppi/',
- desc:'식품·에너지를 제외한 근원 생산자물가지수입니다.',
- votes:{high:432,inline:654,low:765}},
-
-{id:'empire-apr26',date:'2026-04-14',time:'08:30',name:'NY Empire State Mfg',nameKo:'뉴욕 엠파이어스테이트 제조업',category:'manufacturing',importance:'medium',
- expected:'7.0',actual:null,previous:'5.7',released:false,beat:null,
- link:'https://www.newyorkfed.org/survey/empire/empiresurvey_overview',
- desc:'뉴욕 연방준비은행이 발표하는 뉴욕주 제조업 경기 지수입니다.',
- votes:{high:312,inline:432,low:287}},
-
-{id:'retail-sales-apr26',date:'2026-04-15',time:'08:30',name:'Retail Sales MoM',nameKo:'소매판매 (전월 대비)',category:'consumer',importance:'high',
- expected:'0.4%',actual:null,previous:'-0.9%',released:false,beat:null,
- link:'https://www.census.gov/retail/index.html',
- desc:'소매업체의 상품 및 서비스 판매액 변화. 소비자 지출의 약 40%를 차지하며 GDP의 선행 지표입니다.',
- votes:{high:1543,inline:876,low:1102}},
-
-{id:'core-retail-apr26',date:'2026-04-15',time:'08:30',name:'Core Retail Sales MoM',nameKo:'근원 소매판매 (전월 대비)',category:'consumer',importance:'medium',
- expected:'0.3%',actual:null,previous:'-0.5%',released:false,beat:null,
- link:'https://www.census.gov/retail/index.html',
- desc:'자동차·주유소를 제외한 근원 소매판매입니다.',
- votes:{high:876,inline:654,low:765}},
-
-{id:'indprod-apr26',date:'2026-04-15',time:'09:15',name:'Industrial Production MoM',nameKo:'산업생산 (전월 대비)',category:'manufacturing',importance:'medium',
- expected:'0.1%',actual:null,previous:'-0.1%',released:false,beat:null,
- link:'https://www.federalreserve.gov/releases/g17/',
- desc:'광업·제조업·전기·가스 부문의 생산량 변화를 측정합니다.',
- votes:{high:432,inline:543,low:398}},
-
-{id:'housing-starts-apr26',date:'2026-04-16',time:'08:30',name:'Housing Starts',nameKo:'주택착공',category:'housing',importance:'medium',
- expected:'1.42M',actual:null,previous:'1.50M',released:false,beat:null,
- link:'https://www.census.gov/construction/nrc/index.html',
- desc:'신규 민간 주택 착공 건수. 건설 경기 및 향후 공급 상황을 보여주는 지표입니다.',
- votes:{high:543,inline:432,low:487}},
-
-{id:'bldg-permits-apr26',date:'2026-04-16',time:'08:30',name:'Building Permits',nameKo:'건축허가',category:'housing',importance:'medium',
- expected:'1.44M',actual:null,previous:'1.46M',released:false,beat:null,
- link:'https://www.census.gov/construction/nrc/index.html',
- desc:'신규 민간 주택 건축허가 건수. 주택 착공의 선행 지표입니다.',
- votes:{high:398,inline:432,low:312}},
-
-{id:'claims-0416',date:'2026-04-16',time:'08:30',name:'Initial Jobless Claims',nameKo:'신규 실업수당 청구건수',category:'employment',importance:'medium',
- expected:'220K',actual:null,previous:'223K',released:false,beat:null,
- link:'https://www.dol.gov/ui/data.pdf',
- desc:'주간 신규 실업급여 신청 건수입니다.',
- votes:{high:312,inline:1102,low:398}},
-
-{id:'beige-book-apr26',date:'2026-04-16',time:'14:00',name:'Fed Beige Book',nameKo:'연준 베이지북',category:'fomc',importance:'medium',
- expected:'경기 완만한 확장세',actual:null,previous:'–',released:false,beat:null,
- link:'https://www.federalreserve.gov/monetarypolicy/beige-book-default.htm',
- desc:'연방준비제도가 12개 지역연준으로부터 수집한 경제 현황 보고서. FOMC 회의 약 2주 전에 발표됩니다.',
- votes:{high:234,inline:543,low:312}},
-
-{id:'philly-fed-apr26',date:'2026-04-17',time:'08:30',name:'Philadelphia Fed Mfg',nameKo:'필라델피아 연준 제조업',category:'manufacturing',importance:'medium',
- expected:'5.0',actual:null,previous:'12.5',released:false,beat:null,
- link:'https://www.philadelphiafed.org/surveys-and-data/regional-economic-analysis/manufacturing-business-outlook-survey',
- desc:'필라델피아 연방준비은행이 발표하는 중부대서양 지역 제조업 경기 지수입니다.',
- votes:{high:287,inline:398,low:312}},
-
-{id:'exist-homes-apr26',date:'2026-04-17',time:'10:00',name:'Existing Home Sales',nameKo:'기존주택판매',category:'housing',importance:'medium',
- expected:'4.15M',actual:null,previous:'4.26M',released:false,beat:null,
- link:'https://www.nar.realtor/research-and-statistics/housing-statistics/existing-home-sales',
- desc:'기존 주택(신규 분양 제외) 판매 건수. 주택시장 수요를 보여주는 핵심 지표입니다.',
- votes:{high:432,inline:398,low:312}},
-
-{id:'claims-0423',date:'2026-04-23',time:'08:30',name:'Initial Jobless Claims',nameKo:'신규 실업수당 청구건수',category:'employment',importance:'medium',
- expected:'220K',actual:null,previous:'220K',released:false,beat:null,
- link:'https://www.dol.gov/ui/data.pdf',
- desc:'주간 신규 실업급여 신청 건수입니다.',
- votes:{high:298,inline:987,low:345}},
-
-{id:'new-homes-apr26',date:'2026-04-23',time:'10:00',name:'New Home Sales',nameKo:'신규주택판매',category:'housing',importance:'medium',
- expected:'675K',actual:null,previous:'662K',released:false,beat:null,
- link:'https://www.census.gov/construction/nrs/index.html',
- desc:'신규 주택 판매 건수. 선행 지표로서 주택시장 동향을 파악하는 데 활용됩니다.',
- votes:{high:398,inline:354,low:287}},
-
-{id:'durable-goods-apr26',date:'2026-04-24',time:'08:30',name:'Durable Goods Orders MoM',nameKo:'내구재 주문 (전월 대비)',category:'manufacturing',importance:'medium',
- expected:'0.3%',actual:null,previous:'0.9%',released:false,beat:null,
- link:'https://www.census.gov/manufacturing/m3/index.html',
- desc:'3년 이상 사용하는 내구재 신규 주문 변화율. 기업 투자 동향의 선행 지표입니다.',
- votes:{high:432,inline:543,low:398}},
-
-{id:'claims-0424',date:'2026-04-24',time:'08:30',name:'Initial Jobless Claims',nameKo:'신규 실업수당 청구건수',category:'employment',importance:'medium',
- expected:'218K',actual:null,previous:'220K',released:false,beat:null,
- link:'https://www.dol.gov/ui/data.pdf',
- desc:'주간 신규 실업급여 신청 건수입니다.',
- votes:{high:287,inline:1023,low:312}},
-
-{id:'pce-yoy-apr26',date:'2026-04-25',time:'08:30',name:'PCE Price Index YoY',nameKo:'PCE 물가지수 (전년 대비)',category:'inflation',importance:'high',
- expected:'2.3%',actual:null,previous:'2.5%',released:false,beat:null,
- link:'https://www.bea.gov/data/personal-consumption-expenditures-price-index',
- desc:'연준이 공식 목표로 삼는 물가지표. 목표치 2%에 근접할수록 금리 인하 가능성이 높아집니다.',
- votes:{high:654,inline:876,low:2143}},
-
-{id:'core-pce-apr26',date:'2026-04-25',time:'08:30',name:'Core PCE Price Index YoY',nameKo:'근원 PCE 물가지수 (전년 대비)',category:'inflation',importance:'high',
- expected:'2.6%',actual:null,previous:'2.8%',released:false,beat:null,
- link:'https://www.bea.gov/data/personal-consumption-expenditures-price-index',
- desc:'식품·에너지를 제외한 근원 PCE. 연준의 인플레이션 목표 달성 여부를 판단하는 핵심 지표입니다.',
- votes:{high:543,inline:765,low:1987}},
-
-{id:'pers-income-apr26',date:'2026-04-25',time:'08:30',name:'Personal Income MoM',nameKo:'개인소득 (전월 대비)',category:'consumer',importance:'medium',
- expected:'0.4%',actual:null,previous:'0.8%',released:false,beat:null,
- link:'https://www.bea.gov/data/income-saving/personal-income',
- desc:'임금·사업소득·이전수입 등을 포함한 개인소득 변화율입니다.',
- votes:{high:432,inline:543,low:398}},
-
-{id:'pers-spend-apr26',date:'2026-04-25',time:'08:30',name:'Personal Spending MoM',nameKo:'개인소비 (전월 대비)',category:'consumer',importance:'high',
- expected:'0.5%',actual:null,previous:'0.4%',released:false,beat:null,
- link:'https://www.bea.gov/data/consumer-spending/main',
- desc:'가계의 재화·서비스 지출 변화율. GDP의 약 70%를 차지하는 소비 동향의 핵심 지표입니다.',
- votes:{high:876,inline:654,low:765}},
-
-{id:'mich-final-apr26',date:'2026-04-25',time:'10:00',name:'Michigan Consumer Sentiment (Final)',nameKo:'미시간 소비자심리지수 (확정)',category:'consumer',importance:'medium',
- expected:'75.5',actual:null,previous:'74.0',released:false,beat:null,
- link:'https://lsa.umich.edu/ses/research/consumer-research.html',
- desc:'미시간대학교 소비자심리지수 확정치입니다.',
- votes:{high:312,inline:487,low:287}},
-
-{id:'pending-homes-apr26',date:'2026-04-28',time:'10:00',name:'Pending Home Sales MoM',nameKo:'주택판매보류 (전월 대비)',category:'housing',importance:'low',
- expected:'0.8%',actual:null,previous:'-4.6%',released:false,beat:null,
- link:'https://www.nar.realtor/research-and-statistics/housing-statistics/pending-home-sales',
- desc:'기존 주택 매매 계약 체결 건수. 기존 주택 판매의 선행 지표입니다.',
- votes:{high:287,inline:312,low:198}},
-
-{id:'cs-hpi-apr26',date:'2026-04-29',time:'09:00',name:'S&P/CS Home Price Index MoM',nameKo:'케이스-쉴러 주택가격지수',category:'housing',importance:'low',
- expected:'0.3%',actual:null,previous:'0.4%',released:false,beat:null,
- link:'https://www.spglobal.com/spdji/en/index-family/real-assets/us-real-estate/sp-corelogic-case-shiller/',
- desc:'주요 20개 도시 주택 가격 변화를 추적하는 케이스-쉴러 주택가격지수입니다.',
- votes:{high:234,inline:312,low:198}},
-
-{id:'conf-board-apr26',date:'2026-04-29',time:'10:00',name:'Consumer Confidence',nameKo:'소비자신뢰지수',category:'consumer',importance:'medium',
- expected:'95.0',actual:null,previous:'92.9',released:false,beat:null,
- link:'https://www.conference-board.org/topics/consumer-confidence',
- desc:'컨퍼런스보드가 발표하는 소비자 경기 인식 지수. 소비 지출 전망의 선행 지표입니다.',
- votes:{high:654,inline:432,low:543}},
-
-{id:'jolts-apr26-b',date:'2026-04-29',time:'10:00',name:'JOLTS Job Openings (Feb)',nameKo:'JOLTS 구인건수 (3월)',category:'employment',importance:'high',
- expected:'7.50M',actual:null,previous:'7.89M',released:false,beat:null,
- link:'https://www.bls.gov/jlt/',
- desc:'미국 노동통계국 구인·이직 현황 보고서입니다.',
- votes:{high:765,inline:543,low:987}},
-
-{id:'adp-may26',date:'2026-04-30',time:'08:15',name:'ADP Nonfarm Employment',nameKo:'ADP 비농업 고용',category:'employment',importance:'medium',
- expected:'130K',actual:null,previous:'102K',released:false,beat:null,
- link:'https://adpemploymentreport.com/',
- desc:'ADP 민간 부문 고용 변화입니다.',
- votes:{high:543,inline:432,low:398}},
-
-{id:'eci-apr26',date:'2026-04-30',time:'08:30',name:'Employment Cost Index QoQ',nameKo:'고용비용지수 (전분기 대비)',category:'employment',importance:'high',
- expected:'0.9%',actual:null,previous:'0.9%',released:false,beat:null,
- link:'https://www.bls.gov/ect/',
- desc:'임금·복리후생을 포함한 총 고용비용의 변화율. 임금 인플레이션 압력의 핵심 지표입니다.',
- votes:{high:654,inline:765,low:543}},
-
-{id:'gdp-adv-q1-2026',date:'2026-04-30',time:'08:30',name:'GDP QoQ (Advance, Q1 2026)',nameKo:'GDP 성장률 속보치 (2026 1분기)',category:'growth',importance:'high',
- expected:'1.8%',actual:null,previous:'2.3%',released:false,beat:null,
- link:'https://www.bea.gov/data/gdp/gross-domestic-product',
- desc:'2026년 1분기 GDP 성장률 속보치(annualized). 미국 경제 성장의 가장 포괄적인 지표입니다.',
- votes:{high:1654,inline:876,low:2341}},
-
-{id:'fomc-day1',date:'2026-04-30',time:'–',name:'FOMC Meeting Day 1',nameKo:'FOMC 정례회의 1일차',category:'fomc',importance:'high',
- expected:'회의 진행',actual:null,previous:'–',released:false,beat:null,
- link:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
- desc:'연방공개시장위원회(FOMC) 정례회의 첫째 날. 금리 결정은 다음 날 발표됩니다.',
- votes:{high:0,inline:0,low:0}},
-
-{id:'fomc-decision',date:'2026-05-01',time:'14:00',name:'FOMC Rate Decision',nameKo:'FOMC 금리 결정',category:'fomc',importance:'high',
- expected:'동결 (4.25–4.50%)',actual:null,previous:'4.25–4.50%',released:false,beat:null,
- link:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
- desc:'연방공개시장위원회의 기준금리 결정 발표. 결정 직후 의사록과 파월 의장의 기자회견이 이어집니다.',
- votes:{high:987,inline:3421,low:1234}},
-
-{id:'powell-presser',date:'2026-05-01',time:'14:30',name:'Fed Chair Powell Press Conference',nameKo:'파월 의장 기자회견',category:'fomc',importance:'high',
- expected:'–',actual:null,previous:'–',released:false,beat:null,
- link:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
- desc:'FOMC 금리 결정 직후 파월 의장의 기자회견. 향후 통화정책 방향에 대한 단서를 파악할 수 있습니다.',
- votes:{high:0,inline:0,low:0}},
-];
-
-/* ===== STATE ===== */
-const TODAY = new Date();
-let viewYear = TODAY.getFullYear();
-let viewMonth = TODAY.getMonth();
-let activeFilter = 'all';
-let activeEvent = null;
-
-/* ===== FILTERS ===== */
-const FILTERS = [
-  {id:'all', label:'전체'},
-  {id:'fomc', label:'FOMC'},
-  {id:'employment', label:'고용'},
-  {id:'inflation', label:'물가'},
-  {id:'growth', label:'성장'},
-  {id:'housing', label:'주택'},
-  {id:'manufacturing', label:'제조업'},
-  {id:'consumer', label:'소비자'},
-  {id:'trade', label:'무역'},
-];
-
-const CAT_LABELS = {
-  fomc:'FOMC',employment:'고용',inflation:'물가',
-  growth:'성장',housing:'주택',manufacturing:'제조업',
-  consumer:'소비자',trade:'무역'
+// FRED series → { calculation type, good direction, display formatter }
+const FC = {
+  'PAYEMS:mom_change':      {dir:'high', fmt:v=>`${v>0?'+':''}${Math.round(v)}K`},
+  'UNRATE:direct':          {dir:'low',  fmt:v=>`${parseFloat(v).toFixed(1)}%`},
+  'CES0500000003:mom_pct':  {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
+  'CPIAUCSL:yoy_pct':       {dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
+  'CPIAUCSL:mom_pct':       {dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
+  'CPILFESL:mom_pct':       {dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
+  'PCEPI:yoy_pct':          {dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
+  'PCEPILFE:yoy_pct':       {dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
+  'PPIFIS:mom_pct':         {dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
+  'RSXFS:mom_pct':          {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
+  'INDPRO:mom_pct':         {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
+  'HOUST:direct':           {dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
+  'PERMIT:direct':          {dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
+  'JTSJOL:direct':          {dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
+  'ICSA:direct':            {dir:'low',  fmt:v=>`${Math.round(parseFloat(v)/1000)}K`},
+  'UMCSENT:direct':         {dir:'high', fmt:v=>`${parseFloat(v).toFixed(1)}`},
+  'A191RL1Q225SBEA:direct': {dir:'high', fmt:v=>`${parseFloat(v)>=0?'+':''}${parseFloat(v).toFixed(1)}%`},
+  'PI:mom_pct':             {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
+  'PCE:mom_pct':            {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
+  'DGORDER:mom_pct':        {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
+  'EXHOSLUSM495S:direct':   {dir:'high', fmt:v=>`${parseFloat(v).toFixed(2)}M`},
+  'HSN1F:direct':           {dir:'high', fmt:v=>`${Math.round(parseFloat(v))}K`},
+  'DFEDTARU:direct':        {dir:'low',  fmt:v=>`${parseFloat(v).toFixed(2)}%`},
 };
 
-const MONTHS_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-const DAYS_KO = ['일','월','화','수','목','금','토'];
+/* ============================================================
+   FOMC SCHEDULE (hardcoded — updated annually by Fed)
+============================================================ */
+const FOMC_SCHEDULE = [
+  {y:2026,m:0, day1:'2026-01-28',dec:'2026-01-29',presser:true},
+  {y:2026,m:2, day1:'2026-03-17',dec:'2026-03-18',presser:true},
+  {y:2026,m:3, day1:'2026-04-28',dec:'2026-04-29',presser:true},
+  {y:2026,m:5, day1:'2026-06-16',dec:'2026-06-17',presser:true},
+  {y:2026,m:6, day1:'2026-07-28',dec:'2026-07-29',presser:false},
+  {y:2026,m:8, day1:'2026-09-15',dec:'2026-09-16',presser:true},
+  {y:2026,m:9, day1:'2026-10-27',dec:'2026-10-28',presser:false},
+  {y:2026,m:11,day1:'2026-12-08',dec:'2026-12-09',presser:true},
+  {y:2027,m:0, day1:'2027-01-26',dec:'2027-01-27',presser:true},
+  {y:2027,m:2, day1:'2027-03-16',dec:'2027-03-17',presser:true},
+  {y:2027,m:3, day1:'2027-04-27',dec:'2027-04-28',presser:true},
+  {y:2027,m:5, day1:'2027-06-15',dec:'2027-06-16',presser:true},
+  {y:2027,m:6, day1:'2027-07-27',dec:'2027-07-28',presser:false},
+  {y:2027,m:8, day1:'2027-09-14',dec:'2027-09-15',presser:true},
+  {y:2027,m:9, day1:'2027-10-26',dec:'2027-10-27',presser:false},
+  {y:2027,m:11,day1:'2027-12-07',dec:'2027-12-08',presser:true},
+];
 
-/* ===== VOTE HELPERS ===== */
+/* ============================================================
+   DATE HELPERS
+============================================================ */
+function toDS(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function toYM(y,m){return `${y}-${String(m+1).padStart(2,'0')}`;}
+function firstWD(y,m,wd){let d=new Date(y,m,1);while(d.getDay()!==wd)d.setDate(d.getDate()+1);return d;}
+function nthWD(y,m,wd,n){let d=firstWD(y,m,wd);d.setDate(d.getDate()+(n-1)*7);return d;}
+function lastWD(y,m,wd){let d=new Date(y,m+1,0);while(d.getDay()!==wd)d.setDate(d.getDate()-1);return d;}
+function allWD(y,m,wd){let r=[],d=firstWD(y,m,wd);while(d.getMonth()===m){r.push(new Date(d));d.setDate(d.getDate()+7);}return r;}
+function firstBD(y,m){let d=new Date(y,m,1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()+1);return d;}
+function nthBD(y,m,n){let d=new Date(y,m,1),c=0;while(true){if(d.getDay()!==0&&d.getDay()!==6){c++;if(c===n)return d;}d.setDate(d.getDate()+1);}}
+function offM(y,m,o){let nm=m+o,ny=y;while(nm<0){nm+=12;ny--;}while(nm>11){nm-=12;ny++;}return{y:ny,m:nm};}
+
+/* ============================================================
+   DESCRIPTIONS & LINKS
+============================================================ */
+const DESCS={
+  'ISM Manufacturing PMI':'ISM 제조업 구매관리자지수. 50 이상이면 경기 확장, 미만이면 수축을 나타냅니다.',
+  'ISM Services PMI':'ISM 서비스 PMI. 미국 경제의 약 75%를 차지하는 서비스 부문의 경기를 반영합니다.',
+  'Nonfarm Payrolls':'전국 비농업 부문 신규 고용자 수. 연방준비제도가 통화정책 결정 시 가장 중시하는 지표입니다.',
+  'Unemployment Rate':'경제활동인구 중 실업자 비율. 노동시장 건전성의 핵심 지표입니다.',
+  'Avg Hourly Earnings MoM':'전월 대비 평균 시간당 임금 변화율. 인플레이션 압력 및 소비자 구매력의 선행 지표입니다.',
+  'ADP Nonfarm Employment':'ADP 민간 부문 고용 변화. 공식 NFP 발표 이틀 전에 선행 지표로 발표됩니다.',
+  'JOLTS Job Openings':'미국 노동통계국의 구인·이직 현황 보고서. 노동시장 수요를 보여주는 핵심 지표입니다.',
+  'Initial Jobless Claims':'주간 신규 실업급여 신청 건수. 매주 목요일 발표되는 노동시장 실시간 지표입니다.',
+  'CPI YoY':'소비자물가지수 전년 대비. 연준의 통화정책 결정에 가장 큰 영향을 미치는 지표입니다.',
+  'Core CPI MoM':'식품·에너지를 제외한 근원 CPI. 기저적 인플레이션 트렌드를 파악하는 데 활용됩니다.',
+  'PPI MoM':'생산자물가지수. CPI의 선행 지표로 활용됩니다.',
+  'PCE Price Index YoY':'연준이 공식 목표로 삼는 물가지표. 목표치 2%에 근접할수록 금리 인하 가능성이 높아집니다.',
+  'Core PCE YoY':'식품·에너지를 제외한 근원 PCE. 연준의 인플레이션 목표 달성 여부를 판단하는 핵심 지표입니다.',
+  'Retail Sales MoM':'소매업체 판매액 변화. GDP의 선행 지표이며 소비자 지출의 약 40%를 차지합니다.',
+  'Industrial Production MoM':'광업·제조업·전기·가스 부문의 생산량 변화입니다.',
+  'Housing Starts':'신규 민간 주택 착공 건수. 건설 경기 및 향후 공급 상황을 보여줍니다.',
+  'Building Permits':'신규 민간 주택 건축허가 건수. 주택 착공의 선행 지표입니다.',
+  'Existing Home Sales':'기존 주택 판매 건수. 주택시장 수요를 보여주는 핵심 지표입니다.',
+  'New Home Sales':'신규 주택 판매 건수. 선행 지표로서 주택시장 동향을 파악하는 데 활용됩니다.',
+  'Durable Goods Orders MoM':'3년 이상 사용하는 내구재 신규 주문 변화율. 기업 투자 동향의 선행 지표입니다.',
+  'Personal Income MoM':'임금·사업소득·이전수입 등을 포함한 개인소득 변화율입니다.',
+  'Personal Spending MoM':'가계의 재화·서비스 지출 변화율. GDP의 약 70%를 차지하는 소비 동향의 핵심 지표입니다.',
+  'Michigan Consumer Sentiment (Prelim)':'미시간대학교가 발표하는 소비자 신뢰도 지수 예비치입니다.',
+  'Michigan Consumer Sentiment (Final)':'미시간대학교 소비자심리지수 확정치입니다.',
+  'Consumer Confidence':'컨퍼런스보드 소비자 신뢰도 지수. 소비 지출 전망의 선행 지표입니다.',
+  'NY Empire State Mfg':'뉴욕 연방준비은행이 발표하는 뉴욕주 제조업 경기 지수입니다.',
+  'Philadelphia Fed Mfg':'필라델피아 연방준비은행이 발표하는 중부대서양 지역 제조업 경기 지수입니다.',
+  'Trade Balance':'상품·서비스 수출입 차이. 적자 축소는 달러 강세 요인이 될 수 있습니다.',
+  'Consumer Credit MoM':'소비자 부채 변화. 신용카드 및 자동차 할부 등을 포함합니다.',
+  'Pending Home Sales MoM':'기존 주택 매매 계약 체결 건수. 기존 주택 판매의 선행 지표입니다.',
+  'FOMC Rate Decision':'연방공개시장위원회의 기준금리 결정 발표.',
+  'FOMC Meeting Day 1':'FOMC 정례회의 첫째 날. 금리 결정은 다음 날 발표됩니다.',
+  'Fed Chair Press Conference':'FOMC 금리 결정 직후 연준 의장의 기자회견입니다.',
+  'Fed Beige Book':'연준이 12개 지역연준으로부터 수집한 경제 현황 보고서입니다.',
+};
+const LINKS={
+  nfp:'https://www.bls.gov/news.release/empsit.nr0.htm',
+  unemp:'https://www.bls.gov/news.release/empsit.nr0.htm',
+  ahe:'https://www.bls.gov/news.release/empsit.nr0.htm',
+  adp:'https://adpemploymentreport.com/',
+  'ism-mfg':'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/manufacturing/',
+  'ism-svc':'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/services/',
+  jolts:'https://www.bls.gov/jlt/',
+  claims:'https://www.dol.gov/ui/data.pdf',
+  cpi:'https://www.bls.gov/cpi/',
+  'core-cpi':'https://www.bls.gov/cpi/',
+  ppi:'https://www.bls.gov/ppi/',
+  pce:'https://www.bea.gov/data/personal-consumption-expenditures-price-index',
+  'core-pce':'https://www.bea.gov/data/personal-consumption-expenditures-price-index',
+  retail:'https://www.census.gov/retail/index.html',
+  indprod:'https://www.federalreserve.gov/releases/g17/',
+  housing:'https://www.census.gov/construction/nrc/index.html',
+  permits:'https://www.census.gov/construction/nrc/index.html',
+  'exist-homes':'https://www.nar.realtor/research-and-statistics/housing-statistics/existing-home-sales',
+  'new-homes':'https://www.census.gov/construction/nrs/index.html',
+  durable:'https://www.census.gov/manufacturing/m3/index.html',
+  'pers-income':'https://www.bea.gov/data/income-saving/personal-income',
+  'pers-spend':'https://www.bea.gov/data/consumer-spending/main',
+  mich:'https://lsa.umich.edu/ses/research/consumer-research.html',
+  'conf-board':'https://www.conference-board.org/topics/consumer-confidence',
+  empire:'https://www.newyorkfed.org/survey/empire/empiresurvey_overview',
+  philly:'https://www.philadelphiafed.org/surveys-and-data/regional-economic-analysis/manufacturing-business-outlook-survey',
+  trade:'https://www.census.gov/foreign-trade/Press-Release/current_press_release/index.html',
+  credit:'https://www.federalreserve.gov/releases/g19/',
+  gdp:'https://www.bea.gov/data/gdp/gross-domestic-product',
+  fomc:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
+  beige:'https://www.federalreserve.gov/monetarypolicy/beige-book-default.htm',
+  pending:'https://www.nar.realtor/research-and-statistics/housing-statistics/pending-home-sales',
+};
+
+/* ============================================================
+   VOTE SEED (deterministic random per event ID)
+============================================================ */
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return Math.abs(h);}
+function seededRng(seed){let x=seed;return()=>{x=(x*1664525+1013904223)&0xffffffff;return(x>>>0)/0xffffffff;};}
+function genVotes(id,imp){
+  const rng=seededRng(hashStr(id));
+  const base=imp==='high'?1200:imp==='medium'?500:180;
+  const total=base+Math.floor(rng()*base*0.4);
+  const h=Math.floor(total*(0.28+rng()*0.22));
+  const l=Math.floor(total*(0.22+rng()*0.22));
+  return{high:h,inline:Math.max(10,total-h-l),low:l};
+}
+
+/* ============================================================
+   EVENT FACTORY
+============================================================ */
+const TODAY=new Date();
+function makeEv(id,date,time,name,nameKo,cat,imp,linkKey,series,calc,ref){
+  const released=date&&new Date(date+'T23:59:59')<=TODAY;
+  return{
+    id,date,time,name,nameKo,category:cat,importance:imp,
+    actual:null,previous:null,
+    released,beat:released?'inline':null,
+    link:LINKS[linkKey]||LINKS['fomc']||'#',
+    desc:DESCS[name]||'–',
+    votes:genVotes(id,imp),
+    _series:series,_calc:calc,_ref:ref
+  };
+}
+
+/* ============================================================
+   AUTO-GENERATE MONTH EVENTS
+============================================================ */
+function generateMonthEvents(year,month){
+  const evs=[];
+  const ym=toYM(year,month);
+  const pm=offM(year,month,-1), pp=offM(year,month,-2);
+  const pym=toYM(pm.y,pm.m), ppym=toYM(pp.y,pp.m);
+
+  function add(slug,date,time,name,nameKo,cat,imp,linkKey,series,calc,ref){
+    // Avoid adding events that fall outside this month
+    if(date.getMonth()!==month||date.getFullYear()!==year)return;
+    evs.push(makeEv(`${slug}-${ym}`,toDS(date),time,name,nameKo,cat,imp,linkKey,series,calc,ref));
+  }
+
+  // ── Week 1 ──────────────────────────────────────────────
+  // ISM Manufacturing: 1st business day
+  add('ism-mfg',firstBD(year,month),'10:00','ISM Manufacturing PMI','ISM 제조업 PMI','manufacturing','medium','ism-mfg',null,null,null);
+
+  // JOLTS: 1st Tuesday (data from 2 months ago)
+  add('jolts',nthWD(year,month,2,1),'10:00','JOLTS Job Openings','JOLTS 구인건수','employment','high','jolts','JTSJOL','direct',ppym);
+
+  // Trade Balance: 1st Thursday
+  add('trade',nthWD(year,month,4,1),'08:30','Trade Balance','무역수지','trade','medium','trade',null,null,null);
+
+  // NFP week: First Friday
+  const nfpDate=nthWD(year,month,5,1);
+  // ADP: Wednesday before NFP
+  const adpDate=new Date(nfpDate); adpDate.setDate(adpDate.getDate()-2);
+  add('adp',adpDate,'08:15','ADP Nonfarm Employment','ADP 비농업 고용','employment','medium','adp',null,null,null);
+  // ISM Services: 3rd business day (falls in NFP week)
+  add('ism-svc',nthBD(year,month,3),'10:00','ISM Services PMI','ISM 서비스 PMI','manufacturing','high','ism-svc',null,null,null);
+  add('nfp',nfpDate,'08:30','Nonfarm Payrolls','비농업 고용자수','employment','high','nfp','PAYEMS','mom_change',pym);
+  add('unemp',nfpDate,'08:30','Unemployment Rate','실업률','employment','high','unemp','UNRATE','direct',pym);
+  add('ahe',nfpDate,'08:30','Avg Hourly Earnings MoM','평균 시간당 임금 (전월 대비)','employment','medium','ahe','CES0500000003','mom_pct',pym);
+
+  // ── Week 2 ──────────────────────────────────────────────
+  // CPI: 2nd Wednesday
+  const cpiDate=nthWD(year,month,3,2);
+  add('cpi',cpiDate,'08:30','CPI YoY','소비자물가지수 (전년 대비)','inflation','high','cpi','CPIAUCSL','yoy_pct',pym);
+  add('core-cpi',cpiDate,'08:30','Core CPI MoM','근원 CPI (전월 대비)','inflation','high','core-cpi','CPILFESL','mom_pct',pym);
+  // PPI: Thursday after CPI
+  const ppiDate=new Date(cpiDate); ppiDate.setDate(ppiDate.getDate()+1);
+  add('ppi',ppiDate,'08:30','PPI MoM','생산자물가지수 (전월 대비)','inflation','high','ppi','PPIFIS','mom_pct',pym);
+  // Michigan Prelim: 2nd Friday
+  add('mich-prelim',nthWD(year,month,5,2),'10:00','Michigan Consumer Sentiment (Prelim)','미시간 소비자심리지수 (예비)','consumer','medium','mich','UMCSENT','direct',ym);
+  // Consumer Credit: 2nd Monday
+  add('credit',nthWD(year,month,1,2),'15:00','Consumer Credit MoM','소비자 신용 (전월 대비)','consumer','low','credit',null,null,null);
+
+  // ── Week 3 ──────────────────────────────────────────────
+  // Empire State: 3rd Monday
+  add('empire',nthWD(year,month,1,3),'08:30','NY Empire State Mfg','뉴욕 엠파이어스테이트 제조업','manufacturing','medium','empire',null,null,null);
+  // Retail Sales: 3rd Wednesday
+  add('retail',nthWD(year,month,3,3),'08:30','Retail Sales MoM','소매판매 (전월 대비)','consumer','high','retail','RSXFS','mom_pct',pym);
+  // Industrial Production & Philly Fed: 3rd Thursday
+  const thu3=nthWD(year,month,4,3);
+  add('indprod',thu3,'09:15','Industrial Production MoM','산업생산 (전월 대비)','manufacturing','medium','indprod','INDPRO','mom_pct',pym);
+  add('philly',thu3,'08:30','Philadelphia Fed Mfg','필라델피아 연준 제조업','manufacturing','medium','philly',null,null,null);
+  // Housing Starts & Permits: 3rd Friday
+  const fri3=nthWD(year,month,5,3);
+  add('housing',fri3,'08:30','Housing Starts','주택착공','housing','medium','housing','HOUST','direct',pym);
+  add('permits',fri3,'08:30','Building Permits','건축허가','housing','medium','permits','PERMIT','direct',pym);
+
+  // ── Week 4 ──────────────────────────────────────────────
+  // New Home Sales: 4th Wednesday
+  add('new-homes',nthWD(year,month,3,4),'10:00','New Home Sales','신규주택판매','housing','medium','new-homes','HSN1F','direct',pym);
+  // Existing Home Sales & Durable Goods: 4th Thursday
+  const thu4=nthWD(year,month,4,4);
+  add('exist-homes',thu4,'10:00','Existing Home Sales','기존주택판매','housing','medium','exist-homes','EXHOSLUSM495S','direct',pym);
+  add('durable',thu4,'08:30','Durable Goods Orders MoM','내구재 주문 (전월 대비)','manufacturing','medium','durable','DGORDER','mom_pct',pym);
+  // Pending Home Sales: 4th Monday
+  add('pending',nthWD(year,month,1,4),'10:00','Pending Home Sales MoM','주택판매보류 (전월 대비)','housing','low','pending',null,null,null);
+
+  // ── Last Week ────────────────────────────────────────────
+  // Consumer Confidence: Last Tuesday
+  add('conf-board',lastWD(year,month,2),'10:00','Consumer Confidence','소비자신뢰지수','consumer','medium','conf-board',null,null,null);
+  // PCE / Personal Income & Spending / Michigan Final: Last Friday
+  const lastFri=lastWD(year,month,5);
+  add('pce',lastFri,'08:30','PCE Price Index YoY','PCE 물가지수 (전년 대비)','inflation','high','pce','PCEPI','yoy_pct',pym);
+  add('core-pce',lastFri,'08:30','Core PCE YoY','근원 PCE (전년 대비)','inflation','high','core-pce','PCEPILFE','yoy_pct',pym);
+  add('pers-income',lastFri,'08:30','Personal Income MoM','개인소득 (전월 대비)','consumer','medium','pers-income','PI','mom_pct',pym);
+  add('pers-spend',lastFri,'08:30','Personal Spending MoM','개인소비 (전월 대비)','consumer','high','pers-spend','PCE','mom_pct',pym);
+  add('mich-final',lastFri,'10:00','Michigan Consumer Sentiment (Final)','미시간 소비자심리지수 (확정)','consumer','medium','mich','UMCSENT','direct',ym);
+
+  // ── GDP: Quarterly advance (Jan, Apr, Jul, Oct) ──────────
+  if([0,3,6,9].includes(month)){
+    const qMap={0:'Q4',3:'Q1',6:'Q2',9:'Q3'};
+    const qRefM={0:9,3:0,6:3,9:6};
+    const qRefY={0:year-1,3:year,6:year,9:year};
+    const lastThu=lastWD(year,month,4);
+    if(lastThu.getMonth()===month){
+      evs.push(makeEv(
+        `gdp-${ym}`,toDS(lastThu),'08:30',
+        `GDP QoQ Advance (${qMap[month]} ${qRefY[month]})`,
+        `GDP 속보치 (${qRefY[month]} ${qMap[month]})`,
+        'growth','high','gdp','A191RL1Q225SBEA','direct',toYM(qRefY[month],qRefM[month])
+      ));
+    }
+  }
+
+  // ── Initial Jobless Claims: Every Thursday ───────────────
+  allWD(year,month,4).forEach((d,i)=>{
+    evs.push(makeEv(
+      `claims-${ym}-${i+1}`,toDS(d),'08:30',
+      'Initial Jobless Claims','신규 실업수당 청구건수',
+      'employment','medium','claims','ICSA','direct_weekly',null
+    ));
+  });
+
+  // ── FOMC Events ──────────────────────────────────────────
+  FOMC_SCHEDULE.forEach(f=>{
+    // Beige Book: ~2 weeks before decision, nearest Wednesday
+    const decD=new Date(f.dec+'T12:00:00');
+    const beigeD=new Date(decD); beigeD.setDate(beigeD.getDate()-14);
+    const bwd=beigeD.getDay();
+    if(bwd!==3){beigeD.setDate(beigeD.getDate()+(bwd<3?3-bwd:10-bwd));}
+    if(beigeD.getMonth()===month&&beigeD.getFullYear()===year){
+      evs.push(makeEv(`beige-${f.y}${f.m}`,toDS(beigeD),'14:00','Fed Beige Book','연준 베이지북','fomc','medium','beige',null,null,null));
+    }
+    // FOMC Day 1
+    const d1=new Date(f.day1+'T12:00:00');
+    if(d1.getMonth()===month&&d1.getFullYear()===year){
+      evs.push(makeEv(`fomc-day1-${f.y}${f.m}`,f.day1,'–','FOMC Meeting Day 1','FOMC 정례회의 1일차','fomc','high','fomc',null,null,null));
+    }
+    // FOMC Decision
+    if(decD.getMonth()===month&&decD.getFullYear()===year){
+      evs.push(makeEv(`fomc-dec-${f.y}${f.m}`,f.dec,'14:00','FOMC Rate Decision','FOMC 금리 결정','fomc','high','fomc','DFEDTARU','direct',null));
+      if(f.presser)evs.push(makeEv(`fomc-pc-${f.y}${f.m}`,f.dec,'14:30','Fed Chair Press Conference','연준 의장 기자회견','fomc','high','fomc',null,null,null));
+    }
+  });
+
+  return evs;
+}
+
+/* ============================================================
+   STATE
+============================================================ */
+let viewYear=TODAY.getFullYear(), viewMonth=TODAY.getMonth();
+let activeFilter='all', activeEvent=null;
+let EVENTS=[];
+const fredCache={};
+
+function regenerateEvents(){
+  EVENTS=[];
+  for(let o=-1;o<=2;o++){
+    const {y,m}=offM(viewYear,viewMonth,o);
+    EVENTS.push(...generateMonthEvents(y,m));
+  }
+}
+
+/* ============================================================
+   FILTERS / LABELS
+============================================================ */
+const FILTERS=[
+  {id:'all',label:'전체'},{id:'fomc',label:'FOMC'},{id:'employment',label:'고용'},
+  {id:'inflation',label:'물가'},{id:'growth',label:'성장'},{id:'housing',label:'주택'},
+  {id:'manufacturing',label:'제조업'},{id:'consumer',label:'소비자'},{id:'trade',label:'무역'},
+];
+const CAT_LABELS={fomc:'FOMC',employment:'고용',inflation:'물가',growth:'성장',housing:'주택',manufacturing:'제조업',consumer:'소비자',trade:'무역'};
+const MONTHS_KO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const DAYS_KO=['일','월','화','수','목','금','토'];
+
+/* ============================================================
+   VOTE HELPERS
+============================================================ */
 function getUserVote(id){return localStorage.getItem('uv_'+id);}
-function getVoteCounts(ev){
-  const saved = localStorage.getItem('vc_'+ev.id);
-  return saved ? JSON.parse(saved) : {...ev.votes};
-}
-function saveVote(ev, choice){
-  if(getUserVote(ev.id)) return;
-  localStorage.setItem('uv_'+ev.id, choice);
-  const counts = getVoteCounts(ev);
-  counts[choice]++;
-  localStorage.setItem('vc_'+ev.id, JSON.stringify(counts));
+function getVoteCounts(ev){const s=localStorage.getItem('vc_'+ev.id);return s?JSON.parse(s):{...ev.votes};}
+function saveVote(ev,choice){
+  if(getUserVote(ev.id))return;
+  localStorage.setItem('uv_'+ev.id,choice);
+  const c=getVoteCounts(ev); c[choice]++;
+  localStorage.setItem('vc_'+ev.id,JSON.stringify(c));
 }
 
-/* ===== RENDER FILTER BAR ===== */
+/* ============================================================
+   RENDER
+============================================================ */
 function renderFilters(){
-  const bar = document.getElementById('filterBar');
-  bar.innerHTML = FILTERS.map(f=>`
-    <button class="filter-btn ${activeFilter===f.id?'active':''}${activeFilter===f.id&&f.id!=='all'?' '+f.id:''}"
-      onclick="setFilter('${f.id}')">${f.label}</button>
-  `).join('');
+  document.getElementById('filterBar').innerHTML=FILTERS.map(f=>
+    `<button class="filter-btn ${activeFilter===f.id?'active':''}" onclick="setFilter('${f.id}')">${f.label}</button>`
+  ).join('');
 }
+function setFilter(f){activeFilter=f;renderFilters();renderCalendar();}
 
-function setFilter(f){
-  activeFilter = f;
-  renderFilters();
-  renderCalendar();
-}
-
-/* ===== RENDER CALENDAR ===== */
 function renderCalendar(){
-  document.getElementById('calTitle').textContent = `${viewYear}년 ${MONTHS_KO[viewMonth]}`;
+  document.getElementById('calTitle').textContent=`${viewYear}년 ${MONTHS_KO[viewMonth]}`;
+  document.getElementById('dayHeaders').innerHTML=DAYS_KO.map((d,i)=>`<div class="day-hdr ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
 
-  // Day headers
-  const dh = document.getElementById('dayHeaders');
-  dh.innerHTML = DAYS_KO.map((d,i)=>`<div class="day-hdr ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
+  const firstDay=new Date(viewYear,viewMonth,1).getDay();
+  const daysInMonth=new Date(viewYear,viewMonth+1,0).getDate();
+  const daysInPrev=new Date(viewYear,viewMonth,0).getDate();
+  let cells=[];
+  for(let i=firstDay-1;i>=0;i--)cells.push({d:new Date(viewYear,viewMonth-1,daysInPrev-i),other:true});
+  for(let d=1;d<=daysInMonth;d++)cells.push({d:new Date(viewYear,viewMonth,d),other:false});
+  while(cells.length<42)cells.push({d:new Date(viewYear,viewMonth+1,cells.length-firstDay-daysInMonth+1),other:true});
+  document.getElementById('calBody').innerHTML=cells.map(c=>renderDayCell(c)).join('');
 
-  // Get events for this month view
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
-  const daysInPrev = new Date(viewYear, viewMonth, 0).getDate();
-
-  let cells = [];
-  for(let i=firstDay-1;i>=0;i--) cells.push({d:new Date(viewYear,viewMonth-1,daysInPrev-i),other:true});
-  for(let d=1;d<=daysInMonth;d++) cells.push({d:new Date(viewYear,viewMonth,d),other:false});
-  while(cells.length<42) cells.push({d:new Date(viewYear,viewMonth+1,cells.length-firstDay-daysInMonth+1),other:true});
-
-  const body = document.getElementById('calBody');
-  body.innerHTML = cells.map(c=>renderDayCell(c)).join('');
+  // Update next FOMC display
+  const now=new Date();
+  const next=FOMC_SCHEDULE.find(f=>new Date(f.dec+'T15:00:00')>=now);
+  if(next)document.getElementById('nextFomcDisplay').textContent=next.dec.slice(5).replace('-','.');
 }
 
-function dateStr(d){
-  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${dd}`;
-}
-
-function isToday(d){
-  return d.getFullYear()===TODAY.getFullYear()&&d.getMonth()===TODAY.getMonth()&&d.getDate()===TODAY.getDate();
-}
-
-function isWeekend(d){return d.getDay()===0||d.getDay()===6;}
-
-function getEventsForDate(d){
-  const ds = dateStr(d);
-  return EVENTS.filter(e=>e.date===ds && (activeFilter==='all'||e.category===activeFilter));
+function eventsForDate(d){
+  const ds=toDS(d);
+  return EVENTS.filter(e=>e.date===ds&&(activeFilter==='all'||e.category===activeFilter));
 }
 
 function chipClass(ev){
-  if(ev.category==='fomc') return 'chip-fomc';
-  if(!ev.released) return 'chip-upcoming';
-  if(ev.beat==='beat') return 'chip-beat';
-  if(ev.beat==='miss') return 'chip-miss';
+  if(ev.category==='fomc')return 'chip-fomc';
+  if(!ev.released)return 'chip-upcoming';
+  if(ev.beat==='beat')return 'chip-beat';
+  if(ev.beat==='miss')return 'chip-miss';
   return 'chip-inline';
 }
 
-function chipVal(ev){
-  if(!ev.released) return '';
-  return ev.actual||'';
-}
-
 function renderDayCell({d,other}){
-  const evs = getEventsForDate(d);
-  const today = isToday(d);
-  const weekend = isWeekend(d);
-  const cls = [
-    'day-cell',
-    other?'other-month':'',
-    today?'today':'',
-    weekend?'weekend':''
-  ].filter(Boolean).join(' ');
-
-  const MAX_CHIPS = 3;
-  const shown = evs.slice(0,MAX_CHIPS);
-  const extra = evs.length - MAX_CHIPS;
-
-  const dayNumHtml = today
-    ? `<div class="day-num"><div class="today-circle">${d.getDate()}</div></div>`
-    : `<div class="day-num">${d.getDate()}</div>`;
-
-  const chipsHtml = shown.map(ev=>`
+  const today=d.getFullYear()===TODAY.getFullYear()&&d.getMonth()===TODAY.getMonth()&&d.getDate()===TODAY.getDate();
+  const weekend=d.getDay()===0||d.getDay()===6;
+  const cls=['day-cell',other?'other-month':'',today?'today':'',weekend?'weekend':''].filter(Boolean).join(' ');
+  const evs=eventsForDate(d), MAX=3;
+  const shown=evs.slice(0,MAX), extra=evs.length-MAX;
+  const dayNum=today?`<div class="day-num"><div class="today-circle">${d.getDate()}</div></div>`:`<div class="day-num">${d.getDate()}</div>`;
+  const chips=shown.map(ev=>`
     <div class="event-chip ${chipClass(ev)}" onclick="openModal('${ev.id}')">
       <span class="imp ${ev.importance}"></span>
       <span class="chip-name">${ev.name.split(' ').slice(0,3).join(' ')}</span>
-      ${chipVal(ev)?`<span class="chip-val">${chipVal(ev)}</span>`:''}
-    </div>
-  `).join('');
-
-  const moreHtml = extra>0
-    ? `<span class="more-chip" onclick="showAllDay('${dateStr(d)}')">+${extra}개 더</span>`
-    : '';
-
-  return `<div class="${cls}">${dayNumHtml}${chipsHtml}${moreHtml}</div>`;
+      ${ev.released&&ev.actual?`<span class="chip-val">${ev.actual}</span>`:''}
+    </div>`).join('');
+  const more=extra>0?`<span class="more-chip" onclick="showAllDay('${toDS(d)}')">+${extra}개 더</span>`:'';
+  return `<div class="${cls}">${dayNum}${chips}${more}</div>`;
 }
 
-/* ===== OPEN MODAL ===== */
+/* ============================================================
+   MODAL
+============================================================ */
 function openModal(id){
-  const ev = EVENTS.find(e=>e.id===id);
-  if(!ev) return;
-  activeEvent = ev;
-  renderModal(ev);
+  const ev=EVENTS.find(e=>e.id===id); if(!ev)return;
+  activeEvent=ev; renderModal(ev);
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
-
-function closeModal(){
-  document.getElementById('overlay').classList.remove('open');
-  document.body.style.overflow='';
-  activeEvent=null;
-}
-
-function handleOverlayClick(e){
-  if(e.target===document.getElementById('overlay')) closeModal();
-}
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';activeEvent=null;}
+function handleOverlayClick(e){if(e.target===document.getElementById('overlay'))closeModal();}
 
 function renderModal(ev){
-  const catLabel = CAT_LABELS[ev.category]||ev.category;
-  const catCls = 'cat-'+ev.category;
-  const userVote = getUserVote(ev.id);
-  const counts = getVoteCounts(ev);
-  const total = counts.high+counts.inline+counts.low;
-  const pctH = total>0?Math.round(counts.high/total*100):0;
-  const pctI = total>0?Math.round(counts.inline/total*100):0;
-  const pctL = total>0?Math.round(counts.low/total*100):0;
+  const catLabel=CAT_LABELS[ev.category]||ev.category;
+  const catCls='cat-'+ev.category;
+  const uv=getUserVote(ev.id), vc=getVoteCounts(ev);
+  const total=vc.high+vc.inline+vc.low;
+  const pH=total>0?Math.round(vc.high/total*100):0;
+  const pI=total>0?Math.round(vc.inline/total*100):0;
+  const pL=total>0?Math.round(vc.low/total*100):0;
 
-  // Stats section
-  let statsHtml = '';
-  if(ev.released){
-    const actCls = ev.beat==='beat'?'beat':ev.beat==='miss'?'miss':'neutral';
-    statsHtml = `
-      <div class="stats-row" style="grid-template-columns:1fr 1fr;">
-        <div class="stat-box">
-          <div class="stat-box-label">실제값</div>
-          <div class="stat-box-val ${actCls}">${ev.actual}</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-box-label">이전값</div>
-          <div class="stat-box-val neutral">${ev.previous||'–'}</div>
-        </div>
-      </div>`;
-  } else {
-    statsHtml = `
-      <div class="stats-row" style="grid-template-columns:1fr 1fr;">
-        <div class="stat-box">
-          <div class="stat-box-label">발표 시간</div>
-          <div class="stat-box-val upcoming" style="font-size:15px">${ev.time||'–'} ET</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-box-label">이전값</div>
-          <div class="stat-box-val neutral">${ev.previous||'–'}</div>
-        </div>
-      </div>`;
+  // Stats
+  let statsHtml='';
+  if(ev.released&&ev.actual){
+    const ac=ev.beat==='beat'?'beat':ev.beat==='miss'?'miss':'neutral';
+    statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-box"><div class="stat-box-label">실제값</div><div class="stat-box-val ${ac}">${ev.actual}</div></div>
+      <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
+    </div>`;
+  }else{
+    const vc2=ev.category==='fomc'?'fomc-val':'upcoming';
+    statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-box"><div class="stat-box-label">발표 시간</div><div class="stat-box-val ${vc2}" style="font-size:15px">${ev.time||'–'} ET</div></div>
+      <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
+    </div>`;
   }
 
-  // Voting section
-  let voteHtml = '';
-  if(ev.category==='fomc'&&ev.id==='fomc-day1'){
-    voteHtml='';
-  } else {
-    const canVote = !ev.released && !userVote;
-    const votingClosed = ev.released;
-    const btnDisabled = !canVote ? 'disabled' : '';
-
-    // Community result for released events
-    let communityResultHtml = '';
-    if(ev.released && total>0){
-      const majority = pctH>=pctL&&pctH>=pctI?'high':pctL>=pctH&&pctL>=pctI?'low':'inline';
-      const correct = (majority==='high'&&ev.beat==='beat')||(majority==='low'&&ev.beat==='miss')||(majority==='inline'&&ev.beat==='inline');
-      communityResultHtml = `
-        <div class="community-result ${correct?'cr-right':'cr-wrong'}">
-          ${correct?'✓ 커뮤니티 예측 성공!':'✗ 커뮤니티 예측 빗나감'}
-        </div>`;
-    }
-
-    voteHtml = `
-      <div class="vote-section">
-        <div class="vote-hdr">
-          <div class="vote-title">📊 예측 투표</div>
-          ${votingClosed?'<span class="vote-badge-closed">투표 마감</span>':''}
-        </div>
-        <div class="vote-sub">
-          ${votingClosed?'발표 전 커뮤니티 예측 결과입니다.':userVote?'이미 투표하셨습니다.':'이전값 대비 이번 수치가 어떻게 나올지 예측해보세요!'}
-        </div>
-        ${!votingClosed?`
-        <div class="vote-btns">
-          <button class="vote-btn ${userVote==='high'?'active-high':''}" onclick="castVote('high')" ${btnDisabled}>
-            <span class="vico">🔼</span>
-            <span>높다</span>
-            <span style="font-size:9px;opacity:0.7">이전값 상회</span>
-          </button>
-          <button class="vote-btn ${userVote==='inline'?'active-inline':''}" onclick="castVote('inline')" ${btnDisabled}>
-            <span class="vico">➡️</span>
-            <span>비슷</span>
-            <span style="font-size:9px;opacity:0.7">이전값 유사</span>
-          </button>
-          <button class="vote-btn ${userVote==='low'?'active-low':''}" onclick="castVote('low')" ${btnDisabled}>
-            <span class="vico">🔽</span>
-            <span>낮다</span>
-            <span style="font-size:9px;opacity:0.7">이전값 하회</span>
-          </button>
-        </div>`:''}
-        <div class="vote-results">
-          <div class="vr-row">
-            <span class="vr-label high">높다</span>
-            <div class="vr-track"><div class="vr-fill high" style="width:${pctH}%"></div></div>
-            <span class="vr-pct high">${pctH}%</span>
-          </div>
-          <div class="vr-row">
-            <span class="vr-label inline">부합</span>
-            <div class="vr-track"><div class="vr-fill inline" style="width:${pctI}%"></div></div>
-            <span class="vr-pct inline">${pctI}%</span>
-          </div>
-          <div class="vr-row">
-            <span class="vr-label low">낮다</span>
-            <div class="vr-track"><div class="vr-fill low" style="width:${pctL}%"></div></div>
-            <span class="vr-pct low">${pctL}%</span>
-          </div>
-          <div class="vr-total">총 ${total.toLocaleString()}표</div>
-        </div>
-        ${communityResultHtml}
-      </div>`;
+  // Voting
+  const votingClosed=ev.released, canVote=!votingClosed&&!uv;
+  let communityHtml='';
+  if(votingClosed&&total>0){
+    const maj=pH>=pL&&pH>=pI?'high':pL>=pH&&pL>=pI?'low':'inline';
+    const correct=(maj==='high'&&ev.beat==='beat')||(maj==='low'&&ev.beat==='miss')||(maj==='inline'&&ev.beat==='inline');
+    communityHtml=`<div class="community-result ${correct?'cr-right':'cr-wrong'}">${correct?'✓ 커뮤니티 예측 성공!':'✗ 커뮤니티 예측 빗나감'}</div>`;
   }
 
-  const dateObj = new Date(ev.date+'T12:00:00');
-  const dateLabel = `${dateObj.getFullYear()}년 ${MONTHS_KO[dateObj.getMonth()]} ${dateObj.getDate()}일${ev.time?' · '+ev.time+' ET':''}`;
+  const noVote=ev.id.includes('fomc-day1')||ev.id.includes('fomc-pc')||ev.id.includes('beige');
+  let voteHtml='';
+  if(!noVote){
+    voteHtml=`<div class="vote-section">
+      <div class="vote-hdr"><div class="vote-title">📊 예측 투표</div>${votingClosed?'<span class="vote-badge-closed">투표 마감</span>':''}</div>
+      <div class="vote-sub">${votingClosed?'발표 전 커뮤니티 예측 결과입니다.':uv?'이미 투표하셨습니다.':'이전값 대비 이번 수치가 어떻게 나올지 예측해보세요!'}</div>
+      ${!votingClosed?`<div class="vote-btns">
+        <button class="vote-btn ${uv==='high'?'active-high':''}" onclick="castVote('high')" ${canVote?'':'disabled'}>
+          <span class="vico">🔼</span><span>높다</span><span style="font-size:9px;opacity:.7">이전값 상회</span>
+        </button>
+        <button class="vote-btn ${uv==='inline'?'active-inline':''}" onclick="castVote('inline')" ${canVote?'':'disabled'}>
+          <span class="vico">➡️</span><span>비슷</span><span style="font-size:9px;opacity:.7">이전값 유사</span>
+        </button>
+        <button class="vote-btn ${uv==='low'?'active-low':''}" onclick="castVote('low')" ${canVote?'':'disabled'}>
+          <span class="vico">🔽</span><span>낮다</span><span style="font-size:9px;opacity:.7">이전값 하회</span>
+        </button>
+      </div>`:''}
+      <div class="vr-row"><span class="vr-label high">높다</span><div class="vr-track"><div class="vr-fill high" style="width:${pH}%"></div></div><span class="vr-pct high">${pH}%</span></div>
+      <div class="vr-row"><span class="vr-label inline">비슷</span><div class="vr-track"><div class="vr-fill inline" style="width:${pI}%"></div></div><span class="vr-pct inline">${pI}%</span></div>
+      <div class="vr-row"><span class="vr-label low">낮다</span><div class="vr-track"><div class="vr-fill low" style="width:${pL}%"></div></div><span class="vr-pct low">${pL}%</span></div>
+      <div class="vr-total">총 ${total.toLocaleString()}표</div>
+      ${communityHtml}
+    </div>`;
+  }
 
-  document.getElementById('modal').innerHTML = `
+  const dateObj=new Date(ev.date+'T12:00:00');
+  const dateLabel=`${dateObj.getFullYear()}년 ${MONTHS_KO[dateObj.getMonth()]} ${dateObj.getDate()}일${ev.time&&ev.time!=='–'?' · '+ev.time+' ET':''}`;
+  const impLabel=ev.importance==='high'?'🔴 중요도 높음':ev.importance==='medium'?'🟡 중요도 중간':'🔵 중요도 낮음';
+
+  document.getElementById('modal').innerHTML=`
     <div class="modal-hdr">
       <div class="modal-hdr-left">
-        <div class="modal-cat ${catCls}">${catLabel} · ${ev.importance==='high'?'🔴 중요도 높음':ev.importance==='medium'?'🟡 중요도 중간':'🔵 중요도 낮음'}</div>
+        <div class="modal-cat ${catCls}">${catLabel} · ${impLabel}</div>
         <div class="modal-name">${ev.name}</div>
         <div class="modal-name-ko">${ev.nameKo} &nbsp;·&nbsp; ${dateLabel}</div>
       </div>
@@ -825,213 +683,182 @@ function renderModal(ev){
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       </a>
       ${voteHtml}
-    </div>
-  `;
+    </div>`;
 }
 
 function castVote(choice){
-  if(!activeEvent) return;
-  if(!activeEvent.released && !getUserVote(activeEvent.id)){
-    saveVote(activeEvent, choice);
-    renderModal(activeEvent);
-  }
+  if(!activeEvent||activeEvent.released||getUserVote(activeEvent.id))return;
+  saveVote(activeEvent,choice); renderModal(activeEvent);
 }
 
-/* ===== SHOW ALL EVENTS FOR A DAY ===== */
 function showAllDay(ds){
-  const evs = EVENTS.filter(e=>e.date===ds&&(activeFilter==='all'||e.category===activeFilter));
-  if(!evs.length) return;
-  const d = new Date(ds+'T12:00:00');
-  const dateLabel = `${d.getFullYear()}년 ${MONTHS_KO[d.getMonth()]} ${d.getDate()}일`;
-  document.getElementById('modal').innerHTML = `
+  const evs=EVENTS.filter(e=>e.date===ds&&(activeFilter==='all'||e.category===activeFilter));
+  if(!evs.length)return;
+  const d=new Date(ds+'T12:00:00');
+  document.getElementById('modal').innerHTML=`
     <div class="modal-hdr">
       <div class="modal-hdr-left">
-        <div class="modal-cat">📅 ${dateLabel}</div>
-        <div class="modal-name">${evs.length}개 지표 발표</div>
+        <div class="modal-cat">📅 ${d.getFullYear()}년 ${MONTHS_KO[d.getMonth()]} ${d.getDate()}일</div>
+        <div class="modal-name">${evs.length}개 지표</div>
       </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-      ${evs.map(ev=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:background 0.15s;background:var(--bg2);"
-          onclick="openModal('${ev.id}')" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg2)'">
-          <div class="imp ${ev.importance}" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
-          <div style="flex:1;">
-            <div style="font-size:13px;font-weight:600;">${ev.name}</div>
-            <div style="font-size:11px;color:var(--txt3);">${ev.nameKo} · ${ev.time||'–'} ET</div>
-          </div>
-          <div style="font-size:12px;font-weight:700;${ev.released?(ev.beat==='beat'?'color:var(--green)':ev.beat==='miss'?'color:var(--red)':'color:var(--txt2)'):'color:var(--blue)'}">
-            ${ev.released?ev.actual:('예 '+ev.expected)}
-          </div>
-          <div style="color:var(--txt3);font-size:12px;">›</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+      ${evs.map(ev=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;background:var(--bg2);"
+        onclick="openModal('${ev.id}')" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg2)'">
+        <div class="imp ${ev.importance}" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${ev.name}</div>
+        <div style="font-size:11px;color:var(--txt3);">${ev.nameKo} · ${ev.time||'–'} ET</div></div>
+        <div style="font-size:12px;font-weight:700;${ev.released&&ev.actual?(ev.beat==='beat'?'color:var(--green)':ev.beat==='miss'?'color:var(--red)':'color:var(--txt2)'):'color:var(--blue)'}">
+          ${ev.released&&ev.actual?ev.actual:'예정'}
+        </div>›</div>`).join('')}
+    </div>`;
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
 
-/* ===== NAVIGATION ===== */
-document.getElementById('prevBtn').onclick=()=>{
-  viewMonth--;
-  if(viewMonth<0){viewMonth=11;viewYear--;}
-  renderCalendar();
-};
-document.getElementById('nextBtn').onclick=()=>{
-  viewMonth++;
-  if(viewMonth>11){viewMonth=0;viewYear++;}
-  renderCalendar();
-};
-document.getElementById('todayBtn').onclick=()=>{
-  viewYear=TODAY.getFullYear();
-  viewMonth=TODAY.getMonth();
-  renderCalendar();
-};
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape') closeModal();
-});
-
-/* ===== FRED API ===== */
-const FRED_KEY = 'eabdbbc9f6d3d4300c5ad940b27a1a16';
-
-const FRED_MAP = [
-  {id:'nfp-apr26',       series:'PAYEMS',         calc:'mom_change', ref:'2026-03', dir:'high', fmt:v=>`${v>0?'+':''}${Math.round(v)}K`},
-  {id:'unemp-apr26',     series:'UNRATE',          calc:'direct',     ref:'2026-03', dir:'low',  fmt:v=>`${parseFloat(v).toFixed(1)}%`},
-  {id:'ahe-apr26',       series:'CES0500000003',   calc:'mom_pct',    ref:'2026-03', dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  {id:'jolts-apr26',     series:'JTSJOL',          calc:'direct',     ref:'2026-02', dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
-  {id:'jolts-apr26-b',   series:'JTSJOL',          calc:'direct',     ref:'2026-03', dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
-  {id:'claims-0409',     series:'ICSA',            calc:'direct_n',   n:1,           dir:'low',  fmt:v=>`${Math.round(parseFloat(v)/1000)}K`},
-  {id:'claims-0416',     series:'ICSA',            calc:'direct_n',   n:2,           dir:'low',  fmt:v=>`${Math.round(parseFloat(v)/1000)}K`},
-  {id:'claims-0423',     series:'ICSA',            calc:'direct_n',   n:3,           dir:'low',  fmt:v=>`${Math.round(parseFloat(v)/1000)}K`},
-  {id:'claims-0424',     series:'ICSA',            calc:'direct_n',   n:4,           dir:'low',  fmt:v=>`${Math.round(parseFloat(v)/1000)}K`},
-  {id:'cpi-apr26',       series:'CPIAUCSL',        calc:'yoy_pct',    ref:'2026-03', dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
-  {id:'cpi-mom-apr26',   series:'CPIAUCSL',        calc:'mom_pct',    ref:'2026-03', dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
-  {id:'core-cpi-apr26',  series:'CPILFESL',        calc:'mom_pct',    ref:'2026-03', dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
-  {id:'pce-yoy-apr26',   series:'PCEPI',           calc:'yoy_pct',    ref:'2026-03', dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
-  {id:'core-pce-apr26',  series:'PCEPILFE',        calc:'yoy_pct',    ref:'2026-03', dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
-  {id:'ppi-apr26',       series:'PPIFIS',          calc:'mom_pct',    ref:'2026-03', dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
-  {id:'gdp-adv-q1-2026', series:'A191RL1Q225SBEA', calc:'direct',     ref:'2026-01', dir:'high', fmt:v=>`${parseFloat(v)>=0?'+':''}${parseFloat(v).toFixed(1)}%`},
-  {id:'retail-sales-apr26',series:'RSXFS',         calc:'mom_pct',    ref:'2026-03', dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  {id:'pers-income-apr26', series:'PI',            calc:'mom_pct',    ref:'2026-03', dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  {id:'pers-spend-apr26',  series:'PCE',           calc:'mom_pct',    ref:'2026-03', dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  {id:'mich-prelim-apr26', series:'UMCSENT',       calc:'direct',     ref:'2026-04', dir:'high', fmt:v=>`${parseFloat(v).toFixed(1)}`},
-  {id:'mich-final-apr26',  series:'UMCSENT',       calc:'direct',     ref:'2026-04', dir:'high', fmt:v=>`${parseFloat(v).toFixed(1)}`},
-  {id:'indprod-apr26',     series:'INDPRO',        calc:'mom_pct',    ref:'2026-03', dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  {id:'durable-goods-apr26',series:'DGORDER',      calc:'mom_pct',    ref:'2026-03', dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  {id:'housing-starts-apr26',series:'HOUST',       calc:'direct',     ref:'2026-03', dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
-  {id:'bldg-permits-apr26', series:'PERMIT',       calc:'direct',     ref:'2026-03', dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
-];
-
-async function fredFetch(series, limit=15){
+/* ============================================================
+   FRED API
+============================================================ */
+async function fredFetch(series,limit=15){
+  if(fredCache[series])return fredCache[series];
   try{
-    const url=`https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${FRED_KEY}&file_type=json&sort_order=desc&limit=${limit}`;
-    const r=await fetch(url);
-    if(!r.ok) return [];
+    const r=await fetch(`https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${FRED_KEY}&file_type=json&sort_order=desc&limit=${limit}`);
+    if(!r.ok)return[];
     const d=await r.json();
-    return (d.observations||[]).filter(o=>o.value!='.');
-  }catch(e){return [];}
+    fredCache[series]=(d.observations||[]).filter(o=>o.value!='.');
+    return fredCache[series];
+  }catch(e){return[];}
 }
-
-function getByRef(obs,ref){return obs.find(o=>o.date.startsWith(ref));}
 
 function momPct(obs,ref){
   const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
   const i=s.findIndex(o=>o.date.startsWith(ref));
-  if(i<0||i>=s.length-1) return null;
-  return (parseFloat(s[i].value)/parseFloat(s[i+1].value)-1)*100;
+  if(i<0||i>=s.length-1)return{val:null,prv:null};
+  const val=(parseFloat(s[i].value)/parseFloat(s[i+1].value)-1)*100;
+  const prv=i+2<s.length?(parseFloat(s[i+1].value)/parseFloat(s[i+2].value)-1)*100:null;
+  return{val,prv};
 }
-
 function yoyPct(obs,ref){
-  const cur=obs.find(o=>o.date.startsWith(ref));
-  if(!cur) return null;
+  const cur=obs.find(o=>o.date.startsWith(ref)); if(!cur)return{val:null,prv:null};
   const d=new Date(ref+'-01'); d.setFullYear(d.getFullYear()-1);
-  const prv=obs.find(o=>o.date.startsWith(d.toISOString().slice(0,7)));
-  if(!prv) return null;
-  return (parseFloat(cur.value)/parseFloat(prv.value)-1)*100;
+  const p1=obs.find(o=>o.date.startsWith(d.toISOString().slice(0,7))); if(!p1)return{val:null,prv:null};
+  const val=(parseFloat(cur.value)/parseFloat(p1.value)-1)*100;
+  // prev month yoy
+  const pd=new Date(ref+'-01'); pd.setMonth(pd.getMonth()-1);
+  const pd2=new Date(pd); pd2.setFullYear(pd2.getFullYear()-1);
+  const cur2=obs.find(o=>o.date.startsWith(pd.toISOString().slice(0,7)));
+  const p2=obs.find(o=>o.date.startsWith(pd2.toISOString().slice(0,7)));
+  const prv=cur2&&p2?(parseFloat(cur2.value)/parseFloat(p2.value)-1)*100:null;
+  return{val,prv};
 }
-
 function momChange(obs,ref){
   const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
   const i=s.findIndex(o=>o.date.startsWith(ref));
-  if(i<0||i>=s.length-1) return null;
-  return parseFloat(s[i].value)-parseFloat(s[i+1].value);
+  if(i<0||i>=s.length-1)return{val:null,prv:null};
+  const val=parseFloat(s[i].value)-parseFloat(s[i+1].value);
+  const prv=i+2<s.length?parseFloat(s[i+1].value)-parseFloat(s[i+2].value):null;
+  return{val,prv};
 }
-
-function beatDir(cur,prv,dir){
-  const diff=cur-prv;
-  if(Math.abs(diff)<Math.abs(prv)*0.003) return 'inline';
-  return (dir==='high'?diff>0:diff<0)?'beat':'miss';
+function beatDir(val,prv,dir){
+  if(prv===null)return'inline';
+  const diff=val-prv;
+  if(Math.abs(diff)<Math.abs(prv)*0.003)return'inline';
+  return(dir==='high'?diff>0:diff<0)?'beat':'miss';
 }
 
 async function initFREDData(){
-  const statusEl=document.getElementById('fredStatus');
-  statusEl.textContent='⟳ FRED 데이터 로딩 중...';
-  const today=new Date();
+  const el=document.getElementById('fredStatus');
+  el.textContent='⟳ FRED 데이터 로딩 중...';
 
-  // Filter to released events only
-  const toFetch=FRED_MAP.filter(m=>{
-    const ev=EVENTS.find(e=>e.id===m.id);
-    return ev&&new Date(ev.date+'T23:59:59')<=today;
-  });
-
-  // Batch-fetch unique series
-  const seriesSet=[...new Set(toFetch.map(m=>m.series))];
-  const cache={};
-  await Promise.all(seriesSet.map(async s=>{cache[s]=await fredFetch(s,15);}));
-
-  // Update header Fed Funds Rate
+  // Update Fed Funds Rate in header
   const ffr=await fredFetch('DFEDTARU',2);
-  if(ffr.length>0){
-    const el=document.querySelector('.hdr-stat-val.rate');
-    if(el) el.textContent=`${parseFloat(ffr[0].value).toFixed(2)}%`;
+  if(ffr.length>0)document.getElementById('ffrDisplay').textContent=`${parseFloat(ffr[0].value).toFixed(2)}%`;
+
+  // Filter to events that need FRED and are already released
+  const toProcess=EVENTS.filter(ev=>ev._series&&ev._calc&&new Date(ev.date+'T23:59:59')<=TODAY);
+  if(!toProcess.length){el.textContent='';return;}
+
+  // Batch fetch unique series (claims handled separately)
+  const normalSeries=[...new Set(toProcess.filter(e=>e._calc!=='direct_weekly').map(e=>e._series))];
+  await Promise.all(normalSeries.map(s=>fredFetch(s,15)));
+
+  // Handle weekly Initial Claims
+  const claimsEvs=toProcess.filter(e=>e._calc==='direct_weekly');
+  let icsa=[];
+  if(claimsEvs.length>0){
+    icsa=await fredFetch('ICSA',10);
+    const sorted=[...icsa].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    claimsEvs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    claimsEvs.forEach((ev,i)=>{
+      if(i<sorted.length){
+        const cfg=FC['ICSA:direct'];
+        ev.actual=cfg.fmt(sorted[i].value);
+        ev.released=true;
+        ev.beat=i+1<sorted.length?beatDir(parseFloat(sorted[i].value),parseFloat(sorted[i+1].value),cfg.dir):'inline';
+        if(i+1<sorted.length)try{ev.previous=cfg.fmt(sorted[i+1].value);}catch(e){}
+      }
+    });
   }
 
-  // Process each event
-  for(const m of toFetch){
-    const obs=cache[m.series]||[];
-    if(!obs.length) continue;
-    const ev=EVENTS.find(e=>e.id===m.id);
-    if(!ev) continue;
-    let raw=null, rawPrv=null;
+  // Process other events
+  for(const ev of toProcess.filter(e=>e._calc!=='direct_weekly')){
+    const obs=fredCache[ev._series]||[];
+    if(!obs.length)continue;
+    const cfgKey=`${ev._series}:${ev._calc}`;
+    const cfg=FC[cfgKey]; if(!cfg)continue;
+
+    let val=null, prv=null;
     try{
-      const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-      if(m.calc==='direct'){
-        const o=getByRef(obs,m.ref); if(!o) continue;
-        raw=parseFloat(o.value);
-        const i=s.findIndex(x=>x.date.startsWith(m.ref));
-        if(i>=0&&i<s.length-1) rawPrv=parseFloat(s[i+1].value);
-      } else if(m.calc==='mom_pct'){
-        raw=momPct(obs,m.ref);
-        const i=s.findIndex(x=>x.date.startsWith(m.ref));
-        if(i>=0&&i+2<s.length) rawPrv=(parseFloat(s[i+1].value)/parseFloat(s[i+2].value)-1)*100;
-      } else if(m.calc==='yoy_pct'){
-        raw=yoyPct(obs,m.ref);
-        const d=new Date(m.ref+'-01'); d.setMonth(d.getMonth()-1);
-        rawPrv=yoyPct(obs,d.toISOString().slice(0,7));
-      } else if(m.calc==='mom_change'){
-        raw=momChange(obs,m.ref);
-        const i=s.findIndex(x=>x.date.startsWith(m.ref));
-        if(i>=0&&i+2<s.length) rawPrv=parseFloat(s[i+1].value)-parseFloat(s[i+2].value);
-      } else if(m.calc==='direct_n'){
-        const n=(m.n||1)-1;
-        if(s.length>n){ raw=parseFloat(s[n].value); }
-        if(s.length>n+1){ rawPrv=parseFloat(s[n+1].value); }
+      if(ev._calc==='direct'){
+        const o=obs.find(x=>ev._ref?x.date.startsWith(ev._ref):true)||(ev._ref?null:obs[0]);
+        if(!o)continue;
+        val=parseFloat(o.value);
+        const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
+        const i=s.findIndex(x=>x.date===o.date);
+        if(i>=0&&i<s.length-1)prv=parseFloat(s[i+1].value);
+      }else if(ev._calc==='mom_pct'&&ev._ref){
+        const r=momPct(obs,ev._ref); val=r.val; prv=r.prv;
+      }else if(ev._calc==='yoy_pct'&&ev._ref){
+        const r=yoyPct(obs,ev._ref); val=r.val; prv=r.prv;
+      }else if(ev._calc==='mom_change'&&ev._ref){
+        const r=momChange(obs,ev._ref); val=r.val; prv=r.prv;
       }
     }catch(e){continue;}
-    if(raw===null||isNaN(raw)) continue;
-    ev.actual=m.fmt(raw);
+
+    if(val===null||isNaN(val))continue;
+    ev.actual=cfg.fmt(val);
     ev.released=true;
-    ev.beat=(rawPrv!==null&&!isNaN(rawPrv))?beatDir(raw,rawPrv,m.dir):'inline';
-    if(rawPrv!==null&&!isNaN(rawPrv)){try{ev.previous=m.fmt(rawPrv);}catch(e){}}
+    ev.beat=beatDir(val,prv,cfg.dir);
+    if(prv!==null&&!isNaN(prv))try{ev.previous=cfg.fmt(prv);}catch(e){}
   }
 
-  statusEl.textContent='✓ FRED 실시간 데이터';
+  el.textContent='✓ FRED 실시간';
   renderCalendar();
-  if(activeEvent){const upd=EVENTS.find(e=>e.id===activeEvent.id);if(upd)renderModal(upd);}
+  if(activeEvent){const u=EVENTS.find(e=>e.id===activeEvent.id);if(u)renderModal(u);}
 }
 
-/* ===== INIT ===== */
+/* ============================================================
+   NAVIGATION
+============================================================ */
+document.getElementById('prevBtn').onclick=()=>{
+  viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--;}
+  regenerateEvents();renderCalendar();initFREDData();
+};
+document.getElementById('nextBtn').onclick=()=>{
+  viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++;}
+  regenerateEvents();renderCalendar();initFREDData();
+};
+document.getElementById('todayBtn').onclick=()=>{
+  viewYear=TODAY.getFullYear();viewMonth=TODAY.getMonth();
+  regenerateEvents();renderCalendar();initFREDData();
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ============================================================
+   INIT
+============================================================ */
+regenerateEvents();
 renderFilters();
 renderCalendar();
 initFREDData();
