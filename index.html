@@ -332,13 +332,8 @@ const LINKS={
 ============================================================ */
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return Math.abs(h);}
 function seededRng(seed){let x=seed;return()=>{x=(x*1664525+1013904223)&0xffffffff;return(x>>>0)/0xffffffff;};}
-function genVotes(id,imp){
-  const rng=seededRng(hashStr(id));
-  const base=imp==='high'?1200:imp==='medium'?500:180;
-  const total=base+Math.floor(rng()*base*0.4);
-  const h=Math.floor(total*(0.28+rng()*0.22));
-  const l=Math.floor(total*(0.22+rng()*0.22));
-  return{high:h,inline:Math.max(10,total-h-l),low:l};
+function genVotes(){
+  return{high:0,inline:0,low:0};
 }
 
 /* ============================================================
