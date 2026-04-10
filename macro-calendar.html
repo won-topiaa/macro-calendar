@@ -638,6 +638,11 @@ function renderModal(ev){
       <div class="stat-box"><div class="stat-box-label">실제값</div><div class="stat-box-val ${ac}">${ev.actual}</div></div>
       <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
     </div>`;
+  }else if(ev.released){
+    statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-box"><div class="stat-box-label">실제값</div><div class="stat-box-val upcoming" style="font-size:12px;">FRED 업데이트 대기</div></div>
+      <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
+    </div>`;
   }else{
     const vc2=ev.category==='fomc'?'fomc-val':'upcoming';
     statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
@@ -789,65 +794,82 @@ async function initFREDData(){
   const el=document.getElementById('fredStatus');
   el.textContent='⟳ FRED 데이터 로딩 중...';
 
-  // Update Fed Funds Rate in header
   const ffr=await fredFetch('DFEDTARU',2);
   if(ffr.length>0)document.getElementById('ffrDisplay').textContent=`${parseFloat(ffr[0].value).toFixed(2)}%`;
 
-  // Filter to events that need FRED and are already released
-  const toProcess=EVENTS.filter(ev=>ev._series&&ev._calc&&new Date(ev.date+'T23:59:59')<=TODAY);
-  if(!toProcess.length){el.textContent='';return;}
+  // 발표된 것 + 예정된 것 모두 처리 (이전값을 위해)
+  const allSeries=EVENTS.filter(ev=>ev._series&&ev._calc);
+  if(!allSeries.length){el.textContent='';return;}
 
-  // Batch fetch unique series (claims handled separately)
-  const normalSeries=[...new Set(toProcess.filter(e=>e._calc!=='direct_weekly').map(e=>e._series))];
+  const normalSeries=[...new Set(allSeries.filter(e=>e._calc!=='direct_weekly').map(e=>e._series))];
   await Promise.all(normalSeries.map(s=>fredFetch(s,15)));
 
-  // Handle weekly Initial Claims
-  const claimsEvs=toProcess.filter(e=>e._calc==='direct_weekly');
-  let icsa=[];
+  // 주간 실업수당 청구건수
+  const claimsEvs=allSeries.filter(e=>e._calc==='direct_weekly');
   if(claimsEvs.length>0){
-    icsa=await fredFetch('ICSA',10);
+    const icsa=await fredFetch('ICSA',10);
     const sorted=[...icsa].sort((a,b)=>new Date(b.date)-new Date(a.date));
     claimsEvs.sort((a,b)=>new Date(b.date)-new Date(a.date));
     claimsEvs.forEach((ev,i)=>{
-      if(i<sorted.length){
-        const cfg=FC['ICSA:direct'];
+      if(i>=sorted.length)return;
+      const cfg=FC['ICSA:direct'];
+      if(ev.released){
         ev.actual=cfg.fmt(sorted[i].value);
-        ev.released=true;
         ev.beat=i+1<sorted.length?beatDir(parseFloat(sorted[i].value),parseFloat(sorted[i+1].value),cfg.dir):'inline';
-        if(i+1<sorted.length)try{ev.previous=cfg.fmt(sorted[i+1].value);}catch(e){}
       }
+      if(i+1<sorted.length)try{ev.previous=cfg.fmt(sorted[i+1].value);}catch(e){}
     });
   }
 
-  // Process other events
-  for(const ev of toProcess.filter(e=>e._calc!=='direct_weekly')){
+  // 그 외 지표 처리
+  for(const ev of allSeries.filter(e=>e._calc!=='direct_weekly')){
     const obs=fredCache[ev._series]||[];
     if(!obs.length)continue;
-    const cfgKey=`${ev._series}:${ev._calc}`;
-    const cfg=FC[cfgKey]; if(!cfg)continue;
+    const cfg=FC[`${ev._series}:${ev._calc}`]; if(!cfg)continue;
 
     let val=null, prv=null;
     try{
-      if(ev._calc==='direct'){
-        const o=obs.find(x=>ev._ref?x.date.startsWith(ev._ref):true)||(ev._ref?null:obs[0]);
-        if(!o)continue;
-        val=parseFloat(o.value);
+      // 발표된 이벤트: _ref 기준으로 실제값 계산
+      if(ev.released&&ev._ref){
+        if(ev._calc==='direct'){
+          const o=obs.find(x=>x.date.startsWith(ev._ref));
+          if(o){
+            val=parseFloat(o.value);
+            const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
+            const i=s.findIndex(x=>x.date===o.date);
+            if(i>=0&&i<s.length-1)prv=parseFloat(s[i+1].value);
+          }
+        }else if(ev._calc==='mom_pct'){const r=momPct(obs,ev._ref);val=r.val;prv=r.prv;}
+        else if(ev._calc==='yoy_pct'){const r=yoyPct(obs,ev._ref);val=r.val;prv=r.prv;}
+        else if(ev._calc==='mom_change'){const r=momChange(obs,ev._ref);val=r.val;prv=r.prv;}
+      }else if(ev.released&&!ev._ref&&ev._calc==='direct'){
+        // ref 없는 direct (예: FOMC 금리)
         const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-        const i=s.findIndex(x=>x.date===o.date);
-        if(i>=0&&i<s.length-1)prv=parseFloat(s[i+1].value);
-      }else if(ev._calc==='mom_pct'&&ev._ref){
-        const r=momPct(obs,ev._ref); val=r.val; prv=r.prv;
-      }else if(ev._calc==='yoy_pct'&&ev._ref){
-        const r=yoyPct(obs,ev._ref); val=r.val; prv=r.prv;
-      }else if(ev._calc==='mom_change'&&ev._ref){
-        const r=momChange(obs,ev._ref); val=r.val; prv=r.prv;
+        if(s.length>0){val=parseFloat(s[0].value);if(s.length>1)prv=parseFloat(s[1].value);}
+      }
+
+      // prv가 없는 경우 (발표됐지만 FRED 미업데이트, 또는 발표 예정):
+      // 가장 최신 FRED 데이터로 이전값 계산
+      if(prv===null){
+        const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
+        if(ev._calc==='direct'&&s.length>0){
+          prv=parseFloat(s[0].value);
+        }else if(ev._calc==='mom_pct'&&s.length>=2){
+          prv=(parseFloat(s[0].value)/parseFloat(s[1].value)-1)*100;
+        }else if(ev._calc==='yoy_pct'&&s.length>0){
+          const d=new Date(s[0].date);d.setFullYear(d.getFullYear()-1);
+          const ya=obs.find(o=>o.date.startsWith(d.toISOString().slice(0,7)));
+          if(ya)prv=(parseFloat(s[0].value)/parseFloat(ya.value)-1)*100;
+        }else if(ev._calc==='mom_change'&&s.length>=2){
+          prv=parseFloat(s[0].value)-parseFloat(s[1].value);
+        }
       }
     }catch(e){continue;}
 
-    if(val===null||isNaN(val))continue;
-    ev.actual=cfg.fmt(val);
-    ev.released=true;
-    ev.beat=beatDir(val,prv,cfg.dir);
+    if(ev.released&&val!==null&&!isNaN(val)){
+      ev.actual=cfg.fmt(val);
+      ev.beat=beatDir(val,prv,cfg.dir);
+    }
     if(prv!==null&&!isNaN(prv))try{ev.previous=cfg.fmt(prv);}catch(e){}
   }
 
