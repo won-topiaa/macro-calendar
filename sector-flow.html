@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sector Flow | 섹터 수급 흐름</title>
+<style>
+:root {
+  --bg:#0c0f1a;--bg2:#141828;--bg3:#1c2238;--bg4:#242a42;
+  --border:#2a3050;--border2:#353d5e;
+  --txt:#e4e8f5;--txt2:#8a94b8;--txt3:#555f80;
+  --blue:#4f8ef7;--blue2:rgba(79,142,247,.12);
+  --green:#00d09c;--green2:rgba(0,208,156,.12);
+  --red:#ff4d5e;--red2:rgba(255,77,94,.12);
+  --gold:#f5a623;--gold2:rgba(245,166,35,.12);
+  --purple:#a78bfa;--purple2:rgba(167,139,250,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
+
+/* ── Header ── */
+.site-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#00d09c,#4f8ef7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.hdr-title h1{font-size:17px;font-weight:700;}
+.hdr-title p{font-size:11px;color:var(--txt3);margin-top:1px;}
+.hdr-nav{display:flex;gap:4px;margin-left:8px;}
+.nav-link{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:500;color:var(--txt3);text-decoration:none;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:var(--txt2);background:var(--bg3);}
+.nav-link.active{color:var(--green);background:var(--green2);}
+.hdr-right{display:flex;align-items:center;gap:14px;}
+.market-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px;white-space:nowrap;}
+.market-open  {background:var(--green2);color:var(--green);border:1px solid rgba(0,208,156,.3);}
+.market-pre   {background:var(--gold2); color:var(--gold); border:1px solid rgba(245,166,35,.3);}
+.market-closed{background:var(--bg3);   color:var(--txt3); border:1px solid var(--border);}
+.last-update{font-size:11px;color:var(--txt3);}
+
+/* ── Layout ── */
+.container{max-width:1440px;margin:0 auto;padding:20px 20px;}
+
+/* ── Regime Gauge ── */
+.regime-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:18px;}
+.regime-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.regime-title{font-size:13px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;}
+.regime-label{font-size:14px;font-weight:700;}
+.gauge-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-bottom:5px;}
+.gauge-track{position:relative;height:10px;background:linear-gradient(to right,#ff4d5e 0%,#555f80 45%,#555f80 55%,#00d09c 100%);border-radius:5px;}
+.gauge-ptr{position:absolute;top:-5px;width:20px;height:20px;background:var(--txt);border-radius:50%;transform:translateX(-50%);border:3px solid var(--bg2);box-shadow:0 2px 8px rgba(0,0,0,.5);transition:left .9s cubic-bezier(.25,.46,.45,.94);}
+.regime-stats{display:flex;gap:0;margin-top:16px;border-top:1px solid var(--border);padding-top:16px;flex-wrap:wrap;}
+.rs-item{flex:1;min-width:110px;padding:0 16px;border-right:1px solid var(--border);}
+.rs-item:first-child{padding-left:0;}
+.rs-item:last-child{border-right:none;}
+.rs-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;}
+.rs-val{font-size:20px;font-weight:800;}
+.rs-sub{font-size:10px;color:var(--txt3);margin-top:2px;}
+
+/* ── Volume Alerts ── */
+.alerts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.alert-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;}
+.alert-spike{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.4);color:var(--gold);}
+.alert-active{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.4);color:var(--purple);}
+.alert-low{background:var(--bg3);border:1px solid var(--border);color:var(--txt3);}
+
+/* ── Controls ── */
+.controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.period-tabs{display:flex;gap:3px;background:var(--bg3);padding:4px;border-radius:10px;border:1px solid var(--border);}
+.ptab{padding:5px 16px;border-radius:7px;border:none;background:transparent;color:var(--txt3);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;}
+.ptab:hover{color:var(--txt2);}
+.ptab.active{background:var(--bg2);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.ctrl-right{display:flex;gap:8px;align-items:center;}
+.sort-sel{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:6px 11px;border-radius:8px;font-size:12px;cursor:pointer;outline:none;}
+.refresh-btn{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:6px 13px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;font-weight:600;}
+.refresh-btn:hover{color:var(--green);border-color:var(--green);}
+.spin{display:inline-block;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── Heatmap ── */
+.heatmap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.hm-card{border-radius:12px;padding:14px 14px 10px;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .2s;position:relative;overflow:hidden;min-height:130px;}
+.hm-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+.hm-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px;}
+.hm-etf{font-size:21px;font-weight:800;line-height:1;}
+.hm-vol-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(0,0,0,.35);white-space:nowrap;}
+.hm-name-ko{font-size:11px;opacity:.75;margin-bottom:1px;}
+.hm-name-en{font-size:10px;opacity:.5;margin-bottom:8px;}
+.hm-pct{font-size:26px;font-weight:900;line-height:1;letter-spacing:-.5px;}
+.hm-price{font-size:11px;opacity:.6;margin-top:3px;}
+.hm-spark{margin-top:8px;}
+.spark-svg{width:100%;height:28px;}
+
+/* ── Two-column layout ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+/* ── Ranking Bars ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.panel-title{font-size:12px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.rank-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.rank-label{font-size:11px;font-weight:700;width:36px;flex-shrink:0;}
+.rank-track{flex:1;height:20px;background:var(--bg3);border-radius:4px;overflow:hidden;position:relative;}
+.rank-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 7px;min-width:2px;transition:width .8s ease;}
+.rank-bar-txt{font-size:10px;font-weight:700;color:rgba(255,255,255,.9);white-space:nowrap;overflow:hidden;}
+.rank-pct{font-size:11px;font-weight:700;width:48px;text-align:right;flex-shrink:0;}
+.rank-rel{font-size:10px;width:42px;text-align:right;flex-shrink:0;color:var(--txt3);}
+.spy-divider{border-top:1px dashed var(--border2);margin:8px 0;position:relative;}
+.spy-divider-lbl{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--bg2);padding:0 8px;font-size:9px;color:var(--txt3);white-space:nowrap;}
+
+/* ── Rotation Radar ── */
+.rotation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:calc(100% - 30px);}
+.rot-quadrant{border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;}
+.rot-q-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.7;}
+.rot-q-desc{font-size:10px;opacity:.5;margin-bottom:6px;}
+.rot-etf{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;padding:2px 0;}
+.rot-etf-pct{font-size:11px;}
+
+/* ── Detail Table ── */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+.table-head-bar{padding:14px 20px 14px;border-bottom:1px solid var(--border);}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl thead th{padding:9px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap;}
+.tbl thead th.r{text-align:right;}
+.tbl thead th.sortable{cursor:pointer;user-select:none;}
+.tbl thead th.sortable:hover{color:var(--txt2);}
+.tbl tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+.tbl tbody tr:last-child{border-bottom:none;}
+.tbl tbody tr:hover{background:var(--bg3);}
+.tbl td{padding:11px 16px;font-size:13px;vertical-align:middle;}
+.tbl td.r{text-align:right;}
+.sector-cell{display:flex;flex-direction:column;gap:1px;}
+.sc-name{font-weight:600;}
+.sc-ko{font-size:11px;color:var(--txt3);}
+.etf-chip{font-weight:700;color:var(--blue);font-size:13px;}
+.chg{font-weight:700;}
+.chg.up{color:var(--green);}
+.chg.dn{color:var(--red);}
+.vol-cell{display:flex;align-items:center;gap:6px;justify-content:flex-end;}
+.vol-num{font-size:12px;font-weight:600;}
+.vol-mini{width:36px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.vol-mini-fill{height:100%;border-radius:2px;}
+.pos52{font-size:12px;font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.2px;}
+.tag.growth   {background:var(--blue2);  color:var(--blue);}
+.tag.defensive{background:var(--green2); color:var(--green);}
+.tag.energy   {background:var(--gold2);  color:var(--gold);}
+
+/* ── Loading / Error ── */
+.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:14px;grid-column:1/-1;}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;}
+.err-box{grid-column:1/-1;background:var(--red2);border:1px solid rgba(255,77,94,.3);border-radius:12px;padding:22px;text-align:center;color:var(--red);}
+.err-box small{color:var(--txt3);font-size:11px;display:block;margin-top:6px;}
+
+/* ── Sub-sector ── */
+.subsector-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
+.ss-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.ss-meta{display:flex;align-items:center;gap:12px;}
+.ss-parent-badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:var(--blue2);color:var(--blue);}
+.ss-tabs{display:flex;gap:4px;flex-wrap:wrap;}
+.sstab{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--txt3);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;white-space:nowrap;}
+.sstab:hover{color:var(--txt2);border-color:var(--border2);}
+.sstab.active{background:var(--bg4);color:var(--txt);border-color:var(--border2);}
+.ss-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.ss-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 12px 8px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;}
+.ss-card:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.3);}
+.ss-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;}
+.ss-etf{font-size:14px;font-weight:800;}
+.ss-vol{font-size:9px;font-weight:700;padding:1px 5px;border-radius:5px;background:rgba(0,0,0,.3);}
+.ss-name{font-size:10px;color:var(--txt3);margin-bottom:1px;}
+.ss-en{font-size:9px;color:var(--txt3);opacity:.6;margin-bottom:6px;}
+.ss-pct{font-size:18px;font-weight:800;line-height:1;}
+.ss-price{font-size:10px;color:var(--txt3);margin-top:3px;}
+.ss-spark{margin-top:6px;}
+.ss-vs-parent{display:flex;align-items:center;gap:4px;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);}
+.ss-vs-label{font-size:9px;color:var(--txt3);}
+.ss-vs-val{font-size:10px;font-weight:700;}
+.ss-loading{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;padding:30px;color:var(--txt3);font-size:13px;}
+
+/* ── Responsive ── */
+@media(max-width:1100px){.heatmap{grid-template-columns:repeat(3,1fr);}.ss-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:768px){
+  .heatmap{grid-template-columns:repeat(2,1fr);}
+  .tbl thead th:nth-child(n+6){display:none;}
+  .tbl td:nth-child(n+6){display:none;}
+  .hdr-nav{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="site-header">
+  <div class="hdr-left">
+    <div class="hdr-logo">📊</div>
+    <div class="hdr-title">
+      <h1>Sector Flow</h1>
+      <p>섹터별 수급 흐름 · SPDR ETF 기반 · KST 기준</p>
+    </div>
+    <nav class="hdr-nav">
+      <a href="index.html" class="nav-link">홈</a>
+      <a href="macro-calendar.html" class="nav-link">매크로 캘린더</a>
+      <a href="sector-flow.html" class="nav-link active">섹터 수급</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span id="marketBadge" class="market-badge market-closed">시장 마감</span>
+    <span class="last-update">업데이트: <span id="lastUpdate">—</span></span>
+  </div>
+</header>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="container">
+
+  <!-- Regime Gauge -->
+  <div class="regime-card">
+    <div class="regime-top">
+      <span class="regime-title">시장 리스크 성향 (Market Regime)</span>
+      <span class="regime-label" id="regimeLabel">데이터 불러오는 중...</span>
+    </div>
+    <div class="gauge-labels">
+      <span>← Risk-Off · 방어적 포지션</span>
+      <span>Risk-On · 공격적 포지션 →</span>
+    </div>
+    <div class="gauge-track">
+      <div class="gauge-ptr" id="gaugePtr" style="left:50%"></div>
+    </div>
+    <div class="regime-stats">
+      <div class="rs-item">
+        <span class="rs-label">SPY (S&P 500)</span>
+        <span class="rs-val" id="spyVal">—</span>
+        <span class="rs-sub">시장 기준</span>
+      </div>
+      <div class="rs-item">
+        <span class="rs-label">Risk-On 평균</span>
+        <span class="rs-val" id="riskOnVal">—</span>
+        <span class="rs-sub">XLK XLY XLF XLC XLI</span>
+      </div>
+      <div class="rs-item">
+        <span class="rs-label">Risk-Off 평균</span>
+        <span class="rs-val" id="riskOffVal">—</span>
+        <span class="rs-sub">XLP XLU XLV XLRE</span>
+      </div>
+      <div class="rs-item">
+        <span class="rs-label">최대 유입</span>
+        <span class="rs-val" id="topFlow" style="color:var(--green)">—</span>
+        <span class="rs-sub" id="topFlowName"></span>
+      </div>
+      <div class="rs-item">
+        <span class="rs-label">최대 유출</span>
+        <span class="rs-val" id="botFlow" style="color:var(--red)">—</span>
+        <span class="rs-sub" id="botFlowName"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Volume Alerts -->
+  <div id="alerts" class="alerts"></div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="period-tabs">
+      <button class="ptab active" data-p="1d">오늘 1D</button>
+      <button class="ptab" data-p="5d">주간 5D</button>
+      <button class="ptab" data-p="1mo">월간 1M</button>
+      <button class="ptab" data-p="3mo">분기 3M</button>
+    </div>
+    <div class="ctrl-right">
+      <select class="sort-sel" id="sortSel">
+        <option value="change">수익률순</option>
+        <option value="vol">거래량순</option>
+        <option value="alpha">알파순 (vs SPY)</option>
+      </select>
+      <button class="refresh-btn" id="refreshBtn">↻ 새로고침</button>
+    </div>
+  </div>
+
+  <!-- Heatmap -->
+  <div id="heatmap" class="heatmap">
+    <div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">데이터 불러오는 중...</span></div>
+  </div>
+
+  <!-- Ranking + Rotation -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title">수익률 순위 (SPY 대비 알파)</div>
+      <div id="rankBars"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">섹터 로테이션 사이클</div>
+      <div class="rotation-grid" id="rotGrid"></div>
+    </div>
+  </div>
+
+  <!-- Detail Table -->
+  <div class="table-wrap">
+    <div class="table-head-bar">
+      <span style="font-size:13px;font-weight:700;">ETF 상세 데이터</span>
+      <span style="font-size:11px;color:var(--txt3);margin-left:10px;">수급 강도 · 52주 위치 포함</span>
+    </div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>섹터</th>
+          <th>ETF</th>
+          <th class="r sortable" data-col="price">가격</th>
+          <th class="r sortable" data-col="change">변화율</th>
+          <th class="r sortable" data-col="vol">거래량/평균</th>
+          <th class="r sortable" data-col="pos52">52주 위치</th>
+          <th>구분</th>
+        </tr>
+      </thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ── Sub-sector Detail ── -->
+  <div class="subsector-wrap">
+    <div class="ss-top">
+      <div class="ss-meta">
+        <span class="panel-title" style="margin-bottom:0">세부 섹터 수급</span>
+        <span class="ss-parent-badge" id="ssParentBadge">XLK</span>
+      </div>
+      <div class="ss-tabs">
+        <button class="sstab active" data-ss="tech">💻 기술</button>
+        <button class="sstab" data-ss="health">🏥 헬스케어</button>
+        <button class="sstab" data-ss="finance">🏦 금융</button>
+        <button class="sstab" data-ss="energy">⛽ 에너지</button>
+        <button class="sstab" data-ss="industry">🏭 산업재</button>
+      </div>
+    </div>
+    <div id="ssGrid" class="ss-grid">
+      <div class="ss-loading"><div class="spinner"></div>메인 데이터 로드 후 표시됩니다</div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// ─── Sector config ───
+const SECTORS = [
+  { name:'Technology',        ko:'기술',        etf:'XLK',  type:'growth',    icon:'💻', riskClass:'on'  },
+  { name:'Financials',        ko:'금융',        etf:'XLF',  type:'growth',    icon:'🏦', riskClass:'on'  },
+  { name:'Communication',     ko:'커뮤니케이션', etf:'XLC',  type:'growth',    icon:'📡', riskClass:'on'  },
+  { name:'Consumer Disc.',    ko:'경기소비재',   etf:'XLY',  type:'growth',    icon:'🛍️', riskClass:'on'  },
+  { name:'Industrials',       ko:'산업재',      etf:'XLI',  type:'growth',    icon:'🏭', riskClass:'on'  },
+  { name:'Materials',         ko:'소재',        etf:'XLB',  type:'growth',    icon:'⚗️', riskClass:'on'  },
+  { name:'Energy',            ko:'에너지',      etf:'XLE',  type:'energy',    icon:'⛽', riskClass:'mid' },
+  { name:'Health Care',       ko:'헬스케어',     etf:'XLV',  type:'defensive', icon:'🏥', riskClass:'off' },
+  { name:'Consumer Staples',  ko:'필수소비재',   etf:'XLP',  type:'defensive', icon:'🧴', riskClass:'off' },
+  { name:'Real Estate',       ko:'부동산',      etf:'XLRE', type:'defensive', icon:'🏠', riskClass:'off' },
+  { name:'Utilities',         ko:'유틸리티',    etf:'XLU',  type:'defensive', icon:'⚡', riskClass:'off' },
+];
+
+const RISK_ON  = ['XLK','XLY','XLF','XLC','XLI'];
+const RISK_OFF = ['XLP','XLU','XLV','XLRE'];
+const ALL_SYMS = [...SECTORS.map(s => s.etf), 'SPY'];
+
+// ─── State ───
+let period   = '1d';
+let sortMode = 'change';
+let td       = {};   // tickerData: symbol → { price, change1d, volume, avgVol, volRatio, hi52, lo52, closes }
+let loading  = false;
+
+// ─── API (Yahoo Finance v8 chart — CORS-friendly, no crumb needed) ───
+const YF    = 'https://query1.finance.yahoo.com';
+const PROXY = 'https://corsproxy.io/?';
+
+async function timedFetch(url, ms) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch(e) { clearTimeout(tid); throw e; }
+}
+
+async function safeFetch(url) {
+  // 1) 직접 연결 (localhost 환경)
+  try { return await timedFetch(url, 6000); } catch(_) {}
+  // 2) corsproxy.io
+  try { return await timedFetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, 10000); } catch(_) {}
+  // 3) allorigins.win — file:// 프로토콜에서도 작동
+  try { return await timedFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, 12000); } catch(_) {}
+  // 4) thingproxy
+  return await timedFetch(`https://thingproxy.freeboard.io/fetch/${url}`, 12000);
+}
+
+// v8 chart API → 현재가·거래량·52주 고저·이력 종가 모두 포함
+async function fetchTicker(sym, range) {
+  const url  = `${YF}/v8/finance/chart/${sym}?interval=1d&range=${range}&includePrePost=false`;
+  const data = await safeFetch(url);
+  const res  = data?.chart?.result?.[0];
+  if (!res) throw new Error(`No data: ${sym}`);
+
+  const meta   = res.meta || {};
+  const rawQ   = res.indicators?.quote?.[0] || {};
+  const closes = (rawQ.close  || []).map((v,i) => v ?? null).filter(v => v !== null);
+  const vols   = (rawQ.volume || []).map((v,i) => v ?? null).filter(v => v !== null);
+
+  // 현재가: meta 우선, 없으면 마지막 종가
+  const price  = meta.regularMarketPrice ?? closes[closes.length - 1] ?? null;
+  // 전일 종가: meta.previousClose 또는 배열 마지막 전 값
+  const prev   = meta.previousClose ?? meta.chartPreviousClose
+              ?? (closes.length >= 2 ? closes[closes.length - 2] : null);
+  // 1일 변화율
+  const chg1d  = (price && prev) ? ((price - prev) / prev) * 100
+              : (meta.regularMarketChangePercent ?? null);
+  // 거래량 / 최근 평균 (오늘 제외)
+  const todayVol = meta.regularMarketVolume ?? (vols.length ? vols[vols.length - 1] : null);
+  const histVols = vols.length > 1 ? vols.slice(0, -1) : vols;
+  const avgVol   = histVols.length ? histVols.reduce((s, v) => s + v, 0) / histVols.length : null;
+
+  return {
+    symbol:   sym,
+    price,
+    change1d: chg1d,
+    volume:   todayVol,
+    avgVol,
+    volRatio: (todayVol && avgVol) ? todayVol / avgVol : null,
+    hi52:     meta.fiftyTwoWeekHigh  ?? null,
+    lo52:     meta.fiftyTwoWeekLow   ?? null,
+    closes,   // 이력 종가 (스파크라인 + 기간별 수익률 계산용)
+  };
+}
+
+// ─── Getters ───
+function getChange(sym) {
+  const d = td[sym];
+  if (!d) return null;
+  if (period === '1d') return d.change1d;
+  const c = d.closes;
+  if (!c || c.length < 2) return d.change1d;
+  return ((c[c.length - 1] - c[0]) / c[0]) * 100;
+}
+
+function getVolRatio(sym) { return td[sym]?.volRatio ?? null; }
+
+function get52wPos(sym) {
+  const d = td[sym];
+  if (!d || !d.hi52 || !d.lo52 || !d.price) return null;
+  return ((d.price - d.lo52) / (d.hi52 - d.lo52)) * 100;
+}
+
+// ─── Regime ───
+function computeRegime() {
+  const avg = arr => arr.filter(v => v !== null).reduce((s,v)=>s+v,0) / (arr.filter(v=>v!==null).length||1);
+  const roAvg  = avg(RISK_ON.map(s => getChange(s)));
+  const rdAvg  = avg(RISK_OFF.map(s => getChange(s)));
+  const spyChg = getChange('SPY') ?? 0;
+  return { riskOn: roAvg, riskOff: rdAvg, diff: roAvg - rdAvg, spy: spyChg };
+}
+
+// ─── Colors ───
+function heatColor(pct) {
+  if (pct === null) return { bg:'var(--bg3)', fg:'var(--txt2)' };
+  if (pct >  3.0) return { bg:'#004d33', fg:'#00ff9d' };
+  if (pct >  1.5) return { bg:'#003325', fg:'#00d09c' };
+  if (pct >  0.5) return { bg:'#001f18', fg:'#00b87a' };
+  if (pct >    0) return { bg:'#141e1a', fg:'#4dae8a' };
+  if (pct > -0.5) return { bg:'#1e1418', fg:'#d07080' };
+  if (pct > -1.5) return { bg:'#2d0f18', fg:'#ff6b7a' };
+  if (pct > -3.0) return { bg:'#3d0a14', fg:'#ff4d5e' };
+  return { bg:'#55001a', fg:'#ff1a35' };
+}
+
+function changeStyle(pct) {
+  return pct === null ? '' : pct >= 0 ? 'color:var(--green)' : 'color:var(--red)';
+}
+
+function fmtPct(v, plus = true) {
+  if (v === null) return '—';
+  return (v >= 0 && plus ? '+' : '') + v.toFixed(2) + '%';
+}
+
+// ─── Sparkline ───
+function makeSpark(sym, color) {
+  const d = td[sym]?.closes || [];
+  if (d.length < 2) return `<svg class="spark-svg"></svg>`;
+  const pts = d.slice(-10);
+  const mn  = Math.min(...pts), mx = Math.max(...pts), rng = mx - mn || 1;
+  const W = 100, H = 28;
+  const coords = pts.map((v,i) =>
+    `${(i/(pts.length-1))*W},${H - ((v-mn)/rng)*H}`
+  ).join(' ');
+  return `<svg class="spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <polyline points="${coords}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+  </svg>`;
+}
+
+// ─── Render Regime ───
+function renderRegime() {
+  const { riskOn, riskOff, diff, spy } = computeRegime();
+
+  // Gauge pointer: diff ≈ -5..+5 → 5%..95%
+  const pct = Math.max(5, Math.min(95, 50 + diff * 9));
+  document.getElementById('gaugePtr').style.left = pct + '%';
+
+  const label =
+    diff >  2   ? '🟢 강한 Risk-On — 성장 섹터에 수급 집중' :
+    diff >  0.5 ? '🟡 약한 Risk-On — 소폭 공격적 포지션' :
+    diff < -2   ? '🔴 강한 Risk-Off — 방어 섹터로 자금 이동' :
+    diff < -0.5 ? '🟠 약한 Risk-Off — 소폭 방어적 포지션' :
+                  '⚪ Neutral — 섹터 수급 뚜렷한 방향 없음';
+  document.getElementById('regimeLabel').textContent = label;
+
+  const setVal = (id, v, plus = true) => {
+    const el = document.getElementById(id);
+    el.textContent = fmtPct(v, plus);
+    el.style.color = v >= 0 ? 'var(--green)' : 'var(--red)';
+  };
+  setVal('spyVal',     spy);
+  setVal('riskOnVal',  riskOn);
+  setVal('riskOffVal', riskOff);
+
+  const allChg = SECTORS.map(s => ({ etf:s.etf, ko:s.ko, chg: getChange(s.etf) ?? -999 }));
+  allChg.sort((a,b) => b.chg - a.chg);
+  const top = allChg[0], bot = allChg[allChg.length-1];
+
+  document.getElementById('topFlow').textContent    = fmtPct(top.chg);
+  document.getElementById('topFlowName').textContent = top.etf + ' · ' + top.ko;
+  document.getElementById('botFlow').textContent    = fmtPct(bot.chg);
+  document.getElementById('botFlowName').textContent = bot.etf + ' · ' + bot.ko;
+}
+
+// ─── Render Alerts ───
+function renderAlerts() {
+  const box = document.getElementById('alerts');
+  const chips = [];
+  SECTORS.forEach(s => {
+    const vr = getVolRatio(s.etf);
+    if (vr === null) return;
+    if (vr >= 2.0) chips.push({ etf:s.etf, ko:s.ko, vr, cls:'alert-spike', icon:'🔥' });
+    else if (vr >= 1.5) chips.push({ etf:s.etf, ko:s.ko, vr, cls:'alert-active', icon:'↑' });
+  });
+  if (!chips.length) { box.innerHTML = ''; return; }
+  box.innerHTML = chips.map(c =>
+    `<div class="alert-chip ${c.cls}">${c.icon} ${c.etf} <strong>${c.vr.toFixed(1)}x</strong> 거래량 — ${c.ko}</div>`
+  ).join('');
+}
+
+// ─── Render Heatmap ───
+function renderHeatmap() {
+  const sorted = [...SECTORS].sort((a,b) => (getChange(b.etf)??-999) - (getChange(a.etf)??-999));
+  document.getElementById('heatmap').innerHTML = sorted.map(s => {
+    const chg = getChange(s.etf);
+    const { bg, fg } = heatColor(chg);
+    const vr    = getVolRatio(s.etf);
+    const price = td[s.etf]?.price?.toFixed(2) ?? '—';
+    const pctStr = fmtPct(chg);
+
+    let volBadge = '';
+    if (vr !== null) {
+      if      (vr >= 2.0) volBadge = `<span class="hm-vol-badge" style="color:var(--gold)">🔥 ${vr.toFixed(1)}x</span>`;
+      else if (vr >= 1.5) volBadge = `<span class="hm-vol-badge" style="color:var(--purple)">↑ ${vr.toFixed(1)}x</span>`;
+      else if (vr <  0.7) volBadge = `<span class="hm-vol-badge" style="color:var(--txt3)">↓ ${vr.toFixed(1)}x</span>`;
+    }
+
+    return `<div class="hm-card" style="background:${bg}">
+      <div class="hm-top">
+        <span class="hm-etf" style="color:${fg}">${s.icon} ${s.etf}</span>
+        ${volBadge}
+      </div>
+      <div class="hm-name-ko" style="color:${fg}">${s.ko}</div>
+      <div class="hm-name-en" style="color:${fg}">${s.name}</div>
+      <div class="hm-pct"    style="color:${fg}">${pctStr}</div>
+      <div class="hm-price"  style="color:${fg}">$${price}</div>
+      <div class="hm-spark">${makeSpark(s.etf, fg)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Render Ranking Bars ───
+function renderRanking() {
+  const spyChg = getChange('SPY') ?? 0;
+  const rows   = SECTORS.map(s => ({
+    ...s, chg: getChange(s.etf) ?? 0,
+    alpha: (getChange(s.etf) ?? 0) - spyChg
+  })).sort((a,b) => b.chg - a.chg);
+
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.chg)), 0.01);
+  const aboveSpy = rows.filter(r => r.chg >= spyChg);
+  const belowSpy = rows.filter(r => r.chg <  spyChg);
+
+  const makeRow = r => {
+    const isPos  = r.chg >= 0;
+    const color  = isPos ? 'var(--green)' : 'var(--red)';
+    const bgColor= isPos ? 'rgba(0,208,156,.15)' : 'rgba(255,77,94,.15)';
+    const w      = Math.max(2, Math.abs(r.chg) / maxAbs * 65);
+    const alphaColor = r.alpha >= 0 ? 'var(--blue)' : 'var(--txt3)';
+    return `<div class="rank-row">
+      <span class="rank-label" style="color:${color}">${r.etf}</span>
+      <div class="rank-track">
+        <div class="rank-bar" style="width:${w}%;background:${bgColor};border-left:2px solid ${color}">
+          <span class="rank-bar-txt" style="color:${color}">${r.ko}</span>
+        </div>
+      </div>
+      <span class="rank-pct" style="color:${color}">${fmtPct(r.chg)}</span>
+      <span class="rank-rel" style="color:${alphaColor}">${fmtPct(r.alpha)}</span>
+    </div>`;
+  };
+
+  document.getElementById('rankBars').innerHTML =
+    aboveSpy.map(makeRow).join('') +
+    `<div class="spy-divider"><span class="spy-divider-lbl">SPY ${fmtPct(spyChg)} ← 기준선</span></div>` +
+    belowSpy.map(makeRow).join('');
+}
+
+// ─── Render Rotation Grid ───
+function renderRotation() {
+  const spyChg = getChange('SPY') ?? 0;
+
+  const quadrants = [
+    {
+      label:'Risk-On 강세',
+      desc:'성장 섹터 수급 유입',
+      etfs:['XLK','XLY','XLC','XLF','XLI'],
+      bg:'rgba(0,208,156,.06)', border:'rgba(0,208,156,.2)', col:'var(--green)'
+    },
+    {
+      label:'에너지 · 소재',
+      desc:'경기민감 원자재',
+      etfs:['XLE','XLB'],
+      bg:'rgba(245,166,35,.06)', border:'rgba(245,166,35,.2)', col:'var(--gold)'
+    },
+    {
+      label:'Risk-Off 강세',
+      desc:'방어 섹터 수급 유입',
+      etfs:['XLP','XLU','XLV','XLRE'],
+      bg:'rgba(255,77,94,.06)', border:'rgba(255,77,94,.2)', col:'var(--red)'
+    },
+    {
+      label:'SPY 기준',
+      desc:'시장 평균 대비',
+      etfs:['SPY'],
+      bg:'rgba(79,142,247,.06)', border:'rgba(79,142,247,.2)', col:'var(--blue)'
+    },
+  ];
+
+  document.getElementById('rotGrid').innerHTML = quadrants.map(q => {
+    const items = q.etfs.map(sym => {
+      const chg = getChange(sym);
+      const isPos = (chg ?? 0) >= 0;
+      const c = isPos ? 'var(--green)' : 'var(--red)';
+      return `<div class="rot-etf">
+        <span style="color:${q.col}">${sym}</span>
+        <span class="rot-etf-pct" style="color:${c}">${fmtPct(chg)}</span>
+      </div>`;
+    }).join('');
+    return `<div class="rot-quadrant" style="background:${q.bg};border:1px solid ${q.border}">
+      <div class="rot-q-label" style="color:${q.col}">${q.label}</div>
+      <div class="rot-q-desc">${q.desc}</div>
+      ${items}
+    </div>`;
+  }).join('');
+}
+
+// ─── Render Table ───
+function renderTable() {
+  const spyChg = getChange('SPY') ?? 0;
+  const rows   = [...SECTORS];
+
+  if (sortMode === 'change') rows.sort((a,b) => (getChange(b.etf)??-999) - (getChange(a.etf)??-999));
+  else if (sortMode === 'vol') rows.sort((a,b) => (getVolRatio(b.etf)??0) - (getVolRatio(a.etf)??0));
+  else if (sortMode === 'alpha') rows.sort((a,b) =>
+    ((getChange(b.etf)??-999) - spyChg) - ((getChange(a.etf)??-999) - spyChg)
+  );
+
+  document.getElementById('tblBody').innerHTML = rows.map(s => {
+    const chg   = getChange(s.etf);
+    const vr    = getVolRatio(s.etf);
+    const pos52 = get52wPos(s.etf);
+    const price = td[s.etf]?.price?.toFixed(2) ?? '—';
+    const chgCls = chg === null ? '' : chg >= 0 ? 'up' : 'dn';
+
+    const vrColor = vr === null ? 'var(--txt3)' :
+                    vr >= 2    ? 'var(--gold)'   :
+                    vr >= 1.3  ? 'var(--purple)'  :
+                    vr <  0.7  ? 'var(--txt3)'    : 'var(--txt2)';
+    const vrBarW = vr !== null ? Math.min(vr / 3 * 100, 100) : 0;
+    const vrBarC = vr >= 1.5 ? 'var(--gold)' : vr >= 1 ? 'var(--blue)' : 'var(--txt3)';
+
+    const pos52Str = pos52 !== null ? pos52.toFixed(0) + '%' : '—';
+    const pos52Color = pos52 === null ? 'var(--txt3)' :
+                       pos52 > 80  ? 'var(--green)' :
+                       pos52 < 20  ? 'var(--red)'   : 'var(--txt2)';
+
+    const typeMap = { growth:'성장', defensive:'방어', energy:'에너지' };
+
+    return `<tr>
+      <td>
+        <div class="sector-cell">
+          <span class="sc-name">${s.icon} ${s.name}</span>
+          <span class="sc-ko">${s.ko}</span>
+        </div>
+      </td>
+      <td><span class="etf-chip">${s.etf}</span></td>
+      <td class="r" style="font-weight:600">$${price}</td>
+      <td class="r"><span class="chg ${chgCls}">${fmtPct(chg)}</span></td>
+      <td class="r">
+        <div class="vol-cell">
+          <span class="vol-num" style="color:${vrColor}">${vr !== null ? vr.toFixed(2)+'x' : '—'}</span>
+          <div class="vol-mini"><div class="vol-mini-fill" style="width:${vrBarW}%;background:${vrBarC}"></div></div>
+        </div>
+      </td>
+      <td class="r"><span class="pos52" style="color:${pos52Color}">${pos52Str}</span></td>
+      <td><span class="tag ${s.type}">${typeMap[s.type]}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Market Status ───
+function updateMarketStatus() {
+  const now    = new Date();
+  const utcMin = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const day    = now.getUTCDay();
+  const badge  = document.getElementById('marketBadge');
+
+  if (day === 0 || day === 6) {
+    badge.textContent = '시장 휴장 (주말)';
+    badge.className   = 'market-badge market-closed';
+  } else if (utcMin >= 14*60+30 && utcMin < 21*60) {
+    badge.textContent = '🟢 시장 오픈 (NYSE)';
+    badge.className   = 'market-badge market-open';
+  } else if ((utcMin >= 13*60 && utcMin < 14*60+30) || (utcMin >= 21*60 && utcMin < 22*60)) {
+    badge.textContent = '🟡 프리/애프터마켓';
+    badge.className   = 'market-badge market-pre';
+  } else {
+    badge.textContent = '시장 마감';
+    badge.className   = 'market-badge market-closed';
+  }
+}
+
+function updateTimestamp() {
+  const kst = new Date(Date.now() + 9 * 3600000);
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('lastUpdate').textContent =
+    `${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}:${pad(kst.getUTCSeconds())} KST`;
+}
+
+// ─── Main Load ───
+async function loadAll(p) {
+  if (loading) return;
+  loading = true;
+  period  = p;
+
+  document.getElementById('heatmap').innerHTML =
+    `<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">Yahoo Finance 연결 중...</span></div>`;
+  document.getElementById('refreshBtn').innerHTML = '<span class="spin">↻</span> 로딩중';
+
+  // 1D는 5d 범위 요청 (스파크라인용 이력 + 당일 메타 포함)
+  const range = p === '1d' ? '5d' : p;
+
+  // 모든 티커 병렬 fetch (v8 chart API)
+  const results = await Promise.allSettled(
+    ALL_SYMS.map(sym => fetchTicker(sym, range))
+  );
+
+  let successCount = 0;
+  results.forEach(r => {
+    if (r.status === 'fulfilled') {
+      td[r.value.symbol] = r.value;
+      successCount++;
+    }
+  });
+
+  if (successCount === 0) {
+    document.getElementById('heatmap').innerHTML =
+      `<div class="err-box">
+        <strong>데이터를 불러올 수 없습니다</strong>
+        <small>Yahoo Finance API 및 CORS 프록시 모두 실패했습니다.<br>잠시 후 새로고침 해주세요.</small>
+      </div>`;
+  } else {
+    renderRegime();
+    renderAlerts();
+    renderHeatmap();
+    renderRanking();
+    renderRotation();
+    renderTable();
+    updateMarketStatus();
+    updateTimestamp();
+  }
+
+  loading = false;
+  document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+}
+
+// ═══════════════ SUB-SECTOR ═══════════════
+
+const SUBSECTORS = {
+  tech: {
+    label: '기술 세부 분류', parent: 'XLK',
+    items: [
+      { etf:'SOXX', name:'반도체',     en:'Semiconductors',      icon:'🔲' },
+      { etf:'SMH',  name:'반도체(반에)',en:'Semiconductor (Van)', icon:'💎' },
+      { etf:'IGV',  name:'소프트웨어', en:'Software',             icon:'💿' },
+      { etf:'CLOU', name:'클라우드',   en:'Cloud Computing',      icon:'☁️' },
+      { etf:'CIBR', name:'사이버보안', en:'Cybersecurity',        icon:'🔒' },
+      { etf:'BOTZ', name:'AI·로봇',   en:'AI & Robotics',        icon:'🤖' },
+    ]
+  },
+  health: {
+    label: '헬스케어 세부 분류', parent: 'XLV',
+    items: [
+      { etf:'IBB',  name:'바이오(대형)', en:'Biotech Large-cap',   icon:'🧬' },
+      { etf:'XBI',  name:'바이오(소형)', en:'Biotech Small-cap',   icon:'🔬' },
+      { etf:'IHI',  name:'의료기기',    en:'Medical Devices',      icon:'🩺' },
+      { etf:'XPH',  name:'제약',        en:'Pharmaceuticals',      icon:'💊' },
+    ]
+  },
+  finance: {
+    label: '금융 세부 분류', parent: 'XLF',
+    items: [
+      { etf:'KBE',  name:'은행',         en:'Banks',                icon:'🏦' },
+      { etf:'KRE',  name:'지방은행',     en:'Regional Banks',       icon:'🏘️' },
+      { etf:'KIE',  name:'보험',         en:'Insurance',            icon:'🛡️' },
+      { etf:'IAI',  name:'증권·IB',     en:'Investment Banking',   icon:'📈' },
+    ]
+  },
+  energy: {
+    label: '에너지 세부 분류', parent: 'XLE',
+    items: [
+      { etf:'XOP',  name:'탐사·생산',   en:'E&P',                  icon:'🛢️' },
+      { etf:'OIH',  name:'유전서비스',  en:'Oil Field Services',   icon:'⚙️' },
+      { etf:'CRAK', name:'정제',        en:'Oil Refining',         icon:'🏭' },
+      { etf:'UNG',  name:'천연가스',    en:'Natural Gas',          icon:'🔥' },
+    ]
+  },
+  industry: {
+    label: '산업재 세부 분류', parent: 'XLI',
+    items: [
+      { etf:'ITA',  name:'방산·항공우주', en:'Aerospace & Defense',  icon:'✈️' },
+      { etf:'JETS', name:'항공',          en:'Airlines',             icon:'🛫' },
+      { etf:'ROAD', name:'건설·인프라',   en:'Infrastructure',       icon:'🏗️' },
+      { etf:'PAVE', name:'인프라',        en:'U.S. Infrastructure',  icon:'🌉' },
+    ]
+  },
+};
+
+let std      = {};  // sub-sector ticker data cache
+let ssActive = 'tech';
+
+async function loadSubsector(key) {
+  const group = SUBSECTORS[key];
+  if (!group) return;
+  ssActive = key;
+
+  const box = document.getElementById('ssGrid');
+  box.innerHTML = `<div class="ss-loading"><div class="spinner"></div>세부 데이터 불러오는 중...</div>`;
+  document.getElementById('ssParentBadge').textContent = group.parent;
+
+  const range = period === '1d' ? '5d' : period;
+  const syms  = group.items.map(i => i.etf);
+
+  // fetch only what's not cached (or refresh)
+  await Promise.allSettled(syms.map(async sym => {
+    if (!std[sym]) {
+      const data = await fetchTicker(sym, range).catch(() => null);
+      if (data) std[sym] = data;
+    }
+  }));
+
+  renderSubsector(key);
+}
+
+function renderSubsector(key) {
+  const group  = SUBSECTORS[key];
+  const parent = group.parent;
+  const box    = document.getElementById('ssGrid');
+
+  box.innerHTML = group.items.map(item => {
+    const d   = std[item.etf];
+    const chg = (() => {
+      if (!d) return null;
+      if (period === '1d') return d.change1d;
+      const c = d.closes;
+      return (c && c.length >= 2) ? ((c[c.length-1] - c[0]) / c[0]) * 100 : d.change1d;
+    })();
+    const { bg, fg } = heatColor(chg);
+    const vr     = d?.volRatio ?? null;
+    const price  = d?.price?.toFixed(2) ?? '—';
+    const pctStr = fmtPct(chg);
+
+    // vs parent sector
+    const parentChg = getChange(parent);
+    const alpha     = (chg !== null && parentChg !== null) ? chg - parentChg : null;
+    const alphaStr  = alpha !== null ? (alpha >= 0 ? '+' : '') + alpha.toFixed(2) + '%' : '—';
+    const alphaColor= alpha === null ? 'var(--txt3)' : alpha >= 0 ? 'var(--green)' : 'var(--red)';
+
+    let volBadge = '';
+    if (vr !== null) {
+      if      (vr >= 2.0) volBadge = `<span class="ss-vol" style="color:var(--gold)">🔥${vr.toFixed(1)}x</span>`;
+      else if (vr >= 1.5) volBadge = `<span class="ss-vol" style="color:var(--purple)">↑${vr.toFixed(1)}x</span>`;
+      else if (vr <  0.7) volBadge = `<span class="ss-vol" style="color:var(--txt3)">↓${vr.toFixed(1)}x</span>`;
+    }
+
+    // mini sparkline
+    const closes = d?.closes || [];
+    let spark = '';
+    if (closes.length >= 2) {
+      const pts = closes.slice(-8);
+      const mn = Math.min(...pts), mx = Math.max(...pts), rng = mx - mn || 1;
+      const W = 100, H = 20;
+      const coords = pts.map((v,i) =>
+        `${(i/(pts.length-1))*W},${H - ((v-mn)/rng)*H}`).join(' ');
+      spark = `<svg class="spark-svg ss-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:20px">
+        <polyline points="${coords}" fill="none" stroke="${fg}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+      </svg>`;
+    }
+
+    return `<div class="ss-card" style="background:${bg};border-color:${bg === 'var(--bg3)' ? 'var(--border)' : 'transparent'}">
+      <div class="ss-card-top">
+        <span class="ss-etf" style="color:${fg}">${item.icon} ${item.etf}</span>
+        ${volBadge}
+      </div>
+      <div class="ss-name" style="color:${fg}">${item.name}</div>
+      <div class="ss-en">${item.en}</div>
+      <div class="ss-pct" style="color:${fg}">${pctStr}</div>
+      <div class="ss-price" style="color:${fg}">$${price}</div>
+      ${spark}
+      <div class="ss-vs-parent">
+        <span class="ss-vs-label">vs ${parent}</span>
+        <span class="ss-vs-val" style="color:${alphaColor}">${alphaStr}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Events ───
+document.querySelectorAll('.ptab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadAll(btn.dataset.p);
+  });
+});
+
+document.getElementById('sortSel').addEventListener('change', e => {
+  sortMode = e.target.value;
+  if (Object.keys(td).length) renderTable();
+});
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  std = {}; // 세부 캐시 초기화
+  loadAll(period);
+});
+
+// Sub-sector tab events
+document.querySelectorAll('.sstab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sstab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadSubsector(btn.dataset.ss);
+  });
+});
+
+// Auto-refresh every 3 minutes
+setInterval(() => {
+  std = {};
+  loadAll(period);
+}, 3 * 60 * 1000);
+
+// Init: 메인 로드 → 기술 세부 섹터 자동 로드
+(async () => { await loadAll('1d'); loadSubsector('tech'); })();
+</script>
+</body>
+</html>

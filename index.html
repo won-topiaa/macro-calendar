@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>US Macro Calendar | 미국 거시경제 달력</title>
+<title>Macro Hub | 거시경제 대시보드</title>
 <style>
 :root {
   --bg:#0c0f1a;--bg2:#141828;--bg3:#1c2238;--bg4:#242a42;
@@ -13,798 +13,236 @@
   --green:#00d09c;--green2:rgba(0,208,156,.12);
   --red:#ff4d5e;--red2:rgba(255,77,94,.12);
   --gold:#f5a623;--gold2:rgba(245,166,35,.12);
-  --purple:#a78bfa;
+  --purple:#a78bfa;--purple2:rgba(167,139,250,.12);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
-.site-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+
+/* ── Header ── */
+.site-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .hdr-left{display:flex;align-items:center;gap:12px;}
-.hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#4f8ef7,#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#4f8ef7,#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;}
 .hdr-title h1{font-size:17px;font-weight:700;}
 .hdr-title p{font-size:11px;color:var(--txt3);margin-top:1px;}
-.hdr-right{display:flex;gap:24px;}
-.hdr-stat{text-align:right;}
-.hdr-stat-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;display:block;}
-.hdr-stat-val{font-size:15px;font-weight:700;}
-.hdr-stat-val.rate{color:var(--gold);}
-.container{max-width:1360px;margin:0 auto;padding:24px 20px;}
-.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
-.cal-nav{display:flex;align-items:center;gap:12px;}
-.nav-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;}
-.nav-btn:hover{background:var(--bg4);color:var(--txt);}
-.cal-title{font-size:22px;font-weight:700;min-width:160px;text-align:center;}
-.today-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;}
-.today-btn:hover{background:var(--blue);border-color:var(--blue);color:#fff;}
-.cal-filters{display:flex;gap:6px;flex-wrap:wrap;}
-.filter-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--txt3);cursor:pointer;font-size:11px;font-weight:500;transition:all .15s;white-space:nowrap;}
-.filter-btn:hover{color:var(--txt2);border-color:var(--border2);}
-.filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
-.legend{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
-.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt3);}
-.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.cal-grid{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.day-headers{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg3);border-bottom:1px solid var(--border);}
-.day-hdr{padding:10px 8px;text-align:center;font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;}
-.cal-body{display:grid;grid-template-columns:repeat(7,1fr);}
-.day-cell{min-height:108px;padding:7px 6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);vertical-align:top;}
-.day-cell:nth-child(7n){border-right:none;}
-.day-cell.other-month{opacity:.25;pointer-events:none;}
-.day-cell.today{background:rgba(79,142,247,.04);}
-.day-cell.weekend .day-num{color:var(--txt3);}
-.day-num{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:5px;display:flex;align-items:center;gap:4px;}
-.today-circle{width:19px;height:19px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
-.event-chip{display:flex;align-items:center;gap:3px;padding:3px 6px;border-radius:4px;margin-bottom:2px;cursor:pointer;transition:all .15s;font-size:10.5px;font-weight:500;line-height:1.3;border:1px solid transparent;max-width:100%;overflow:hidden;}
-.event-chip:hover{transform:translateX(2px);filter:brightness(1.15);}
-.event-chip .imp{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-.imp.high{background:var(--red);}
-.imp.medium{background:var(--gold);}
-.imp.low{background:var(--blue);}
-.chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
-.chip-val{font-weight:700;white-space:nowrap;flex-shrink:0;font-size:10px;}
-.chip-beat{background:var(--green2);border-color:rgba(0,208,156,.25);color:var(--green);}
-.chip-miss{background:var(--red2);border-color:rgba(255,77,94,.25);color:var(--red);}
-.chip-inline{background:rgba(100,110,145,.15);border-color:rgba(100,110,145,.25);color:var(--txt2);}
-.chip-upcoming{background:var(--blue2);border-color:rgba(79,142,247,.25);color:var(--blue);}
-.chip-fomc{background:var(--gold2);border-color:rgba(245,166,35,.3);color:var(--gold);}
-.more-chip{font-size:10px;color:var(--txt3);cursor:pointer;padding:1px 3px;border-radius:3px;margin-top:1px;display:inline-block;}
-.more-chip:hover{color:var(--txt2);background:var(--bg4);}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s;}
-.overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--bg3);border:1px solid var(--border);border-radius:16px;width:100%;max-width:540px;max-height:88vh;overflow-y:auto;transform:translateY(16px) scale(.98);transition:transform .2s;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.overlay.open .modal{transform:translateY(0) scale(1);}
-.modal::-webkit-scrollbar{width:4px;}
-.modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.modal-hdr{padding:20px 22px 14px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:flex-start;}
-.modal-hdr-left{flex:1;}
-.modal-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
-.modal-name{font-size:19px;font-weight:700;line-height:1.2;margin-bottom:4px;}
-.modal-name-ko{font-size:12px;color:var(--txt2);}
-.modal-close{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:background .15s;}
-.modal-close:hover{background:var(--bg4);}
-.modal-body{padding:18px 22px;}
-.stats-row{display:grid;gap:10px;margin-bottom:16px;}
-.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
-.stat-box-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
-.stat-box-val{font-size:19px;font-weight:700;}
-.stat-box-val.beat{color:var(--green);}
-.stat-box-val.miss{color:var(--red);}
-.stat-box-val.neutral{color:var(--txt);}
-.stat-box-val.upcoming{color:var(--blue);}
-.stat-box-val.fomc-val{color:var(--gold);}
-.modal-desc{background:var(--bg2);border-radius:10px;padding:13px 15px;margin-bottom:16px;font-size:12px;color:var(--txt2);line-height:1.65;}
-.modal-link{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:var(--txt2);text-decoration:none;font-size:12px;font-weight:500;margin-bottom:18px;transition:all .15s;}
-.modal-link:hover{border-color:var(--blue);color:var(--blue);background:var(--blue2);}
-.cat-fomc{color:var(--gold);}
-.cat-employment{color:var(--green);}
-.cat-inflation{color:var(--red);}
-.cat-growth{color:var(--blue);}
-.cat-housing{color:var(--purple);}
-.cat-consumer{color:#f472b6;}
-.cat-manufacturing{color:#38bdf8;}
-.cat-trade{color:#34d399;}
-html{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-@media(max-width:768px){.container{padding:12px;}.day-cell{min-height:72px;padding:4px 3px;}.event-chip{font-size:9.5px;padding:2px 4px;}.hdr-right{display:none;}.cal-filters{display:none;}.cal-title{font-size:18px;}}
+.market-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+.market-open  {background:var(--green2);color:var(--green);border:1px solid rgba(0,208,156,.3);}
+.market-pre   {background:var(--gold2); color:var(--gold); border:1px solid rgba(245,166,35,.3);}
+.market-closed{background:var(--bg3);   color:var(--txt3); border:1px solid var(--border);}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:64px 20px 48px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--blue2);border:1px solid rgba(79,142,247,.3);color:var(--blue);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:20px;}
+.hero h2{font-size:42px;font-weight:800;letter-spacing:-1px;line-height:1.2;margin-bottom:14px;}
+.hero h2 span{background:linear-gradient(90deg,#4f8ef7,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:16px;color:var(--txt2);max-width:520px;margin:0 auto 36px;line-height:1.7;}
+.hero-stats{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;}
+.hs-item{text-align:center;}
+.hs-val{font-size:28px;font-weight:800;display:block;}
+.hs-label{font-size:11px;color:var(--txt3);margin-top:2px;}
+
+/* ── Tools Grid ── */
+.container{max-width:1100px;margin:0 auto;padding:0 20px 80px;}
+.section-title{font-size:13px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;}
+.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;}
+@media(max-width:700px){.tools-grid{grid-template-columns:1fr;}}
+
+.tool-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:0;transition:transform .18s,box-shadow .18s,border-color .18s;position:relative;overflow:hidden;}
+.tool-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.4);border-color:var(--border2);}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.tool-card.blue::before{background:linear-gradient(90deg,#4f8ef7,#a78bfa);}
+.tool-card.green::before{background:linear-gradient(90deg,#00d09c,#4f8ef7);}
+
+.tc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.tc-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.tc-icon.blue{background:var(--blue2);}
+.tc-icon.green{background:var(--green2);}
+.tc-arrow{font-size:18px;color:var(--txt3);margin-top:4px;}
+.tool-card:hover .tc-arrow{color:var(--txt);}
+.tc-name{font-size:22px;font-weight:800;margin-bottom:6px;}
+.tc-desc{font-size:14px;color:var(--txt2);line-height:1.6;margin-bottom:20px;}
+.tc-features{display:flex;flex-direction:column;gap:7px;margin-bottom:24px;}
+.tc-feat{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2);}
+.tc-feat-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.tc-feat-dot.blue{background:var(--blue);}
+.tc-feat-dot.green{background:var(--green);}
+.tc-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;width:fit-content;transition:opacity .15s;}
+.tc-btn.blue{background:var(--blue);color:#fff;}
+.tc-btn.green{background:var(--green);color:#0c0f1a;}
+.tc-btn:hover{opacity:.85;}
+
+/* ── Mini market strip ── */
+.market-strip{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:48px;display:flex;gap:0;overflow-x:auto;}
+.ms-item{flex:1;min-width:110px;padding:0 20px;border-right:1px solid var(--border);text-align:center;}
+.ms-item:first-child{padding-left:0;text-align:left;}
+.ms-item:last-child{border-right:none;}
+.ms-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;}
+.ms-val{font-size:18px;font-weight:800;}
+.ms-chg{font-size:11px;font-weight:600;display:block;margin-top:2px;}
+.up{color:var(--green);}
+.dn{color:var(--red);}
+
+/* ── Footer ── */
+.footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;color:var(--txt3);font-size:12px;}
+.footer a{color:var(--txt3);text-decoration:none;}
+.footer a:hover{color:var(--txt2);}
 </style>
 </head>
 <body>
+
 <header class="site-header">
   <div class="hdr-left">
     <div class="hdr-logo">📊</div>
     <div class="hdr-title">
-      <h1>US Macro Calendar</h1>
-      <p>미국 거시경제 지표 &amp; FOMC 달력 · FRED 실시간 · 한국 시간(KST) 기준</p>
+      <h1>Macro Hub</h1>
+      <p>거시경제 분석 대시보드 · KST 기준</p>
     </div>
   </div>
-  <div class="hdr-right">
-    <div class="hdr-stat">
-      <span class="hdr-stat-label">연방기금금리</span>
-      <span class="hdr-stat-val rate" id="ffrDisplay">–</span>
-    </div>
-    <div class="hdr-stat">
-      <span class="hdr-stat-label">다음 FOMC</span>
-      <span class="hdr-stat-val" id="nextFomcDisplay">–</span>
-    </div>
-  </div>
+  <span id="marketBadge" class="market-badge market-closed">시장 마감</span>
 </header>
-<main class="container">
-  <div class="cal-header">
-    <div class="cal-nav">
-      <button class="nav-btn" id="prevBtn">&#8249;</button>
-      <div class="cal-title" id="calTitle"></div>
-      <button class="nav-btn" id="nextBtn">&#8250;</button>
-      <button class="today-btn" id="todayBtn">오늘</button>
-    </div>
-    <div class="cal-filters" id="filterBar"></div>
+
+<div class="hero">
+  <div class="hero-badge">🚀 실시간 데이터 · Yahoo Finance</div>
+  <h2>시장의 흐름을<br><span>한눈에 파악</span>하세요</h2>
+  <p>미국 거시경제 지표 캘린더와 섹터별 수급 흐름을 실시간으로 추적합니다.</p>
+  <div class="hero-stats">
+    <div class="hs-item"><span class="hs-val" style="color:var(--blue)">11</span><span class="hs-label">추적 섹터</span></div>
+    <div class="hs-item"><span class="hs-val" style="color:var(--green)">30+</span><span class="hs-label">경제 지표</span></div>
+    <div class="hs-item"><span class="hs-val" style="color:var(--gold)">3분</span><span class="hs-label">자동 갱신</span></div>
   </div>
-  <div class="legend">
-    <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>이전값 상회</div>
-    <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>이전값 하회</div>
-    <div class="leg-item"><div class="leg-dot" style="background:var(--border2)"></div>부합</div>
-    <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div>발표 예정</div>
-    <div class="leg-item"><div class="leg-dot" style="background:var(--gold)"></div>FOMC</div>
-    <div class="leg-item"><div class="imp high" style="display:inline-block;width:8px;height:8px;border-radius:50%"></div>중요도 높음</div>
-    <div class="leg-item"><div class="imp medium" style="display:inline-block;width:8px;height:8px;border-radius:50%"></div>중요도 중간</div>
-    <div class="leg-item" style="margin-left:auto;"><span id="fredStatus" style="font-size:11px;color:var(--txt3);"></span></div>
-  </div>
-  <div class="cal-grid">
-    <div class="day-headers" id="dayHeaders"></div>
-    <div class="cal-body" id="calBody"></div>
-  </div>
-</main>
-<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
-  <div class="modal" id="modal"></div>
 </div>
+
+<div class="container">
+
+  <!-- Market Strip -->
+  <div id="marketStrip" class="market-strip">
+    <div class="ms-item"><span class="ms-label">SPY</span><span class="ms-val" id="ms-spy">—</span><span class="ms-chg" id="ms-spy-c">로딩중</span></div>
+    <div class="ms-item"><span class="ms-label">QQQ</span><span class="ms-val" id="ms-qqq">—</span><span class="ms-chg" id="ms-qqq-c">로딩중</span></div>
+    <div class="ms-item"><span class="ms-label">최대 유입</span><span class="ms-val" id="ms-top">—</span><span class="ms-chg" id="ms-top-c" style="color:var(--green)">섹터</span></div>
+    <div class="ms-item"><span class="ms-label">최대 유출</span><span class="ms-val" id="ms-bot">—</span><span class="ms-chg" id="ms-bot-c" style="color:var(--red)">섹터</span></div>
+    <div class="ms-item"><span class="ms-label">Risk 성향</span><span class="ms-val" id="ms-regime" style="font-size:13px">—</span><span class="ms-chg" id="ms-regime-c">분석중</span></div>
+  </div>
+
+  <!-- Tools -->
+  <div class="section-title">도구 선택</div>
+  <div class="tools-grid">
+
+    <a href="macro-calendar.html" class="tool-card blue">
+      <div class="tc-top">
+        <div class="tc-icon blue">📅</div>
+        <span class="tc-arrow">→</span>
+      </div>
+      <div class="tc-name">매크로 캘린더</div>
+      <div class="tc-desc">미국 주요 경제지표 발표 일정과 FRED 실시간 데이터를 월별 캘린더로 확인합니다.</div>
+      <div class="tc-features">
+        <div class="tc-feat"><span class="tc-feat-dot blue"></span>FOMC · 금리 결정 일정</div>
+        <div class="tc-feat"><span class="tc-feat-dot blue"></span>CPI · PCE · NFP · GDP 발표</div>
+        <div class="tc-feat"><span class="tc-feat-dot blue"></span>FRED 실시간 연동</div>
+        <div class="tc-feat"><span class="tc-feat-dot blue"></span>한국 시간(KST) 기준</div>
+      </div>
+      <span class="tc-btn blue">캘린더 열기 →</span>
+    </a>
+
+    <a href="sector-flow.html" class="tool-card green">
+      <div class="tc-top">
+        <div class="tc-icon green">📊</div>
+        <span class="tc-arrow">→</span>
+      </div>
+      <div class="tc-name">섹터 수급 흐름</div>
+      <div class="tc-desc">SPDR ETF 11개 섹터의 자금 흐름을 히트맵으로 파악하고 Risk-On/Off 성향을 분석합니다.</div>
+      <div class="tc-features">
+        <div class="tc-feat"><span class="tc-feat-dot green"></span>11개 SPDR 섹터 ETF 히트맵</div>
+        <div class="tc-feat"><span class="tc-feat-dot green"></span>Risk-On / Risk-Off 게이지</div>
+        <div class="tc-feat"><span class="tc-feat-dot green"></span>반도체·소프트웨어 등 세부 섹터</div>
+        <div class="tc-feat"><span class="tc-feat-dot green"></span>거래량 스파이크 알림</div>
+      </div>
+      <span class="tc-btn green">수급 흐름 보기 →</span>
+    </a>
+
+  </div>
+
+</div>
+
+<footer class="footer">
+  <p>데이터 출처: Yahoo Finance · FRED (Federal Reserve) · 최대 15분 지연 · <span id="footerTime"></span></p>
+</footer>
+
 <script>
-/* ============================================================
-   CONFIG
-============================================================ */
-const FRED_KEY = 'eabdbbc9f6d3d4300c5ad940b27a1a16';
-
-// FRED series → { calculation type, good direction, display formatter }
-const FC = {
-  'PAYEMS:mom_change':      {dir:'high', fmt:v=>`${v>0?'+':''}${Math.round(v)}K`},
-  'UNRATE:direct':          {dir:'low',  fmt:v=>`${parseFloat(v).toFixed(1)}%`},
-  'CES0500000003:mom_pct':  {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  'CPIAUCSL:yoy_pct':       {dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
-  'CPIAUCSL:mom_pct':       {dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
-  'CPILFESL:mom_pct':       {dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
-  'PCEPI:yoy_pct':          {dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
-  'PCEPILFE:yoy_pct':       {dir:'low',  fmt:v=>`${v.toFixed(1)}%`},
-  'PPIFIS:mom_pct':         {dir:'low',  fmt:v=>`${v>=0?'+':''}${v.toFixed(2)}%`},
-  'RSXFS:mom_pct':          {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  'INDPRO:mom_pct':         {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  'HOUST:direct':           {dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
-  'PERMIT:direct':          {dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
-  'JTSJOL:direct':          {dir:'high', fmt:v=>`${(parseFloat(v)/1000).toFixed(2)}M`},
-  'ICSA:direct':            {dir:'low',  fmt:v=>`${Math.round(parseFloat(v)/1000)}K`},
-  'UMCSENT:direct':         {dir:'high', fmt:v=>`${parseFloat(v).toFixed(1)}`},
-  'A191RL1Q225SBEA:direct': {dir:'high', fmt:v=>`${parseFloat(v)>=0?'+':''}${parseFloat(v).toFixed(1)}%`},
-  'PI:mom_pct':             {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  'PCE:mom_pct':            {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  'DGORDER:mom_pct':        {dir:'high', fmt:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},
-  'EXHOSLUSM495S:direct':   {dir:'high', fmt:v=>`${parseFloat(v).toFixed(2)}M`},
-  'HSN1F:direct':           {dir:'high', fmt:v=>`${Math.round(parseFloat(v))}K`},
-  'DFEDTARU:direct':        {dir:'low',  fmt:v=>`${parseFloat(v).toFixed(2)}%`},
-};
-
-/* ============================================================
-   FOMC SCHEDULE (hardcoded — updated annually by Fed)
-============================================================ */
-const FOMC_SCHEDULE = [
-  {y:2026,m:0, day1:'2026-01-27',dec:'2026-01-28',presser:true},
-  {y:2026,m:2, day1:'2026-03-17',dec:'2026-03-18',presser:true},
-  {y:2026,m:3, day1:'2026-04-28',dec:'2026-04-29',presser:true},
-  {y:2026,m:5, day1:'2026-06-16',dec:'2026-06-17',presser:true},
-  {y:2026,m:6, day1:'2026-07-28',dec:'2026-07-29',presser:false},
-  {y:2026,m:8, day1:'2026-09-15',dec:'2026-09-16',presser:true},
-  {y:2026,m:9, day1:'2026-10-27',dec:'2026-10-28',presser:false},
-  {y:2026,m:11,day1:'2026-12-08',dec:'2026-12-09',presser:true},
-  {y:2027,m:0, day1:'2027-01-26',dec:'2027-01-27',presser:true},
-  {y:2027,m:2, day1:'2027-03-16',dec:'2027-03-17',presser:true},
-  {y:2027,m:3, day1:'2027-04-27',dec:'2027-04-28',presser:true},
-  {y:2027,m:5, day1:'2027-06-15',dec:'2027-06-16',presser:true},
-  {y:2027,m:6, day1:'2027-07-27',dec:'2027-07-28',presser:false},
-  {y:2027,m:8, day1:'2027-09-14',dec:'2027-09-15',presser:true},
-  {y:2027,m:9, day1:'2027-10-26',dec:'2027-10-27',presser:false},
-  {y:2027,m:11,day1:'2027-12-07',dec:'2027-12-08',presser:true},
-];
-
-/* ============================================================
-   DATE HELPERS
-============================================================ */
-function toDS(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function toYM(y,m){return `${y}-${String(m+1).padStart(2,'0')}`;}
-function firstWD(y,m,wd){let d=new Date(y,m,1);while(d.getDay()!==wd)d.setDate(d.getDate()+1);return d;}
-function nthWD(y,m,wd,n){let d=firstWD(y,m,wd);d.setDate(d.getDate()+(n-1)*7);return d;}
-function lastWD(y,m,wd){let d=new Date(y,m+1,0);while(d.getDay()!==wd)d.setDate(d.getDate()-1);return d;}
-function allWD(y,m,wd){let r=[],d=firstWD(y,m,wd);while(d.getMonth()===m){r.push(new Date(d));d.setDate(d.getDate()+7);}return r;}
-function firstBD(y,m){let d=new Date(y,m,1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()+1);return d;}
-function nthBD(y,m,n){let d=new Date(y,m,1),c=0;while(true){if(d.getDay()!==0&&d.getDay()!==6){c++;if(c===n)return d;}d.setDate(d.getDate()+1);}}
-function offM(y,m,o){let nm=m+o,ny=y;while(nm<0){nm+=12;ny--;}while(nm>11){nm-=12;ny++;}return{y:ny,m:nm};}
-
-/* ============================================================
-   KST (한국 표준시, UTC+9) 변환
-   EDT(UTC-4)→KST: +13h / EST(UTC-5)→KST: +14h
-   US DST: 3월 둘째 일요일 ~ 11월 첫째 일요일
-============================================================ */
-function isUSEDT(dateStr){
-  const d=new Date(dateStr+'T12:00:00'),y=d.getFullYear();
-  return d>=nthWD(y,2,0,2)&&d<nthWD(y,10,0,1);
-}
-function etToKST(dateStr,timeStr){
-  if(!timeStr||timeStr==='–')return{date:dateStr,time:'–'};
-  const [h,m]=timeStr.split(':').map(Number);
-  const off=isUSEDT(dateStr)?13:14;
-  const tot=h*60+m+off*60;
-  const kstH=Math.floor(tot/60)%24,kstM=tot%60;
-  const kstTime=`${String(kstH).padStart(2,'0')}:${String(kstM).padStart(2,'0')}`;
-  const dayOff=Math.floor(tot/(24*60));
-  let kstDate=dateStr;
-  if(dayOff>0){const nd=new Date(dateStr+'T12:00:00');nd.setDate(nd.getDate()+dayOff);kstDate=toDS(nd);}
-  return{date:kstDate,time:kstTime};
+// Market status
+function updateMarket() {
+  const now = new Date();
+  const utcMin = now.getUTCHours()*60 + now.getUTCMinutes();
+  const day = now.getUTCDay();
+  const badge = document.getElementById('marketBadge');
+  if(day===0||day===6){badge.textContent='시장 휴장';badge.className='market-badge market-closed';}
+  else if(utcMin>=14*60+30&&utcMin<21*60){badge.textContent='🟢 시장 오픈 (NYSE)';badge.className='market-badge market-open';}
+  else if((utcMin>=13*60&&utcMin<14*60+30)||(utcMin>=21*60&&utcMin<22*60)){badge.textContent='🟡 프리/애프터마켓';badge.className='market-badge market-pre';}
+  else{badge.textContent='시장 마감';badge.className='market-badge market-closed';}
 }
 
-/* ============================================================
-   DESCRIPTIONS & LINKS
-============================================================ */
-const DESCS={
-  'ISM Manufacturing PMI':'ISM 제조업 구매관리자지수. 50 이상이면 경기 확장, 미만이면 수축을 나타냅니다.',
-  'ISM Services PMI':'ISM 서비스 PMI. 미국 경제의 약 75%를 차지하는 서비스 부문의 경기를 반영합니다.',
-  'Nonfarm Payrolls':'전국 비농업 부문 신규 고용자 수. 연방준비제도가 통화정책 결정 시 가장 중시하는 지표입니다.',
-  'Unemployment Rate':'경제활동인구 중 실업자 비율. 노동시장 건전성의 핵심 지표입니다.',
-  'Avg Hourly Earnings MoM':'전월 대비 평균 시간당 임금 변화율. 인플레이션 압력 및 소비자 구매력의 선행 지표입니다.',
-  'ADP Nonfarm Employment':'ADP 민간 부문 고용 변화. 공식 NFP 발표 이틀 전에 선행 지표로 발표됩니다.',
-  'JOLTS Job Openings':'미국 노동통계국의 구인·이직 현황 보고서. 노동시장 수요를 보여주는 핵심 지표입니다.',
-  'Initial Jobless Claims':'주간 신규 실업급여 신청 건수. 매주 목요일 발표되는 노동시장 실시간 지표입니다.',
-  'CPI YoY':'소비자물가지수 전년 대비. 연준의 통화정책 결정에 가장 큰 영향을 미치는 지표입니다.',
-  'Core CPI MoM':'식품·에너지를 제외한 근원 CPI. 기저적 인플레이션 트렌드를 파악하는 데 활용됩니다.',
-  'PPI MoM':'생산자물가지수. CPI의 선행 지표로 활용됩니다.',
-  'PCE Price Index YoY':'연준이 공식 목표로 삼는 물가지표. 목표치 2%에 근접할수록 금리 인하 가능성이 높아집니다.',
-  'Core PCE YoY':'식품·에너지를 제외한 근원 PCE. 연준의 인플레이션 목표 달성 여부를 판단하는 핵심 지표입니다.',
-  'Retail Sales MoM':'소매업체 판매액 변화. GDP의 선행 지표이며 소비자 지출의 약 40%를 차지합니다.',
-  'Industrial Production MoM':'광업·제조업·전기·가스 부문의 생산량 변화입니다.',
-  'Housing Starts':'신규 민간 주택 착공 건수. 건설 경기 및 향후 공급 상황을 보여줍니다.',
-  'Building Permits':'신규 민간 주택 건축허가 건수. 주택 착공의 선행 지표입니다.',
-  'Existing Home Sales':'기존 주택 판매 건수. 주택시장 수요를 보여주는 핵심 지표입니다.',
-  'New Home Sales':'신규 주택 판매 건수. 선행 지표로서 주택시장 동향을 파악하는 데 활용됩니다.',
-  'Durable Goods Orders MoM':'3년 이상 사용하는 내구재 신규 주문 변화율. 기업 투자 동향의 선행 지표입니다.',
-  'Personal Income MoM':'임금·사업소득·이전수입 등을 포함한 개인소득 변화율입니다.',
-  'Personal Spending MoM':'가계의 재화·서비스 지출 변화율. GDP의 약 70%를 차지하는 소비 동향의 핵심 지표입니다.',
-  'Michigan Consumer Sentiment (Prelim)':'미시간대학교가 발표하는 소비자 신뢰도 지수 예비치입니다.',
-  'Michigan Consumer Sentiment (Final)':'미시간대학교 소비자심리지수 확정치입니다.',
-  'Consumer Confidence':'컨퍼런스보드 소비자 신뢰도 지수. 소비 지출 전망의 선행 지표입니다.',
-  'NY Empire State Mfg':'뉴욕 연방준비은행이 발표하는 뉴욕주 제조업 경기 지수입니다.',
-  'Philadelphia Fed Mfg':'필라델피아 연방준비은행이 발표하는 중부대서양 지역 제조업 경기 지수입니다.',
-  'Trade Balance':'상품·서비스 수출입 차이. 적자 축소는 달러 강세 요인이 될 수 있습니다.',
-  'Consumer Credit MoM':'소비자 부채 변화. 신용카드 및 자동차 할부 등을 포함합니다.',
-  'Pending Home Sales MoM':'기존 주택 매매 계약 체결 건수. 기존 주택 판매의 선행 지표입니다.',
-  'FOMC Rate Decision':'연방공개시장위원회의 기준금리 결정 발표.',
-  'FOMC Meeting Day 1':'FOMC 정례회의 첫째 날. 금리 결정은 다음 날 발표됩니다.',
-  'Fed Chair Press Conference':'FOMC 금리 결정 직후 연준 의장의 기자회견입니다.',
-  'Fed Beige Book':'연준이 12개 지역연준으로부터 수집한 경제 현황 보고서입니다.',
-};
-const LINKS={
-  nfp:'https://www.bls.gov/news.release/empsit.nr0.htm',
-  unemp:'https://www.bls.gov/news.release/empsit.nr0.htm',
-  ahe:'https://www.bls.gov/news.release/empsit.nr0.htm',
-  adp:'https://adpemploymentreport.com/',
-  'ism-mfg':'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/manufacturing/',
-  'ism-svc':'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/services/',
-  jolts:'https://www.bls.gov/jlt/',
-  claims:'https://www.dol.gov/ui/data.pdf',
-  cpi:'https://www.bls.gov/cpi/',
-  'core-cpi':'https://www.bls.gov/cpi/',
-  ppi:'https://www.bls.gov/ppi/',
-  pce:'https://www.bea.gov/data/personal-consumption-expenditures-price-index',
-  'core-pce':'https://www.bea.gov/data/personal-consumption-expenditures-price-index',
-  retail:'https://www.census.gov/retail/index.html',
-  indprod:'https://www.federalreserve.gov/releases/g17/',
-  housing:'https://www.census.gov/construction/nrc/index.html',
-  permits:'https://www.census.gov/construction/nrc/index.html',
-  'exist-homes':'https://www.nar.realtor/research-and-statistics/housing-statistics/existing-home-sales',
-  'new-homes':'https://www.census.gov/construction/nrs/index.html',
-  durable:'https://www.census.gov/manufacturing/m3/index.html',
-  'pers-income':'https://www.bea.gov/data/income-saving/personal-income',
-  'pers-spend':'https://www.bea.gov/data/consumer-spending/main',
-  mich:'https://lsa.umich.edu/ses/research/consumer-research.html',
-  'conf-board':'https://www.conference-board.org/topics/consumer-confidence',
-  empire:'https://www.newyorkfed.org/survey/empire/empiresurvey_overview',
-  philly:'https://www.philadelphiafed.org/surveys-and-data/regional-economic-analysis/manufacturing-business-outlook-survey',
-  trade:'https://www.census.gov/foreign-trade/Press-Release/current_press_release/index.html',
-  credit:'https://www.federalreserve.gov/releases/g19/',
-  gdp:'https://www.bea.gov/data/gdp/gross-domestic-product',
-  fomc:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
-  beige:'https://www.federalreserve.gov/monetarypolicy/beige-book-default.htm',
-  pending:'https://www.nar.realtor/research-and-statistics/housing-statistics/pending-home-sales',
-};
+// Footer time
+function updateFooter() {
+  const kst = new Date(Date.now()+9*3600000);
+  const p = n=>String(n).padStart(2,'0');
+  document.getElementById('footerTime').textContent =
+    `${kst.getUTCFullYear()}.${p(kst.getUTCMonth()+1)}.${p(kst.getUTCDate())} ${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())} KST`;
+}
 
+// Mini market strip — v8 chart API
+const PROXY = 'https://corsproxy.io/?';
+async function fetchMeta(sym) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`;
+  const tryFetch = async u => { const r=await fetch(u,{signal:AbortSignal.timeout(8000)}); if(!r.ok)throw new Error(r.status); return r.json(); };
+  try { return await tryFetch(url); } catch(_) {}
+  try { return await tryFetch(PROXY+encodeURIComponent(url)); } catch(_) {}
+  try { return await tryFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`); } catch(_) { return null; }
+}
 
-/* ============================================================
-   EVENT FACTORY
-============================================================ */
-const TODAY=new Date();
-function makeEv(id,date,time,name,nameKo,cat,imp,linkKey,series,calc,ref){
-  const kst=etToKST(date,time);
-  const released=kst.date&&new Date(kst.date+'T23:59:59')<=TODAY;
-  return{
-    id,date:kst.date,time:kst.time,name,nameKo,category:cat,importance:imp,
-    actual:null,previous:null,
-    released,beat:released?'inline':null,
-    link:LINKS[linkKey]||LINKS['fomc']||'#',
-    desc:DESCS[name]||'–',
-    _series:series,_calc:calc,_ref:ref
+const SECTORS_MINI = ['XLK','XLF','XLC','XLY','XLI','XLB','XLE','XLV','XLP','XLRE','XLU'];
+
+async function loadStrip() {
+  const [spy, qqq, ...secs] = await Promise.all(
+    ['SPY','QQQ',...SECTORS_MINI].map(s => fetchMeta(s))
+  );
+  const getMeta = d => d?.chart?.result?.[0]?.meta || {};
+  const getChg  = d => {
+    const m = getMeta(d);
+    if (m.regularMarketPrice && m.previousClose)
+      return (m.regularMarketPrice - m.previousClose) / m.previousClose * 100;
+    return m.regularMarketChangePercent ?? null;
   };
+  const fmt = (v,sym) => {
+    if(v===null) return;
+    const el=document.getElementById(sym), ec=document.getElementById(sym+'-c');
+    if(!el||!ec) return;
+    const m = getMeta(v===spy?spy:qqq);
+    el.textContent = '$'+(m.regularMarketPrice?.toFixed(2)||'—');
+    ec.textContent = (getChg(v)>=0?'+':'')+getChg(v)?.toFixed(2)+'%';
+    ec.className = 'ms-chg '+(getChg(v)>=0?'up':'dn');
+  };
+  fmt(spy,'ms-spy'); fmt(qqq,'ms-qqq');
+
+  const secChgs = secs.map((d,i)=>({sym:SECTORS_MINI[i],chg:getChg(d)??0}));
+  secChgs.sort((a,b)=>b.chg-a.chg);
+  const top=secChgs[0], bot=secChgs[secChgs.length-1];
+  document.getElementById('ms-top').textContent = top.sym;
+  document.getElementById('ms-top-c').textContent = (top.chg>=0?'+':'')+top.chg.toFixed(2)+'%';
+  document.getElementById('ms-bot').textContent = bot.sym;
+  document.getElementById('ms-bot-c').textContent = (bot.chg>=0?'+':'')+bot.chg.toFixed(2)+'%';
+
+  const onAvg = ['XLK','XLY','XLF','XLC','XLI'].map(s=>secChgs.find(x=>x.sym===s)?.chg||0).reduce((a,b)=>a+b,0)/5;
+  const offAvg= ['XLP','XLU','XLV','XLRE'].map(s=>secChgs.find(x=>x.sym===s)?.chg||0).reduce((a,b)=>a+b,0)/4;
+  const diff  = onAvg-offAvg;
+  const rEl=document.getElementById('ms-regime'), rcEl=document.getElementById('ms-regime-c');
+  rEl.textContent  = diff>1?'Risk-On 🟢':diff<-1?'Risk-Off 🔴':'Neutral ⚪';
+  rcEl.textContent = `On ${onAvg>=0?'+':''}${onAvg.toFixed(1)}% / Off ${offAvg>=0?'+':''}${offAvg.toFixed(1)}%`;
+  rcEl.className = 'ms-chg '+(diff>=0?'up':'dn');
 }
 
-/* ============================================================
-   AUTO-GENERATE MONTH EVENTS
-============================================================ */
-function generateMonthEvents(year,month){
-  const evs=[];
-  const ym=toYM(year,month);
-  const pm=offM(year,month,-1), pp=offM(year,month,-2);
-  const pym=toYM(pm.y,pm.m), ppym=toYM(pp.y,pp.m);
-
-  function add(slug,date,time,name,nameKo,cat,imp,linkKey,series,calc,ref){
-    // Avoid adding events that fall outside this month
-    if(date.getMonth()!==month||date.getFullYear()!==year)return;
-    evs.push(makeEv(`${slug}-${ym}`,toDS(date),time,name,nameKo,cat,imp,linkKey,series,calc,ref));
-  }
-
-  // ── Week 1 ──────────────────────────────────────────────
-  // ISM Manufacturing: 1st business day
-  add('ism-mfg',firstBD(year,month),'10:00','ISM Manufacturing PMI','ISM 제조업 PMI','manufacturing','medium','ism-mfg',null,null,null);
-
-  // JOLTS: 1st Tuesday (data from 2 months ago)
-  add('jolts',nthWD(year,month,2,1),'10:00','JOLTS Job Openings','JOLTS 구인건수','employment','high','jolts','JTSJOL','direct',ppym);
-
-  // Trade Balance: 1st Thursday
-  add('trade',nthWD(year,month,4,1),'08:30','Trade Balance','무역수지','trade','medium','trade',null,null,null);
-
-  // NFP week: First Friday
-  const nfpDate=nthWD(year,month,5,1);
-  // ADP: Wednesday before NFP
-  const adpDate=new Date(nfpDate); adpDate.setDate(adpDate.getDate()-2);
-  add('adp',adpDate,'08:15','ADP Nonfarm Employment','ADP 비농업 고용','employment','medium','adp',null,null,null);
-  // ISM Services: 3rd business day (falls in NFP week)
-  add('ism-svc',nthBD(year,month,3),'10:00','ISM Services PMI','ISM 서비스 PMI','manufacturing','high','ism-svc',null,null,null);
-  add('nfp',nfpDate,'08:30','Nonfarm Payrolls','비농업 고용자수','employment','high','nfp','PAYEMS','mom_change',pym);
-  add('unemp',nfpDate,'08:30','Unemployment Rate','실업률','employment','high','unemp','UNRATE','direct',pym);
-  add('ahe',nfpDate,'08:30','Avg Hourly Earnings MoM','평균 시간당 임금 (전월 대비)','employment','medium','ahe','CES0500000003','mom_pct',pym);
-
-  // ── Week 2 ──────────────────────────────────────────────
-  // CPI: 2nd Wednesday
-  const cpiDate=nthWD(year,month,3,2);
-  add('cpi',cpiDate,'08:30','CPI YoY','소비자물가지수 (전년 대비)','inflation','high','cpi','CPIAUCSL','yoy_pct',pym);
-  add('core-cpi',cpiDate,'08:30','Core CPI MoM','근원 CPI (전월 대비)','inflation','high','core-cpi','CPILFESL','mom_pct',pym);
-  // PPI: Thursday after CPI
-  const ppiDate=new Date(cpiDate); ppiDate.setDate(ppiDate.getDate()+1);
-  add('ppi',ppiDate,'08:30','PPI MoM','생산자물가지수 (전월 대비)','inflation','high','ppi','PPIFIS','mom_pct',pym);
-  // Michigan Prelim: 2nd Friday
-  add('mich-prelim',nthWD(year,month,5,2),'10:00','Michigan Consumer Sentiment (Prelim)','미시간 소비자심리지수 (예비)','consumer','medium','mich','UMCSENT','direct',ym);
-  // Consumer Credit: 2nd Monday
-  add('credit',nthWD(year,month,1,2),'15:00','Consumer Credit MoM','소비자 신용 (전월 대비)','consumer','low','credit',null,null,null);
-
-  // ── Week 3 ──────────────────────────────────────────────
-  // Empire State: 3rd Monday
-  add('empire',nthWD(year,month,1,3),'08:30','NY Empire State Mfg','뉴욕 엠파이어스테이트 제조업','manufacturing','medium','empire',null,null,null);
-  // Retail Sales: 3rd Wednesday
-  add('retail',nthWD(year,month,3,3),'08:30','Retail Sales MoM','소매판매 (전월 대비)','consumer','high','retail','RSXFS','mom_pct',pym);
-  // Industrial Production & Philly Fed: 3rd Thursday
-  const thu3=nthWD(year,month,4,3);
-  add('indprod',thu3,'09:15','Industrial Production MoM','산업생산 (전월 대비)','manufacturing','medium','indprod','INDPRO','mom_pct',pym);
-  add('philly',thu3,'08:30','Philadelphia Fed Mfg','필라델피아 연준 제조업','manufacturing','medium','philly',null,null,null);
-  // Housing Starts & Permits: 3rd Friday
-  const fri3=nthWD(year,month,5,3);
-  add('housing',fri3,'08:30','Housing Starts','주택착공','housing','medium','housing','HOUST','direct',pym);
-  add('permits',fri3,'08:30','Building Permits','건축허가','housing','medium','permits','PERMIT','direct',pym);
-
-  // ── Week 4 ──────────────────────────────────────────────
-  // New Home Sales: 4th Wednesday
-  add('new-homes',nthWD(year,month,3,4),'10:00','New Home Sales','신규주택판매','housing','medium','new-homes','HSN1F','direct',pym);
-  // Existing Home Sales & Durable Goods: 4th Thursday
-  const thu4=nthWD(year,month,4,4);
-  add('exist-homes',thu4,'10:00','Existing Home Sales','기존주택판매','housing','medium','exist-homes','EXHOSLUSM495S','direct',pym);
-  add('durable',thu4,'08:30','Durable Goods Orders MoM','내구재 주문 (전월 대비)','manufacturing','medium','durable','DGORDER','mom_pct',pym);
-  // Pending Home Sales: 4th Monday
-  add('pending',nthWD(year,month,1,4),'10:00','Pending Home Sales MoM','주택판매보류 (전월 대비)','housing','low','pending',null,null,null);
-
-  // ── Last Week ────────────────────────────────────────────
-  // Consumer Confidence: Last Tuesday
-  add('conf-board',lastWD(year,month,2),'10:00','Consumer Confidence','소비자신뢰지수','consumer','medium','conf-board',null,null,null);
-  // PCE / Personal Income & Spending / Michigan Final: Last Friday
-  const lastFri=lastWD(year,month,5);
-  add('pce',lastFri,'08:30','PCE Price Index YoY','PCE 물가지수 (전년 대비)','inflation','high','pce','PCEPI','yoy_pct',pym);
-  add('core-pce',lastFri,'08:30','Core PCE YoY','근원 PCE (전년 대비)','inflation','high','core-pce','PCEPILFE','yoy_pct',pym);
-  add('pers-income',lastFri,'08:30','Personal Income MoM','개인소득 (전월 대비)','consumer','medium','pers-income','PI','mom_pct',pym);
-  add('pers-spend',lastFri,'08:30','Personal Spending MoM','개인소비 (전월 대비)','consumer','high','pers-spend','PCE','mom_pct',pym);
-  add('mich-final',lastFri,'10:00','Michigan Consumer Sentiment (Final)','미시간 소비자심리지수 (확정)','consumer','medium','mich','UMCSENT','direct',ym);
-
-  // ── GDP: Quarterly advance (Jan, Apr, Jul, Oct) ──────────
-  if([0,3,6,9].includes(month)){
-    const qMap={0:'Q4',3:'Q1',6:'Q2',9:'Q3'};
-    const qRefM={0:9,3:0,6:3,9:6};
-    const qRefY={0:year-1,3:year,6:year,9:year};
-    const lastThu=lastWD(year,month,4);
-    if(lastThu.getMonth()===month){
-      evs.push(makeEv(
-        `gdp-${ym}`,toDS(lastThu),'08:30',
-        `GDP QoQ Advance (${qMap[month]} ${qRefY[month]})`,
-        `GDP 속보치 (${qRefY[month]} ${qMap[month]})`,
-        'growth','high','gdp','A191RL1Q225SBEA','direct',toYM(qRefY[month],qRefM[month])
-      ));
-    }
-  }
-
-  // ── Initial Jobless Claims: Every Thursday ───────────────
-  allWD(year,month,4).forEach((d,i)=>{
-    evs.push(makeEv(
-      `claims-${ym}-${i+1}`,toDS(d),'08:30',
-      'Initial Jobless Claims','신규 실업수당 청구건수',
-      'employment','medium','claims','ICSA','direct_weekly',null
-    ));
-  });
-
-  // ── FOMC Events ──────────────────────────────────────────
-  FOMC_SCHEDULE.forEach(f=>{
-    // Beige Book: ~2 weeks before decision, nearest Wednesday
-    const decD=new Date(f.dec+'T12:00:00');
-    const beigeD=new Date(decD); beigeD.setDate(beigeD.getDate()-14);
-    const bwd=beigeD.getDay();
-    if(bwd!==3){beigeD.setDate(beigeD.getDate()+(bwd<3?3-bwd:10-bwd));}
-    if(beigeD.getMonth()===month&&beigeD.getFullYear()===year){
-      evs.push(makeEv(`beige-${f.y}${f.m}`,toDS(beigeD),'14:00','Fed Beige Book','연준 베이지북','fomc','medium','beige',null,null,null));
-    }
-    // FOMC Day 1
-    const d1=new Date(f.day1+'T12:00:00');
-    if(d1.getMonth()===month&&d1.getFullYear()===year){
-      evs.push(makeEv(`fomc-day1-${f.y}${f.m}`,f.day1,'–','FOMC Meeting Day 1','FOMC 정례회의 1일차','fomc','high','fomc',null,null,null));
-    }
-    // FOMC Decision
-    if(decD.getMonth()===month&&decD.getFullYear()===year){
-      evs.push(makeEv(`fomc-dec-${f.y}${f.m}`,f.dec,'14:00','FOMC Rate Decision','FOMC 금리 결정','fomc','high','fomc','DFEDTARU','direct',null));
-      if(f.presser)evs.push(makeEv(`fomc-pc-${f.y}${f.m}`,f.dec,'14:30','Fed Chair Press Conference','연준 의장 기자회견','fomc','high','fomc',null,null,null));
-    }
-  });
-
-  return evs;
-}
-
-/* ============================================================
-   STATE
-============================================================ */
-let viewYear=TODAY.getFullYear(), viewMonth=TODAY.getMonth();
-let activeFilter='all', activeEvent=null;
-let EVENTS=[];
-const fredCache={};
-
-function regenerateEvents(){
-  EVENTS=[];
-  for(let o=-1;o<=2;o++){
-    const {y,m}=offM(viewYear,viewMonth,o);
-    EVENTS.push(...generateMonthEvents(y,m));
-  }
-}
-
-/* ============================================================
-   FILTERS / LABELS
-============================================================ */
-const FILTERS=[
-  {id:'all',label:'전체'},{id:'fomc',label:'FOMC'},{id:'employment',label:'고용'},
-  {id:'inflation',label:'물가'},{id:'growth',label:'성장'},{id:'housing',label:'주택'},
-  {id:'manufacturing',label:'제조업'},{id:'consumer',label:'소비자'},{id:'trade',label:'무역'},
-];
-const CAT_LABELS={fomc:'FOMC',employment:'고용',inflation:'물가',growth:'성장',housing:'주택',manufacturing:'제조업',consumer:'소비자',trade:'무역'};
-const MONTHS_KO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-const DAYS_KO=['일','월','화','수','목','금','토'];
-
-
-/* ============================================================
-   RENDER
-============================================================ */
-function renderFilters(){
-  document.getElementById('filterBar').innerHTML=FILTERS.map(f=>
-    `<button class="filter-btn ${activeFilter===f.id?'active':''}" onclick="setFilter('${f.id}')">${f.label}</button>`
-  ).join('');
-}
-function setFilter(f){activeFilter=f;renderFilters();renderCalendar();}
-
-function renderCalendar(){
-  document.getElementById('calTitle').textContent=`${viewYear}년 ${MONTHS_KO[viewMonth]}`;
-  document.getElementById('dayHeaders').innerHTML=DAYS_KO.map((d,i)=>`<div class="day-hdr ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
-
-  const firstDay=new Date(viewYear,viewMonth,1).getDay();
-  const daysInMonth=new Date(viewYear,viewMonth+1,0).getDate();
-  const daysInPrev=new Date(viewYear,viewMonth,0).getDate();
-  let cells=[];
-  for(let i=firstDay-1;i>=0;i--)cells.push({d:new Date(viewYear,viewMonth-1,daysInPrev-i),other:true});
-  for(let d=1;d<=daysInMonth;d++)cells.push({d:new Date(viewYear,viewMonth,d),other:false});
-  while(cells.length<42)cells.push({d:new Date(viewYear,viewMonth+1,cells.length-firstDay-daysInMonth+1),other:true});
-  document.getElementById('calBody').innerHTML=cells.map(c=>renderDayCell(c)).join('');
-
-  // Update next FOMC display
-  const now=new Date();
-  const next=FOMC_SCHEDULE.find(f=>{const k=etToKST(f.dec,'14:00');return new Date(k.date+'T'+k.time+':00')>=now;});
-  if(next){const k=etToKST(next.dec,'14:00');document.getElementById('nextFomcDisplay').textContent=k.date.slice(5).replace('-','.');}
-}
-
-function eventsForDate(d){
-  const ds=toDS(d);
-  return EVENTS.filter(e=>e.date===ds&&(activeFilter==='all'||e.category===activeFilter));
-}
-
-function chipClass(ev){
-  if(ev.category==='fomc')return 'chip-fomc';
-  if(!ev.released)return 'chip-upcoming';
-  if(ev.beat==='beat')return 'chip-beat';
-  if(ev.beat==='miss')return 'chip-miss';
-  return 'chip-inline';
-}
-
-function renderDayCell({d,other}){
-  const today=d.getFullYear()===TODAY.getFullYear()&&d.getMonth()===TODAY.getMonth()&&d.getDate()===TODAY.getDate();
-  const weekend=d.getDay()===0||d.getDay()===6;
-  const cls=['day-cell',other?'other-month':'',today?'today':'',weekend?'weekend':''].filter(Boolean).join(' ');
-  const evs=eventsForDate(d), MAX=3;
-  const shown=evs.slice(0,MAX), extra=evs.length-MAX;
-  const dayNum=today?`<div class="day-num"><div class="today-circle">${d.getDate()}</div></div>`:`<div class="day-num">${d.getDate()}</div>`;
-  const chips=shown.map(ev=>`
-    <div class="event-chip ${chipClass(ev)}" onclick="openModal('${ev.id}')">
-      <span class="imp ${ev.importance}"></span>
-      <span class="chip-name">${ev.name.split(' ').slice(0,3).join(' ')}</span>
-      ${ev.released&&ev.actual?`<span class="chip-val">${ev.actual}</span>`:''}
-    </div>`).join('');
-  const more=extra>0?`<span class="more-chip" onclick="showAllDay('${toDS(d)}')">+${extra}개 더</span>`:'';
-  return `<div class="${cls}">${dayNum}${chips}${more}</div>`;
-}
-
-/* ============================================================
-   MODAL
-============================================================ */
-function openModal(id){
-  const ev=EVENTS.find(e=>e.id===id); if(!ev)return;
-  activeEvent=ev; renderModal(ev);
-  document.getElementById('overlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';activeEvent=null;}
-function handleOverlayClick(e){if(e.target===document.getElementById('overlay'))closeModal();}
-
-function renderModal(ev){
-  const catLabel=CAT_LABELS[ev.category]||ev.category;
-  const catCls='cat-'+ev.category;
-
-  let statsHtml='';
-  if(ev.released&&ev.actual){
-    const ac=ev.beat==='beat'?'beat':ev.beat==='miss'?'miss':'neutral';
-    statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
-      <div class="stat-box"><div class="stat-box-label">실제값</div><div class="stat-box-val ${ac}">${ev.actual}</div></div>
-      <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
-    </div>`;
-  }else if(ev.released){
-    statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
-      <div class="stat-box"><div class="stat-box-label">실제값</div><div class="stat-box-val upcoming" style="font-size:12px;">FRED 업데이트 대기</div></div>
-      <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
-    </div>`;
-  }else{
-    const vc2=ev.category==='fomc'?'fomc-val':'upcoming';
-    statsHtml=`<div class="stats-row" style="grid-template-columns:1fr 1fr;">
-      <div class="stat-box"><div class="stat-box-label">발표 시간</div><div class="stat-box-val ${vc2}" style="font-size:15px">${ev.time||'–'} KST</div></div>
-      <div class="stat-box"><div class="stat-box-label">이전값</div><div class="stat-box-val neutral">${ev.previous||'–'}</div></div>
-    </div>`;
-  }
-
-  const dateObj=new Date(ev.date+'T12:00:00');
-  const dateLabel=`${dateObj.getFullYear()}년 ${MONTHS_KO[dateObj.getMonth()]} ${dateObj.getDate()}일${ev.time&&ev.time!=='–'?' · '+ev.time+' KST':''}`;
-  const impLabel=ev.importance==='high'?'🔴 중요도 높음':ev.importance==='medium'?'🟡 중요도 중간':'🔵 중요도 낮음';
-
-  document.getElementById('modal').innerHTML=`
-    <div class="modal-hdr">
-      <div class="modal-hdr-left">
-        <div class="modal-cat ${catCls}">${catLabel} · ${impLabel}</div>
-        <div class="modal-name">${ev.name}</div>
-        <div class="modal-name-ko">${ev.nameKo} &nbsp;·&nbsp; ${dateLabel}</div>
-      </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      ${statsHtml}
-      <div class="modal-desc">${ev.desc}</div>
-      <a class="modal-link" href="${ev.link}" target="_blank" rel="noopener">
-        <span>🔗 상세 데이터 바로가기</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-    </div>`;
-}
-
-function showAllDay(ds){
-  const evs=EVENTS.filter(e=>e.date===ds&&(activeFilter==='all'||e.category===activeFilter));
-  if(!evs.length)return;
-  const d=new Date(ds+'T12:00:00');
-  document.getElementById('modal').innerHTML=`
-    <div class="modal-hdr">
-      <div class="modal-hdr-left">
-        <div class="modal-cat">📅 ${d.getFullYear()}년 ${MONTHS_KO[d.getMonth()]} ${d.getDate()}일</div>
-        <div class="modal-name">${evs.length}개 지표</div>
-      </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      ${evs.map(ev=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;background:var(--bg2);"
-        onclick="openModal('${ev.id}')" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg2)'">
-        <div class="imp ${ev.importance}" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
-        <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${ev.name}</div>
-        <div style="font-size:11px;color:var(--txt3);">${ev.nameKo} · ${ev.time||'–'} KST</div></div>
-        <div style="font-size:12px;font-weight:700;${ev.released&&ev.actual?(ev.beat==='beat'?'color:var(--green)':ev.beat==='miss'?'color:var(--red)':'color:var(--txt2)'):'color:var(--blue)'}">
-          ${ev.released&&ev.actual?ev.actual:'예정'}
-        </div>›</div>`).join('')}
-    </div>`;
-  document.getElementById('overlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-/* ============================================================
-   FRED API
-============================================================ */
-async function fredFetch(series,limit=15){
-  if(fredCache[series])return fredCache[series];
-  try{
-    const r=await fetch(`https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${FRED_KEY}&file_type=json&sort_order=desc&limit=${limit}`);
-    if(!r.ok)return[];
-    const d=await r.json();
-    fredCache[series]=(d.observations||[]).filter(o=>o.value!='.');
-    return fredCache[series];
-  }catch(e){return[];}
-}
-
-function momPct(obs,ref){
-  const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const i=s.findIndex(o=>o.date.startsWith(ref));
-  if(i<0||i>=s.length-1)return{val:null,prv:null};
-  const val=(parseFloat(s[i].value)/parseFloat(s[i+1].value)-1)*100;
-  const prv=i+2<s.length?(parseFloat(s[i+1].value)/parseFloat(s[i+2].value)-1)*100:null;
-  return{val,prv};
-}
-function yoyPct(obs,ref){
-  const cur=obs.find(o=>o.date.startsWith(ref)); if(!cur)return{val:null,prv:null};
-  const d=new Date(ref+'-01'); d.setFullYear(d.getFullYear()-1);
-  const p1=obs.find(o=>o.date.startsWith(d.toISOString().slice(0,7))); if(!p1)return{val:null,prv:null};
-  const val=(parseFloat(cur.value)/parseFloat(p1.value)-1)*100;
-  // prev month yoy
-  const pd=new Date(ref+'-01'); pd.setMonth(pd.getMonth()-1);
-  const pd2=new Date(pd); pd2.setFullYear(pd2.getFullYear()-1);
-  const cur2=obs.find(o=>o.date.startsWith(pd.toISOString().slice(0,7)));
-  const p2=obs.find(o=>o.date.startsWith(pd2.toISOString().slice(0,7)));
-  const prv=cur2&&p2?(parseFloat(cur2.value)/parseFloat(p2.value)-1)*100:null;
-  return{val,prv};
-}
-function momChange(obs,ref){
-  const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const i=s.findIndex(o=>o.date.startsWith(ref));
-  if(i<0||i>=s.length-1)return{val:null,prv:null};
-  const val=parseFloat(s[i].value)-parseFloat(s[i+1].value);
-  const prv=i+2<s.length?parseFloat(s[i+1].value)-parseFloat(s[i+2].value):null;
-  return{val,prv};
-}
-function beatDir(val,prv,dir){
-  if(prv===null)return'inline';
-  const diff=val-prv;
-  if(Math.abs(diff)<Math.abs(prv)*0.003)return'inline';
-  return(dir==='high'?diff>0:diff<0)?'beat':'miss';
-}
-
-async function initFREDData(){
-  const el=document.getElementById('fredStatus');
-  el.textContent='⟳ FRED 데이터 로딩 중...';
-
-  const ffr=await fredFetch('DFEDTARU',2);
-  if(ffr.length>0)document.getElementById('ffrDisplay').textContent=`${parseFloat(ffr[0].value).toFixed(2)}%`;
-
-  // 발표된 것 + 예정된 것 모두 처리 (이전값을 위해)
-  const allSeries=EVENTS.filter(ev=>ev._series&&ev._calc);
-  if(!allSeries.length){el.textContent='';return;}
-
-  const normalSeries=[...new Set(allSeries.filter(e=>e._calc!=='direct_weekly').map(e=>e._series))];
-  await Promise.all(normalSeries.map(s=>fredFetch(s,15)));
-
-  // 주간 실업수당 청구건수
-  const claimsEvs=allSeries.filter(e=>e._calc==='direct_weekly');
-  if(claimsEvs.length>0){
-    const icsa=await fredFetch('ICSA',10);
-    const sorted=[...icsa].sort((a,b)=>new Date(b.date)-new Date(a.date));
-    claimsEvs.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    claimsEvs.forEach((ev,i)=>{
-      if(i>=sorted.length)return;
-      const cfg=FC['ICSA:direct'];
-      if(ev.released){
-        ev.actual=cfg.fmt(sorted[i].value);
-        ev.beat=i+1<sorted.length?beatDir(parseFloat(sorted[i].value),parseFloat(sorted[i+1].value),cfg.dir):'inline';
-      }
-      if(i+1<sorted.length)try{ev.previous=cfg.fmt(sorted[i+1].value);}catch(e){}
-    });
-  }
-
-  // 그 외 지표 처리
-  for(const ev of allSeries.filter(e=>e._calc!=='direct_weekly')){
-    const obs=fredCache[ev._series]||[];
-    if(!obs.length)continue;
-    const cfg=FC[`${ev._series}:${ev._calc}`]; if(!cfg)continue;
-
-    let val=null, prv=null;
-    try{
-      // 발표된 이벤트: _ref 기준으로 실제값 계산
-      if(ev.released&&ev._ref){
-        if(ev._calc==='direct'){
-          const o=obs.find(x=>x.date.startsWith(ev._ref));
-          if(o){
-            val=parseFloat(o.value);
-            const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-            const i=s.findIndex(x=>x.date===o.date);
-            if(i>=0&&i<s.length-1)prv=parseFloat(s[i+1].value);
-          }
-        }else if(ev._calc==='mom_pct'){const r=momPct(obs,ev._ref);val=r.val;prv=r.prv;}
-        else if(ev._calc==='yoy_pct'){const r=yoyPct(obs,ev._ref);val=r.val;prv=r.prv;}
-        else if(ev._calc==='mom_change'){const r=momChange(obs,ev._ref);val=r.val;prv=r.prv;}
-      }else if(ev.released&&!ev._ref&&ev._calc==='direct'){
-        // ref 없는 direct (예: FOMC 금리)
-        const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-        if(s.length>0){val=parseFloat(s[0].value);if(s.length>1)prv=parseFloat(s[1].value);}
-      }
-
-      // prv가 없는 경우 (발표됐지만 FRED 미업데이트, 또는 발표 예정):
-      // 가장 최신 FRED 데이터로 이전값 계산
-      if(prv===null){
-        const s=[...obs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-        if(ev._calc==='direct'&&s.length>0){
-          prv=parseFloat(s[0].value);
-        }else if(ev._calc==='mom_pct'&&s.length>=2){
-          prv=(parseFloat(s[0].value)/parseFloat(s[1].value)-1)*100;
-        }else if(ev._calc==='yoy_pct'&&s.length>0){
-          const d=new Date(s[0].date);d.setFullYear(d.getFullYear()-1);
-          const ya=obs.find(o=>o.date.startsWith(d.toISOString().slice(0,7)));
-          if(ya)prv=(parseFloat(s[0].value)/parseFloat(ya.value)-1)*100;
-        }else if(ev._calc==='mom_change'&&s.length>=2){
-          prv=parseFloat(s[0].value)-parseFloat(s[1].value);
-        }
-      }
-    }catch(e){continue;}
-
-    if(ev.released&&val!==null&&!isNaN(val)){
-      ev.actual=cfg.fmt(val);
-      ev.beat=beatDir(val,prv,cfg.dir);
-    }
-    if(prv!==null&&!isNaN(prv))try{ev.previous=cfg.fmt(prv);}catch(e){}
-  }
-
-  el.textContent='✓ FRED 실시간';
-  renderCalendar();
-  if(activeEvent){const u=EVENTS.find(e=>e.id===activeEvent.id);if(u)renderModal(u);}
-}
-
-/* ============================================================
-   NAVIGATION
-============================================================ */
-document.getElementById('prevBtn').onclick=()=>{
-  viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--;}
-  regenerateEvents();renderCalendar();initFREDData();
-};
-document.getElementById('nextBtn').onclick=()=>{
-  viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++;}
-  regenerateEvents();renderCalendar();initFREDData();
-};
-document.getElementById('todayBtn').onclick=()=>{
-  viewYear=TODAY.getFullYear();viewMonth=TODAY.getMonth();
-  regenerateEvents();renderCalendar();initFREDData();
-};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-
-/* ============================================================
-   INIT
-============================================================ */
-regenerateEvents();
-renderFilters();
-renderCalendar();
-initFREDData();
+updateMarket();
+updateFooter();
+loadStrip();
+setInterval(updateMarket, 30000);
+setInterval(updateFooter, 60000);
 </script>
 </body>
 </html>
