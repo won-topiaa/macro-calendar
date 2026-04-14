@@ -359,42 +359,41 @@ async function loadAll() {
     `<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">CoinGecko 연결 중...</span></div>`;
 
   try {
-    // 1) Global market data
-    const [globalRes, priceRes] = await Promise.all([
+    // ── 1) Global + Markets 동시 요청 (총 2건) ──
+    // /coins/markets 단일 호출로 가격·시총·거래량·기간 수익률 모두 획득
+    const [globalRes, marketsRes] = await Promise.all([
       safeFetch(`${CG}/global`),
-      safeFetch(`${CG}/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`),
+      safeFetch(`${CG}/coins/markets?vs_currency=usd&ids=bitcoin,ethereum&order=market_cap_desc&sparkline=false&price_change_percentage=24h,7d,30d`),
     ]);
     globalData = globalRes?.data || {};
-    priceData  = priceRes || {};
 
-    // 2) Charts for current period (BTC + ETH)
-    const chartReqs = ['bitcoin','ethereum'].map(async id => {
+    // markets 배열 → { bitcoin: {...}, ethereum: {...} } 형태로 변환
+    const mkts = {};
+    (marketsRes || []).forEach(c => { mkts[c.id] = c; });
+    priceData = mkts;
+
+    // ── 2) 스파크라인용 차트 + 90D 수익률 (순차 요청으로 rate limit 회피) ──
+    for (const id of ['bitcoin', 'ethereum']) {
+      // 현재 기간 차트
       const key = `${id}-${days}`;
       if (!chartCache[key]) {
-        const d = await safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=${days}`).catch(()=>null);
+        const d = await safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=${days}`).catch(() => null);
         if (d) chartCache[key] = d.prices || [];
       }
-    });
-
-    // 3) Multi-period change for trend panel (load lazily)
-    const mpReqs = ['bitcoin','ethereum'].map(async id => {
+      // 90D 수익률 (markets API에 없어서 별도 요청)
       if (!multiPeriod[id]) {
-        const results = await Promise.allSettled([
-          safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=1`),
-          safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=7`),
-          safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=30`),
-          safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=90`),
-        ]);
-        const pctFrom = r => {
-          const p = r.status==='fulfilled' ? r.value?.prices : null;
-          if (!p || p.length < 2) return null;
-          return (p[p.length-1][1] - p[0][1]) / p[0][1] * 100;
+        const coin = mkts[id] || {};
+        const d90res = await safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=90`).catch(() => null);
+        const p90 = d90res?.prices;
+        const d90 = (p90 && p90.length >= 2) ? (p90[p90.length-1][1] - p90[0][1]) / p90[0][1] * 100 : null;
+        multiPeriod[id] = {
+          d1:  coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h ?? null,
+          d7:  coin.price_change_percentage_7d_in_currency  ?? null,
+          d30: coin.price_change_percentage_30d_in_currency ?? null,
+          d90,
         };
-        multiPeriod[id] = { d1:pctFrom(results[0]), d7:pctFrom(results[1]), d30:pctFrom(results[2]), d90:pctFrom(results[3]) };
       }
-    });
-
-    await Promise.all([...chartReqs, ...mpReqs]);
+    }
 
     // 4) FNG
     loadFNG();
@@ -421,23 +420,24 @@ function renderOverview() {
   const totalChg  = g.market_cap_change_percentage_24h_usd;
   const vol24     = g.total_volume?.usd;
 
-  const btc = priceData.bitcoin   || {};
-  const eth = priceData.ethereum  || {};
+  // /coins/markets 응답: current_price, market_cap, total_volume, price_change_percentage_24h
+  const btc = priceData.bitcoin  || {};
+  const eth = priceData.ethereum || {};
 
   document.getElementById('ov-total-mcap').textContent = fmt$(totalMcap);
   const tcEl = document.getElementById('ov-total-chg');
   tcEl.textContent = fmtPct(totalChg);
   tcEl.className = 'ov-sub ' + chgClass(totalChg);
 
-  document.getElementById('ov-btc-price').textContent = fmt$(btc.usd);
+  document.getElementById('ov-btc-price').textContent = fmt$(btc.current_price);
   const bcEl = document.getElementById('ov-btc-chg');
-  bcEl.textContent = fmtPct(btc.usd_24h_change);
-  bcEl.className = 'ov-sub ' + chgClass(btc.usd_24h_change);
+  bcEl.textContent = fmtPct(btc.price_change_percentage_24h);
+  bcEl.className = 'ov-sub ' + chgClass(btc.price_change_percentage_24h);
 
-  document.getElementById('ov-eth-price').textContent = fmt$(eth.usd);
+  document.getElementById('ov-eth-price').textContent = fmt$(eth.current_price);
   const ecEl = document.getElementById('ov-eth-chg');
-  ecEl.textContent = fmtPct(eth.usd_24h_change);
-  ecEl.className = 'ov-sub ' + chgClass(eth.usd_24h_change);
+  ecEl.textContent = fmtPct(eth.price_change_percentage_24h);
+  ecEl.className = 'ov-sub ' + chgClass(eth.price_change_percentage_24h);
 
   const btcDom = g.market_cap_percentage?.btc;
   document.getElementById('ov-btc-dom').textContent = btcDom ? btcDom.toFixed(1)+'%' : '—';
@@ -463,50 +463,54 @@ function renderDominance() {
 
 // ─── Render Cards ───
 function renderCards() {
-  const btc   = priceData.bitcoin   || {};
-  const eth   = priceData.ethereum  || {};
-  const g     = globalData;
+  // /coins/markets 필드: current_price, market_cap, total_volume, price_change_percentage_24h
+  const btc = priceData.bitcoin  || {};
+  const eth = priceData.ethereum || {};
+  const g   = globalData;
   const totalMcap = g.total_market_cap?.usd;
   const totalChg  = g.market_cap_change_percentage_24h_usd;
   const vol24h    = g.total_volume?.usd;
 
-  const btcCharts = chartCache[`bitcoin-${days}`] || [];
+  const btcCharts = chartCache[`bitcoin-${days}`]  || [];
   const ethCharts = chartCache[`ethereum-${days}`] || [];
 
-  // Period-based change (use chart data if multi-day)
-  const periodChg = (id, fallback) => {
-    const key = `${id}-${days}`;
-    const c = chartCache[key];
+  // 기간별 수익률: 차트 데이터 있으면 우선, 없으면 multiPeriod 값
+  const periodChg = (id, fallback24h) => {
+    const c = chartCache[`${id}-${days}`];
     if (c && c.length >= 2) return (c[c.length-1][1] - c[0][1]) / c[0][1] * 100;
-    return fallback ?? null;
+    if (days === 1)  return multiPeriod[id]?.d1  ?? fallback24h ?? null;
+    if (days === 7)  return multiPeriod[id]?.d7  ?? null;
+    if (days === 30) return multiPeriod[id]?.d30 ?? null;
+    if (days === 90) return multiPeriod[id]?.d90 ?? null;
+    return fallback24h ?? null;
   };
 
-  const btcChg   = periodChg('bitcoin',  btc.usd_24h_change);
-  const ethChg   = periodChg('ethereum', eth.usd_24h_change);
+  const btcChg = periodChg('bitcoin',  btc.price_change_percentage_24h);
+  const ethChg = periodChg('ethereum', eth.price_change_percentage_24h);
 
   const coins = [
     {
       id:'bitcoin', name:'Bitcoin', symbol:'BTC', icon:'₿', cls:'btc',
-      price: fmt$(btc.usd),
-      chg: btcChg,
-      mcap: fmt$(btc.usd_market_cap),
-      vol:  fmt$(btc.usd_24h_vol),
+      price: fmt$(btc.current_price),
+      chg:   btcChg,
+      mcap:  fmt$(btc.market_cap),
+      vol:   fmt$(btc.total_volume),
       color:'#f7921a', charts: btcCharts,
     },
     {
       id:'ethereum', name:'Ethereum', symbol:'ETH', icon:'Ξ', cls:'eth',
-      price: fmt$(eth.usd),
-      chg: ethChg,
-      mcap: fmt$(eth.usd_market_cap),
-      vol:  fmt$(eth.usd_24h_vol),
+      price: fmt$(eth.current_price),
+      chg:   ethChg,
+      mcap:  fmt$(eth.market_cap),
+      vol:   fmt$(eth.total_volume),
       color:'#627eea', charts: ethCharts,
     },
     {
       id:'total', name:'전체 시장', symbol:'TOTAL', icon:'🌐', cls:'total',
       price: fmt$(totalMcap),
-      chg: totalChg,
-      mcap: fmt$(totalMcap),
-      vol:  fmt$(vol24h),
+      chg:   totalChg,
+      mcap:  fmt$(totalMcap),
+      vol:   fmt$(vol24h),
       color:'#00d09c', charts: [],
     },
   ];
