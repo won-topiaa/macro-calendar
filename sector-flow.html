@@ -174,6 +174,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ss-vs-val{font-size:10px;font-weight:700;}
 .ss-loading{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;padding:30px;color:var(--txt3);font-size:13px;}
 
+/* ── Commodities ── */
+.comm-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
+.comm-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.comm-title-row{display:flex;align-items:center;gap:10px;}
+.comm-badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:var(--gold2);color:var(--gold);}
+
+/* ratio card */
+.comm-ratio-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.cr-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
+.cr-val{font-size:24px;font-weight:900;}
+.cr-hint{font-size:10px;color:var(--txt3);margin-top:3px;max-width:180px;line-height:1.5;}
+.cr-bar-wrap{flex:1;min-width:120px;}
+.cr-bar-track{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-top:4px;}
+.cr-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#f5a623,#e4e8f5);transition:width .8s ease;}
+
+/* commodity cards grid */
+.comm-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.cm-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 12px 9px;position:relative;transition:transform .15s,box-shadow .15s;}
+.cm-card:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.3);}
+.cm-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;}
+.cm-etf{font-size:14px;font-weight:800;}
+.cm-vol{font-size:9px;font-weight:700;padding:1px 5px;border-radius:5px;background:rgba(0,0,0,.3);}
+.cm-name{font-size:10px;color:var(--txt3);margin-bottom:1px;}
+.cm-en{font-size:9px;color:var(--txt3);opacity:.6;margin-bottom:6px;}
+.cm-pct{font-size:18px;font-weight:800;line-height:1;}
+.cm-price{font-size:10px;color:var(--txt3);margin-top:3px;}
+.cm-vs{display:flex;align-items:center;gap:4px;margin-top:6px;padding-top:5px;border-top:1px solid var(--border);}
+.cm-vs-lbl{font-size:9px;color:var(--txt3);}
+.cm-vs-val{font-size:10px;font-weight:700;}
+
 /* ── Responsive ── */
 @media(max-width:1100px){.heatmap{grid-template-columns:repeat(3,1fr);}.ss-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:768px){
@@ -329,6 +359,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div id="ssGrid" class="ss-grid">
       <div class="ss-loading"><div class="spinner"></div>메인 데이터 로드 후 표시됩니다</div>
+    </div>
+  </div>
+
+  <!-- ── Commodities: Gold & Silver ── -->
+  <div class="comm-wrap">
+    <div class="comm-top">
+      <div class="comm-title-row">
+        <span class="panel-title" style="margin-bottom:0">원자재 수급 — 금 · 은</span>
+        <span class="comm-badge">🥇 Precious Metals</span>
+      </div>
+      <!-- Gold / Silver Ratio -->
+      <div class="comm-ratio-card">
+        <div>
+          <div class="cr-label">Gold / Silver Ratio</div>
+          <div class="cr-val" id="gsRatioVal">—</div>
+          <div class="cr-hint" id="gsRatioHint">로딩 중...</div>
+        </div>
+        <div class="cr-bar-wrap">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--txt3);">
+            <span>은 강세 ← 50</span><span>→ 90 금 강세</span>
+          </div>
+          <div class="cr-bar-track">
+            <div class="cr-bar-fill" id="gsRatioBar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETF Cards -->
+    <div class="comm-grid" id="commGrid">
+      <div class="ss-loading" style="grid-column:1/-1"><div class="spinner"></div>데이터 불러오는 중</div>
     </div>
   </div>
 
@@ -928,6 +989,121 @@ function renderSubsector(key) {
   }).join('');
 }
 
+// ═══════════════ COMMODITIES ═══════════════
+
+const COMMS = [
+  { etf:'GLD',  name:'금 현물',    en:'Gold (SPDR)',        icon:'🥇', group:'gold'   },
+  { etf:'GDX',  name:'금 채굴(대)', en:'Gold Miners',        icon:'⛏️', group:'gold'   },
+  { etf:'GDXJ', name:'금 채굴(소)', en:'Junior Gold Miners', icon:'🔨', group:'gold'   },
+  { etf:'SLV',  name:'은 현물',    en:'Silver (iShares)',   icon:'🥈', group:'silver' },
+  { etf:'SIL',  name:'은 채굴',    en:'Silver Miners',      icon:'⚒️', group:'silver' },
+  { etf:'PPLT', name:'플래티넘',   en:'Platinum',           icon:'💎', group:'other'  },
+];
+
+let ctd = {};  // commodity ticker data cache
+
+async function loadCommodities() {
+  const box = document.getElementById('commGrid');
+  box.innerHTML = `<div class="ss-loading" style="grid-column:1/-1"><div class="spinner"></div>원자재 데이터 불러오는 중...</div>`;
+
+  const range = period === '1d' ? '5d' : period;
+
+  await Promise.allSettled(
+    COMMS.map(async c => {
+      if (!ctd[c.etf]) {
+        const data = await fetchTicker(c.etf, range).catch(() => null);
+        if (data) ctd[c.etf] = data;
+      }
+    })
+  );
+
+  renderCommodities();
+}
+
+function renderCommodities() {
+  // Gold / Silver Ratio
+  const gldPrice = ctd['GLD']?.price;
+  const slvPrice = ctd['SLV']?.price;
+  const ratioEl  = document.getElementById('gsRatioVal');
+  const hintEl   = document.getElementById('gsRatioHint');
+  const barEl    = document.getElementById('gsRatioBar');
+
+  if (gldPrice && slvPrice) {
+    // GLD 1주 = 금 1/10 온스, SLV 1주 = 은 1온스 → 실제 비율 ≈ (GLD×10) / SLV
+    const ratio = (gldPrice * 10) / slvPrice;
+    ratioEl.textContent = ratio.toFixed(1);
+    ratioEl.style.color = ratio > 80 ? 'var(--gold)' : ratio < 60 ? 'var(--blue)' : 'var(--txt)';
+    hintEl.textContent  =
+      ratio > 90 ? '역사적 고점 — 은이 상대적으로 저평가 구간' :
+      ratio > 80 ? '금 강세 — 안전자산 선호 / 디플레 우려' :
+      ratio > 70 ? '중립 구간' :
+      ratio > 60 ? '은 강세 — 산업수요 회복 / 위험선호' :
+                   '역사적 저점 — 은 강세 극단 구간';
+    // 바 : 비율 40~100 범위를 0~100%로 맵핑
+    barEl.style.width = Math.min(100, Math.max(0, (ratio - 40) / 60 * 100)) + '%';
+  }
+
+  // ETF Cards
+  const spyChg = getChange('SPY');
+  const box    = document.getElementById('commGrid');
+
+  box.innerHTML = COMMS.map(c => {
+    const d = ctd[c.etf];
+    const chg = (() => {
+      if (!d) return null;
+      if (period === '1d') return d.change1d;
+      const cl = d.closes;
+      return (cl && cl.length >= 2) ? ((cl[cl.length-1] - cl[0]) / cl[0]) * 100 : d.change1d;
+    })();
+    const { bg, fg } = heatColor(chg);
+    const vr    = d?.volRatio ?? null;
+    const price = d?.price?.toFixed(2) ?? '—';
+
+    // vs SPY alpha
+    const alpha    = (chg !== null && spyChg !== null) ? chg - spyChg : null;
+    const alphaCol = alpha === null ? 'var(--txt3)' : alpha >= 0 ? 'var(--green)' : 'var(--red)';
+
+    let volBadge = '';
+    if (vr !== null) {
+      if      (vr >= 2.0) volBadge = `<span class="cm-vol" style="color:var(--gold)">🔥${vr.toFixed(1)}x</span>`;
+      else if (vr >= 1.5) volBadge = `<span class="cm-vol" style="color:var(--purple)">↑${vr.toFixed(1)}x</span>`;
+      else if (vr <  0.7) volBadge = `<span class="cm-vol" style="color:var(--txt3)">↓${vr.toFixed(1)}x</span>`;
+    }
+
+    // sparkline
+    const closes = d?.closes || [];
+    let spark = '';
+    if (closes.length >= 2) {
+      const pts = closes.slice(-8);
+      const mn = Math.min(...pts), mx = Math.max(...pts), rng = mx - mn || 1;
+      const W = 100, H = 20;
+      const coords = pts.map((v, i) =>
+        `${(i / (pts.length - 1)) * W},${H - ((v - mn) / rng) * H}`).join(' ');
+      spark = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:20px;margin-top:5px">
+        <polyline points="${coords}" fill="none" stroke="${fg}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+      </svg>`;
+    }
+
+    const groupColor = c.group === 'gold' ? 'var(--gold)' : c.group === 'silver' ? 'var(--txt2)' : 'var(--purple)';
+
+    return `<div class="cm-card" style="background:${bg};border-top:2px solid ${groupColor}">
+      <div class="cm-top">
+        <span class="cm-etf" style="color:${fg}">${c.icon} ${c.etf}</span>
+        ${volBadge}
+      </div>
+      <div class="cm-name" style="color:${fg}">${c.name}</div>
+      <div class="cm-en">${c.en}</div>
+      <div class="cm-pct" style="color:${fg}">${fmtPct(chg)}</div>
+      <div class="cm-price" style="color:${fg}">$${price}</div>
+      ${spark}
+      <div class="cm-vs">
+        <span class="cm-vs-lbl">vs SPY</span>
+        <span class="cm-vs-val" style="color:${alphaCol}">${alpha !== null ? (alpha >= 0 ? '+' : '') + alpha.toFixed(2) + '%' : '—'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ─── Events ───
 document.querySelectorAll('.ptab').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -943,8 +1119,12 @@ document.getElementById('sortSel').addEventListener('change', e => {
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
-  std = {}; // 세부 캐시 초기화
-  loadAll(period);
+  std = {};
+  ctd = {};
+  loadAll(period).then(() => {
+    loadSubsector(ssActive);
+    loadCommodities();
+  });
 });
 
 // Sub-sector tab events
@@ -962,8 +1142,21 @@ setInterval(() => {
   loadAll(period);
 }, 3 * 60 * 1000);
 
-// Init: 메인 로드 → 기술 세부 섹터 자동 로드
-(async () => { await loadAll('1d'); loadSubsector('tech'); })();
+// 기간 탭 변경 시 원자재 캐시 무효화 후 재로드
+document.querySelectorAll('.ptab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // 원자재 캐시 초기화 (기간 바뀌면 새로 fetch)
+    ctd = {};
+    loadCommodities();
+  });
+});
+
+// Init: 메인 → 세부섹터 → 원자재 순서로 로드
+(async () => {
+  await loadAll('1d');
+  loadSubsector('tech');
+  loadCommodities();
+})();
 </script>
 </body>
 </html>
