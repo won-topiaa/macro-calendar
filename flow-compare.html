@@ -116,6 +116,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── Responsive ── */
 @media(max-width:1100px){.signal-bar{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:768px){.signal-bar{grid-template-columns:repeat(2,1fr);}.two-col{grid-template-columns:1fr;}.hdr-nav{display:none;}.group-heatmap{grid-template-columns:repeat(2,1fr);}.signals-grid{grid-template-columns:1fr;}}
+
+/* ── AI 요약 ── */
+.ai-summary{background:linear-gradient(135deg,rgba(167,139,250,.05),rgba(79,142,247,.05));border:1px solid rgba(167,139,250,.22);border-radius:14px;padding:15px 20px;margin-bottom:16px;display:none;}
+.ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(90deg,rgba(167,139,250,.18),rgba(79,142,247,.18));border:1px solid rgba(167,139,250,.35);color:#c4b5fd;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px;}
+.ai-time{font-size:10px;color:var(--txt3);margin-left:auto;}
+.ai-lines{display:flex;flex-direction:column;gap:8px;}
+.ai-line{font-size:13px;line-height:1.65;color:var(--txt2);padding-left:13px;border-left:2px solid rgba(167,139,250,.4);opacity:0;animation:aiIn .5s ease forwards;}
+@keyframes aiIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -140,6 +149,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </header>
 
 <div class="container">
+
+  <!-- AI Summary -->
+  <div class="ai-summary" id="aiSummary">
+    <div class="ai-hd">
+      <span class="ai-badge">✨ AI 요약</span>
+      <span class="ai-time" id="aiTime"></span>
+    </div>
+    <div class="ai-lines" id="aiLines"></div>
+  </div>
 
   <!-- Controls -->
   <div class="controls">
@@ -577,10 +595,69 @@ async function loadAll() {
   renderGroupHeatmap();
   renderFlowScores();
   renderCorrelations();
+  generateAISummary();
   updateTimestamp();
 
   loading = false;
   document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+}
+
+// ─── AI 요약 ───
+function renderAISummary(lines) {
+  const box = document.getElementById('aiSummary');
+  if (!box || !lines.length) return;
+  box.style.display = 'block';
+  const cont = document.getElementById('aiLines');
+  cont.innerHTML = '';
+  lines.forEach((text, i) => {
+    const el = document.createElement('div');
+    el.className = 'ai-line';
+    el.style.animationDelay = `${i * 0.28}s`;
+    el.textContent = text;
+    cont.appendChild(el);
+  });
+  const kst = new Date(Date.now() + 9*3600000);
+  const p = n => String(n).padStart(2,'0');
+  const tEl = document.getElementById('aiTime');
+  if (tEl) tEl.textContent = `${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())} KST 기준`;
+}
+
+function generateAISummary() {
+  const loaded = ASSETS.filter(a => a.group !== 'benchmark' && td[a.id]?.change1d != null);
+  if (loaded.length < 5) return;
+  const getChg = a => td[a.id]?.change1d ?? 0;
+  const sorted = [...loaded].sort((a,b) => getChg(b) - getChg(a));
+  const winner = sorted[0], loser = sorted[sorted.length-1];
+  const wChg = getChg(winner), lChg = getChg(loser);
+  // 그룹별 평균 수익률
+  const gAvg = {};
+  GROUPS.forEach(g => {
+    const items = loaded.filter(a => a.group === g.id);
+    if (items.length) gAvg[g.id] = items.reduce((s,a) => s+getChg(a), 0) / items.length;
+  });
+  const gSorted = Object.entries(gAvg).sort((a,b) => b[1]-a[1]);
+  const topG = GROUPS.find(g => g.id === gSorted[0][0]);
+  const botG = GROUPS.find(g => g.id === gSorted[gSorted.length-1][0]);
+  const sgn = v => v >= 0 ? '+' : '';
+  const stockG  = gAvg['stock-growth'] ?? 0;
+  const cryptoG = gAvg['crypto']  ?? 0;
+  const metalsG = gAvg['metals']  ?? 0;
+  const bondsG  = gAvg['bonds']   ?? 0;
+  const line1 = `${winner.icon} ${winner.name}(${winner.id})이 ${sgn(wChg)}${wChg.toFixed(2)}%로 전체 자산 중 수급 유입 1위를 기록하고 있습니다.`;
+  const line2 = `${topG.icon} ${topG.name} 그룹이 ${sgn(gSorted[0][1])}${gSorted[0][1].toFixed(2)}%로 선두, ${botG.icon} ${botG.name} 그룹(${sgn(gSorted[gSorted.length-1][1])}${gSorted[gSorted.length-1][1].toFixed(2)}%)이 가장 부진합니다.`;
+  let line3;
+  if (cryptoG > stockG + 1.5) {
+    line3 = `⚡ 코인 섹터가 주식 성장주 대비 ${(cryptoG-stockG).toFixed(2)}%p 초과 수익 — 고위험 자산으로의 수급 이동이 관찰됩니다.`;
+  } else if (metalsG > stockG + 0.5 && metalsG > cryptoG) {
+    line3 = `🥇 귀금속이 주식·코인을 앞서며 안전자산 선호 심리가 강화되는 신호가 나타나고 있습니다.`;
+  } else if (bondsG > 0 && stockG < 0) {
+    line3 = `🏛️ 채권 유입 + 주식 하락 — 전형적인 Risk-Off(위험 회피) 패턴이 형성되고 있습니다.`;
+  } else if (stockG > 0.5 && bondsG < 0) {
+    line3 = `📈 주식 성장 섹터 강세 + 채권 약세 — 전형적인 Risk-On(위험 선호) 장세가 펼쳐지고 있습니다.`;
+  } else {
+    line3 = `📊 ${loser.icon} ${loser.name}(${loser.id})이 ${sgn(lChg)}${lChg.toFixed(2)}%로 가장 약세 — 섹터 간 차별화 장세가 이어지고 있습니다.`;
+  }
+  renderAISummary([line1, line2, line3]);
 }
 
 function updateTimestamp() {

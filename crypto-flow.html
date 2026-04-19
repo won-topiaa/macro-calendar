@@ -124,6 +124,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .up{color:var(--green);}
 .dn{color:var(--red);}
+
+/* ── AI 요약 ── */
+.ai-summary{background:linear-gradient(135deg,rgba(245,166,35,.05),rgba(167,139,250,.05));border:1px solid rgba(245,166,35,.22);border-radius:14px;padding:15px 20px;margin-bottom:16px;display:none;}
+.ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(90deg,rgba(245,166,35,.15),rgba(167,139,250,.15));border:1px solid rgba(167,139,250,.35);color:#c4b5fd;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px;}
+.ai-time{font-size:10px;color:var(--txt3);margin-left:auto;}
+.ai-lines{display:flex;flex-direction:column;gap:8px;}
+.ai-line{font-size:13px;line-height:1.65;color:var(--txt2);padding-left:13px;border-left:2px solid rgba(245,166,35,.4);opacity:0;animation:aiIn .5s ease forwards;}
+@keyframes aiIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -148,6 +157,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </header>
 
 <div class="container">
+
+  <!-- AI Summary -->
+  <div class="ai-summary" id="aiSummary">
+    <div class="ai-hd">
+      <span class="ai-badge">✨ AI 요약</span>
+      <span class="ai-time" id="aiTime"></span>
+    </div>
+    <div class="ai-lines" id="aiLines"></div>
+  </div>
 
   <!-- Overview -->
   <div class="overview">
@@ -402,6 +420,7 @@ async function loadAll() {
     renderDominance();
     renderCards();
     renderTrend();
+    generateAISummary();
     updateTimestamp();
 
   } catch(err) {
@@ -411,6 +430,52 @@ async function loadAll() {
 
   loading = false;
   document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+}
+
+// ─── AI 요약 ───
+function renderAISummary(lines) {
+  const box = document.getElementById('aiSummary');
+  if (!box || !lines.length) return;
+  box.style.display = 'block';
+  const cont = document.getElementById('aiLines');
+  cont.innerHTML = '';
+  lines.forEach((text, i) => {
+    const el = document.createElement('div');
+    el.className = 'ai-line';
+    el.style.animationDelay = `${i * 0.28}s`;
+    el.textContent = text;
+    cont.appendChild(el);
+  });
+  const kst = new Date(Date.now() + 9*3600000);
+  const p = n => String(n).padStart(2,'0');
+  const tEl = document.getElementById('aiTime');
+  if (tEl) tEl.textContent = `${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())} KST 기준`;
+}
+
+function generateAISummary() {
+  const btc = priceData['bitcoin'], eth = priceData['ethereum'];
+  if (!btc && !eth) return;
+  const btcChg = btc?.price_change_percentage_24h ?? 0;
+  const ethChg = eth?.price_change_percentage_24h ?? 0;
+  const totalMcap = globalData.total_market_cap?.usd;
+  const btcDom = globalData.market_cap_percentage?.btc;
+  const fng = fngData?.value ? parseInt(fngData.value) : null;
+  const fngLabel = fngData?.value_classification ?? '';
+  const fmtMcap = v => v >= 1e12 ? `$${(v/1e12).toFixed(2)}T` : `$${(v/1e9).toFixed(0)}B`;
+  const sgn = v => v >= 0 ? '+' : '';
+  const bothUp = btcChg > 0 && ethChg > 0, bothDn = btcChg < 0 && ethChg < 0;
+  const trend = bothUp ? '동반 상승, 매수세가 유입되고 있습니다'
+              : bothDn ? '동반 하락, 위험 회피 심리가 감지됩니다'
+              : '혼조세를 보이고 있습니다';
+  const line1 = `${bothUp ? '🟢' : bothDn ? '🔴' : '🟡'} 비트코인 ${sgn(btcChg)}${btcChg.toFixed(2)}%, 이더리움 ${sgn(ethChg)}${ethChg.toFixed(2)}%로 ${trend}.`;
+  const domDesc = !btcDom ? '' : btcDom > 55 ? 'BTC 주도 장세' : btcDom > 45 ? 'BTC·알트 균형' : '알트코인 주도 장세';
+  const line2 = totalMcap
+    ? `💰 전체 시가총액 ${fmtMcap(totalMcap)}, BTC 도미넌스 ${btcDom?.toFixed(1) ?? '—'}% — ${domDesc}가 형성되고 있습니다.`
+    : null;
+  const line3 = fng !== null
+    ? `🌡️ Fear & Greed 지수 ${fng} (${fngLabel}) — ${fng > 65 ? '과열 구간으로 단기 차익 실현 경계가 필요합니다' : fng < 35 ? '공포 구간으로 중장기 저점 매수 기회를 고려할 수 있습니다' : '방향성 확인이 필요한 중립 구간입니다'}.`
+    : null;
+  renderAISummary([line1, line2, line3].filter(Boolean));
 }
 
 // ─── Render Overview ───

@@ -212,6 +212,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .tbl td:nth-child(n+6){display:none;}
   .hdr-nav{display:none;}
 }
+
+/* ── AI 요약 ── */
+.ai-summary{background:linear-gradient(135deg,rgba(79,142,247,.05),rgba(167,139,250,.05));border:1px solid rgba(79,142,247,.22);border-radius:14px;padding:15px 20px;margin-bottom:16px;display:none;}
+.ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(90deg,rgba(79,142,247,.18),rgba(167,139,250,.18));border:1px solid rgba(167,139,250,.35);color:#c4b5fd;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px;}
+.ai-time{font-size:10px;color:var(--txt3);margin-left:auto;}
+.ai-lines{display:flex;flex-direction:column;gap:8px;}
+.ai-line{font-size:13px;line-height:1.65;color:var(--txt2);padding-left:13px;border-left:2px solid rgba(79,142,247,.35);opacity:0;animation:aiIn .5s ease forwards;}
+@keyframes aiIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -239,6 +248,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- ═══════════════════════ MAIN ═══════════════════════ -->
 <div class="container">
+
+  <!-- AI Summary -->
+  <div class="ai-summary" id="aiSummary">
+    <div class="ai-hd">
+      <span class="ai-badge">✨ AI 요약</span>
+      <span class="ai-time" id="aiTime"></span>
+    </div>
+    <div class="ai-lines" id="aiLines"></div>
+  </div>
 
   <!-- Regime Gauge -->
   <div class="regime-card">
@@ -840,12 +858,57 @@ async function loadAll(p) {
     renderRanking();
     renderRotation();
     renderTable();
+    generateAISummary();
     updateMarketStatus();
     updateTimestamp();
   }
 
   loading = false;
   document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+}
+
+// ─── AI 요약 ───
+function renderAISummary(lines) {
+  const box = document.getElementById('aiSummary');
+  if (!box || !lines.length) return;
+  box.style.display = 'block';
+  const cont = document.getElementById('aiLines');
+  cont.innerHTML = '';
+  lines.forEach((text, i) => {
+    const el = document.createElement('div');
+    el.className = 'ai-line';
+    el.style.animationDelay = `${i * 0.28}s`;
+    el.textContent = text;
+    cont.appendChild(el);
+  });
+  const kst = new Date(Date.now() + 9*3600000);
+  const p = n => String(n).padStart(2,'0');
+  const tEl = document.getElementById('aiTime');
+  if (tEl) tEl.textContent = `${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())} KST 기준`;
+}
+
+function generateAISummary() {
+  const valid = SECTORS.map(s => ({ ...s, chg: td[s.etf]?.change1d ?? null })).filter(s => s.chg !== null);
+  if (valid.length < 3) return;
+  const sorted = [...valid].sort((a,b) => b.chg - a.chg);
+  const top = sorted[0], bot = sorted[sorted.length-1];
+  const onAvg  = RISK_ON .reduce((s,e) => s+(td[e]?.change1d??0),0) / RISK_ON.length;
+  const offAvg = RISK_OFF.reduce((s,e) => s+(td[e]?.change1d??0),0) / RISK_OFF.length;
+  const isOn = onAvg > offAvg;
+  const diff = Math.abs(onAvg - offAvg).toFixed(2);
+  const spikes = valid.filter(s => (td[s.etf]?.volRatio??0) > 1.5)
+                      .sort((a,b) => (td[b.etf]?.volRatio??0)-(td[a.etf]?.volRatio??0));
+  const sgn = v => v >= 0 ? '+' : '';
+  const line1 = `${top.icon} ${top.ko} 섹터(${top.etf})가 ${sgn(top.chg)}${top.chg.toFixed(2)}%로 오늘 가장 강한 수급 유입을 기록하고 있습니다.`;
+  const line2 = `${isOn ? '🟢' : '🔴'} 시장은 ${isOn ? 'Risk-On' : 'Risk-Off'} 성향으로, 공격적 섹터가 방어 섹터를 ${diff}%p ${isOn ? '앞서고' : '밑돌고'} 있습니다.`;
+  let line3;
+  if (spikes.length) {
+    const sp = spikes[0];
+    line3 = `⚡ ${sp.ko}(${sp.etf}) ETF 거래량이 평균의 ${(td[sp.etf]?.volRatio??1).toFixed(1)}배로 급증 — 강한 수급 집중 신호가 감지됩니다.`;
+  } else {
+    line3 = `📉 ${bot.icon} ${bot.ko}(${bot.etf}) 섹터가 ${sgn(bot.chg)}${bot.chg.toFixed(2)}%로 가장 약한 흐름이며, 전반적 거래량은 평온 수준입니다.`;
+  }
+  renderAISummary([line1, line2, line3]);
 }
 
 // ═══════════════ SUB-SECTOR ═══════════════
