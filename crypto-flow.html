@@ -274,27 +274,59 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 'use strict';
 
-const CG    = 'https://api.coingecko.com/api/v3';
+const YF    = 'https://query1.finance.yahoo.com';   // 주 데이터 소스 (신뢰성 높음)
+const CG    = 'https://api.coingecko.com/api/v3';   // 보조 (시가총액·도미넌스)
 const FNG   = 'https://api.alternative.me/fng/?limit=4';
 const PROXY = 'https://corsproxy.io/?';
 
 let days    = 1;
 let loading = false;
-let globalData  = null;
-let priceData   = null;
-let chartCache  = {};   // `${id}-${days}` → prices[]
-let multiPeriod = {};   // id → { d1, d7, d30, d90 }
+let globalData  = {};
+let priceData   = {};
+let chartCache  = {};
+let multiPeriod = {};
 
 // ─── Fetch helpers ───
-async function safeFetch(url, timeout = 9000) {
-  const go = async u => {
-    const r = await fetch(u, { signal: AbortSignal.timeout(timeout) });
+async function timedFetch(url, ms) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
     if (!r.ok) throw new Error(r.status);
-    return r.json();
-  };
-  try { return await go(url); } catch(_) {}
-  try { return await go(PROXY + encodeURIComponent(url)); } catch(_) {}
-  return await go(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+    return await r.json();
+  } catch(e) { clearTimeout(tid); throw e; }
+}
+
+async function safeFetch(url, timeout = 10000) {
+  try { return await timedFetch(url, timeout); } catch(_) {}
+  try { return await timedFetch(PROXY + encodeURIComponent(url), timeout + 4000); } catch(_) {}
+  return await timedFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, timeout + 6000);
+}
+
+// ─── Yahoo Finance v8 fetch (BTC-USD, ETH-USD 등) ───
+async function fetchYF(sym, range) {
+  const url  = `${YF}/v8/finance/chart/${sym}?interval=1d&range=${range}&includePrePost=false`;
+  const data = await safeFetch(url);
+  const res  = data?.chart?.result?.[0];
+  if (!res) throw new Error(`No data: ${sym}`);
+  const meta   = res.meta || {};
+  const rawQ   = res.indicators?.quote?.[0] || {};
+  const ts     = res.timestamp || [];
+  const closes = (rawQ.close  || []).filter(v => v != null);
+  const vols   = (rawQ.volume || []).filter(v => v != null);
+  const price  = meta.regularMarketPrice ?? closes[closes.length-1] ?? null;
+  const prev   = meta.previousClose ?? meta.chartPreviousClose
+               ?? (closes.length >= 2 ? closes[closes.length-2] : null);
+  const chg1d  = (price && prev) ? ((price-prev)/prev)*100
+               : (meta.regularMarketChangePercent ?? null);
+  const vol    = meta.regularMarketVolume ?? (vols.length ? vols[vols.length-1] : null);
+  const mcap   = meta.marketCap ?? null;
+  // [timestamp_ms, price] 쌍으로 변환 (sparkline 호환)
+  const pairs  = closes.map((p, i) => [
+    ((ts[i] ?? (Date.now()/1000 - (closes.length-1-i)*86400)) * 1000), p
+  ]);
+  return { sym, price, chg1d, vol, mcap, closes, pairs };
 }
 
 // ─── Format helpers ───
@@ -312,7 +344,7 @@ const chgClass = v => v >= 0 ? 'up' : 'dn';
 // ─── Sparkline ───
 function makeSpark(prices, color) {
   if (!prices || prices.length < 2) return '';
-  const pts = prices.map(p => p[1]).slice(-60);
+  const pts = prices.map(p => Array.isArray(p) ? p[1] : p).slice(-60);
   const mn = Math.min(...pts), mx = Math.max(...pts), rng = mx - mn || 1;
   const W = 200, H = 50;
   const coords = pts.map((v,i) =>
@@ -369,52 +401,79 @@ async function loadFNG() {
   } catch(_) {}
 }
 
-// ─── Main data load ───
+// ─── Main data load (Yahoo Finance 주 소스, CoinGecko 보조) ───
 async function loadAll() {
   if (loading) return;
   loading = true;
   document.getElementById('refreshBtn').innerHTML = '<span style="display:inline-block;animation:spin .7s linear infinite">↻</span> 로딩중';
   document.getElementById('mainCards').innerHTML =
-    `<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">CoinGecko 연결 중...</span></div>`;
+    `<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">Yahoo Finance 연결 중...</span></div>`;
 
   try {
-    // ── 1) Global + Markets 동시 요청 (총 2건) ──
-    // /coins/markets 단일 호출로 가격·시총·거래량·기간 수익률 모두 획득
-    const [globalRes, marketsRes] = await Promise.all([
-      safeFetch(`${CG}/global`),
-      safeFetch(`${CG}/coins/markets?vs_currency=usd&ids=bitcoin,ethereum&order=market_cap_desc&sparkline=false&price_change_percentage=24h,7d,30d`),
+    // ── 1) BTC·ETH 현재 가격 (Yahoo Finance, 병렬) ──
+    const range = days <= 1 ? '5d' : days <= 7 ? '1mo' : days <= 30 ? '3mo' : '6mo';
+    const [btcNow, ethNow] = await Promise.all([
+      fetchYF('BTC-USD', range),
+      fetchYF('ETH-USD', range),
     ]);
-    globalData = globalRes?.data || {};
 
-    // markets 배열 → { bitcoin: {...}, ethereum: {...} } 형태로 변환
-    const mkts = {};
-    (marketsRes || []).forEach(c => { mkts[c.id] = c; });
-    priceData = mkts;
-
-    // ── 2) 스파크라인용 차트 + 90D 수익률 (순차 요청으로 rate limit 회피) ──
-    for (const id of ['bitcoin', 'ethereum']) {
-      // 현재 기간 차트
-      const key = `${id}-${days}`;
-      if (!chartCache[key]) {
-        const d = await safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=${days}`).catch(() => null);
-        if (d) chartCache[key] = d.prices || [];
-      }
-      // 90D 수익률 (markets API에 없어서 별도 요청)
-      if (!multiPeriod[id]) {
-        const coin = mkts[id] || {};
-        const d90res = await safeFetch(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=90`).catch(() => null);
-        const p90 = d90res?.prices;
-        const d90 = (p90 && p90.length >= 2) ? (p90[p90.length-1][1] - p90[0][1]) / p90[0][1] * 100 : null;
+    // ── 2) 멀티 기간 수익률 (6개월 이력, 순차로 rate limit 회피) ──
+    for (const [sym, id] of [['BTC-USD','bitcoin'],['ETH-USD','ethereum']]) {
+      const src = sym === 'BTC-USD' ? btcNow : ethNow;
+      try {
+        const h = await fetchYF(sym, '6mo');
+        const c = h.closes, n = c.length;
         multiPeriod[id] = {
-          d1:  coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h ?? null,
-          d7:  coin.price_change_percentage_7d_in_currency  ?? null,
-          d30: coin.price_change_percentage_30d_in_currency ?? null,
-          d90,
+          d1:  src.chg1d,
+          d7:  n >  7 ? (c[n-1]-c[n- 8]) / c[n- 8] * 100 : null,
+          d30: n > 30 ? (c[n-1]-c[n-31]) / c[n-31] * 100 : null,
+          d90: n > 90 ? (c[n-1]-c[n-91]) / c[n-91] * 100 : null,
         };
+        chartCache[`${id}-${days}`] = h.pairs.slice(-Math.max(days * 2, 40));
+      } catch(_) {
+        multiPeriod[id] = { d1: src.chg1d, d7: null, d30: null, d90: null };
+        chartCache[`${id}-${days}`] = src.pairs;
       }
     }
 
-    // 4) FNG
+    // ── 3) priceData 구성 (render 함수 호환 포맷) ──
+    priceData = {
+      bitcoin: {
+        current_price: btcNow.price,
+        price_change_percentage_24h: btcNow.chg1d,
+        market_cap:   btcNow.mcap,
+        total_volume: btcNow.vol,
+      },
+      ethereum: {
+        current_price: ethNow.price,
+        price_change_percentage_24h: ethNow.chg1d,
+        market_cap:   ethNow.mcap,
+        total_volume: ethNow.vol,
+      },
+    };
+
+    // ── 4) 전체 시가총액·도미넌스 (CoinGecko, 보조 best-effort) ──
+    try {
+      const g = await safeFetch(`${CG}/global`, 12000);
+      globalData = g?.data || {};
+    } catch(_) {
+      // CoinGecko 실패 → YF market cap으로 추정 (BTC 도미넌스 약 55% 가정)
+      const bm = btcNow.mcap || 0;
+      const em = ethNow.mcap || 0;
+      if (bm) {
+        const est = bm / 0.55;
+        globalData = {
+          total_market_cap: { usd: est },
+          total_volume:     { usd: (btcNow.vol||0) + (ethNow.vol||0) },
+          market_cap_percentage: { btc: bm/est*100, eth: em/est*100 },
+          market_cap_change_percentage_24h_usd: null,
+        };
+      } else {
+        globalData = {};
+      }
+    }
+
+    // ── 5) Fear & Greed ──
     loadFNG();
 
     renderOverview();
@@ -456,8 +515,8 @@ function renderAISummary(lines) {
 function generateAISummary() {
   const btc = priceData['bitcoin'], eth = priceData['ethereum'];
   if (!btc && !eth) return;
-  const btcChg = btc?.price_change_percentage_24h ?? 0;
-  const ethChg = eth?.price_change_percentage_24h ?? 0;
+  const btcChg = multiPeriod['bitcoin']?.d1 ?? btc?.price_change_percentage_24h ?? 0;
+  const ethChg = multiPeriod['ethereum']?.d1 ?? eth?.price_change_percentage_24h ?? 0;
   const totalMcap = globalData.total_market_cap?.usd;
   const btcDom = globalData.market_cap_percentage?.btc;
   const fng = fngData?.value ? parseInt(fngData.value) : null;
