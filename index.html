@@ -86,6 +86,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;color:var(--txt3);font-size:12px;}
 .footer a{color:var(--txt3);text-decoration:none;}
 .footer a:hover{color:var(--txt2);}
+
+/* ── Visitor Counter ── */
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.visitor-box{display:none;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 13px;transition:border-color .15s;}
+.visitor-box:hover{border-color:var(--border2);}
+.visitor-eye{font-size:13px;line-height:1;}
+.visitor-info{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;}
+.visitor-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;}
+.visitor-num{font-size:14px;font-weight:800;color:var(--blue);}
 </style>
 </head>
 <body>
@@ -98,7 +107,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p>거시경제 분석 대시보드 · KST 기준</p>
     </div>
   </div>
-  <span id="marketBadge" class="market-badge market-closed">시장 마감</span>
+  <div class="hdr-right">
+    <div class="visitor-box" id="visitorBox">
+      <span class="visitor-eye">👁</span>
+      <div class="visitor-info">
+        <span class="visitor-lbl">방문자</span>
+        <span class="visitor-num" id="visitorNum">—</span>
+      </div>
+    </div>
+    <span id="marketBadge" class="market-badge market-closed">시장 마감</span>
+  </div>
 </header>
 
 <div class="hero">
@@ -205,6 +223,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </footer>
 
 <script>
+// ── Visitor Counter ──
+async function initVisitorCount() {
+  const box = document.getElementById('visitorBox');
+  const num = document.getElementById('visitorNum');
+  // 1차: counterapi.dev (무료, CORS 허용)
+  try {
+    const r = await fetch(
+      'https://api.counterapi.dev/v1/macro-hub-juwon/index/up',
+      { cache: 'no-store' }
+    );
+    if (r.ok) {
+      const d = await r.json();
+      const count = d.count ?? d.value ?? d.hits;
+      if (count != null) {
+        num.textContent = Number(count).toLocaleString();
+        box.style.display = 'flex';
+        return;
+      }
+    }
+  } catch(_) {}
+  // 2차 폴백: hits.seeyoufarm.com 이미지 배지
+  try {
+    box.innerHTML = `<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fjuwon-bepro.github.io%2Fmacro-calendar%2F&count_bg=%234f8ef7&title_bg=%23141828&icon=eye.svg&icon_color=%23e4e8f5&title=%EB%B0%A9%EB%AC%B8%EC%9E%90&edge_flat=true" style="height:24px;border-radius:8px;" alt="visitors" />`;
+    box.style.display = 'flex';
+  } catch(_) {}
+}
+initVisitorCount();
+
 // Market status
 function updateMarket() {
   const now = new Date();
