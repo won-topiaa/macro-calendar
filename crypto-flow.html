@@ -410,67 +410,48 @@ async function loadAll() {
     `<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">Yahoo Finance 연결 중...</span></div>`;
 
   try {
-    // ── 1) BTC·ETH 현재 가격 (Yahoo Finance, 병렬) ──
-    const range = days <= 1 ? '5d' : days <= 7 ? '1mo' : days <= 30 ? '3mo' : '6mo';
-    const [btcNow, ethNow] = await Promise.all([
-      fetchYF('BTC-USD', range),
-      fetchYF('ETH-USD', range),
+    // ── 1) BTC·ETH 6개월 데이터 한 번에 (1D/7D/30D/90D 모두 커버) ──
+    const [btcH, ethH] = await Promise.all([
+      fetchYF('BTC-USD', '6mo'),
+      fetchYF('ETH-USD', '6mo'),
     ]);
 
-    // ── 2) 멀티 기간 수익률 (6개월 이력, 순차로 rate limit 회피) ──
-    for (const [sym, id] of [['BTC-USD','bitcoin'],['ETH-USD','ethereum']]) {
-      const src = sym === 'BTC-USD' ? btcNow : ethNow;
-      try {
-        const h = await fetchYF(sym, '6mo');
-        const c = h.closes, n = c.length;
-        multiPeriod[id] = {
-          d1:  src.chg1d,
-          d7:  n >  7 ? (c[n-1]-c[n- 8]) / c[n- 8] * 100 : null,
-          d30: n > 30 ? (c[n-1]-c[n-31]) / c[n-31] * 100 : null,
-          d90: n > 90 ? (c[n-1]-c[n-91]) / c[n-91] * 100 : null,
-        };
-        chartCache[`${id}-${days}`] = h.pairs.slice(-Math.max(days * 2, 40));
-      } catch(_) {
-        multiPeriod[id] = { d1: src.chg1d, d7: null, d30: null, d90: null };
-        chartCache[`${id}-${days}`] = src.pairs;
-      }
+    // ── 2) 모든 기간 캐시를 한 번에 채우기 → 탭 전환 시 재호출 불필요 ──
+    for (const [h, id] of [[btcH,'bitcoin'],[ethH,'ethereum']]) {
+      const c = h.closes, n = c.length;
+      chartCache[`${id}-1`]  = h.pairs.slice(-10);
+      chartCache[`${id}-7`]  = h.pairs.slice(-14);
+      chartCache[`${id}-30`] = h.pairs.slice(-44);
+      chartCache[`${id}-90`] = h.pairs;
+      multiPeriod[id] = {
+        d1:  h.chg1d,
+        d7:  n >  7 ? (c[n-1]-c[n- 8]) / c[n- 8] * 100 : null,
+        d30: n > 30 ? (c[n-1]-c[n-31]) / c[n-31] * 100 : null,
+        d90: n > 90 ? (c[n-1]-c[n-91]) / c[n-91] * 100 : null,
+      };
     }
 
-    // ── 3) priceData 구성 (render 함수 호환 포맷) ──
+    // ── 3) priceData 구성 ──
     priceData = {
-      bitcoin: {
-        current_price: btcNow.price,
-        price_change_percentage_24h: btcNow.chg1d,
-        market_cap:   btcNow.mcap,
-        total_volume: btcNow.vol,
-      },
-      ethereum: {
-        current_price: ethNow.price,
-        price_change_percentage_24h: ethNow.chg1d,
-        market_cap:   ethNow.mcap,
-        total_volume: ethNow.vol,
-      },
+      bitcoin:  { current_price: btcH.price, price_change_percentage_24h: btcH.chg1d, market_cap: btcH.mcap, total_volume: btcH.vol },
+      ethereum: { current_price: ethH.price, price_change_percentage_24h: ethH.chg1d, market_cap: ethH.mcap, total_volume: ethH.vol },
     };
 
-    // ── 4) 전체 시가총액·도미넌스 (CoinGecko, 보조 best-effort) ──
+    // ── 4) 전체 시가총액·도미넌스 (CoinGecko best-effort) ──
     try {
       const g = await safeFetch(`${CG}/global`, 12000);
       globalData = g?.data || {};
     } catch(_) {
-      // CoinGecko 실패 → YF market cap으로 추정 (BTC 도미넌스 약 55% 가정)
-      const bm = btcNow.mcap || 0;
-      const em = ethNow.mcap || 0;
+      const bm = btcH.mcap || 0, em = ethH.mcap || 0;
       if (bm) {
         const est = bm / 0.55;
         globalData = {
           total_market_cap: { usd: est },
-          total_volume:     { usd: (btcNow.vol||0) + (ethNow.vol||0) },
+          total_volume:     { usd: (btcH.vol||0) + (ethH.vol||0) },
           market_cap_percentage: { btc: bm/est*100, eth: em/est*100 },
           market_cap_change_percentage_24h_usd: null,
         };
-      } else {
-        globalData = {};
-      }
+      } else { globalData = {}; }
     }
 
     // ── 5) Fear & Greed ──
@@ -715,9 +696,9 @@ document.querySelectorAll('.ptab').forEach(btn => {
     document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     days = parseInt(btn.dataset.p);
-    // Re-render cards with new period (fetch if needed)
-    const needFetch = ['bitcoin','ethereum'].some(id => !chartCache[`${id}-${days}`]);
-    if (needFetch) loadAll(); else { renderCards(); renderTrend(); }
+    // 초기 로드 시 모든 기간 캐시 완료 → 바로 렌더
+    renderCards();
+    renderTrend();
   });
 });
 
