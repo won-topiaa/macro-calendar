@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro News | 거시경제 뉴스</title>
+<style>
+:root {
+  --bg:#0c0f1a;--bg2:#141828;--bg3:#1c2238;--bg4:#242a42;
+  --border:#2a3050;--border2:#353d5e;
+  --txt:#e4e8f5;--txt2:#8a94b8;--txt3:#555f80;
+  --blue:#4f8ef7;   --blue2:rgba(79,142,247,.12);
+  --green:#00d09c;  --green2:rgba(0,208,156,.12);
+  --red:#ff4d5e;    --red2:rgba(255,77,94,.12);
+  --gold:#f5a623;   --gold2:rgba(245,166,35,.12);
+  --purple:#a78bfa; --purple2:rgba(167,139,250,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+
+/* ── Header ── */
+.site-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#f5a623,#ff4d5e);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.hdr-title h1{font-size:17px;font-weight:700;}
+.hdr-title p{font-size:11px;color:var(--txt3);margin-top:1px;}
+.hdr-nav{display:flex;gap:4px;margin-left:8px;}
+.nav-link{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:500;color:var(--txt3);text-decoration:none;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:var(--txt2);background:var(--bg3);}
+.nav-link.active{color:var(--gold);background:var(--gold2);}
+.hdr-right{display:flex;align-items:center;gap:12px;}
+.last-update{font-size:11px;color:var(--txt3);}
+
+/* ── Container ── */
+.container{max-width:1000px;margin:0 auto;padding:20px;}
+
+/* ── Controls ── */
+.controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.ctrl-left{display:flex;align-items:center;gap:10px;}
+.source-tabs{display:flex;gap:3px;background:var(--bg3);padding:4px;border-radius:10px;border:1px solid var(--border);}
+.stab{padding:5px 12px;border-radius:7px;border:none;background:transparent;color:var(--txt3);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;}
+.stab.active{background:var(--bg2);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.refresh-btn{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:6px 13px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;transition:all .15s;}
+.refresh-btn:hover{color:var(--gold);border-color:var(--gold);}
+.result-count{font-size:12px;color:var(--txt3);}
+
+/* ── AI Summary ── */
+.ai-summary{background:linear-gradient(135deg,rgba(245,166,35,.05),rgba(255,77,94,.05));border:1px solid rgba(245,166,35,.22);border-radius:14px;padding:15px 20px;margin-bottom:16px;display:none;}
+.ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(90deg,rgba(245,166,35,.18),rgba(255,77,94,.15));border:1px solid rgba(245,166,35,.4);color:#fcd34d;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px;}
+.ai-time{font-size:10px;color:var(--txt3);margin-left:auto;}
+.ai-lines{display:flex;flex-direction:column;gap:8px;}
+.ai-line{font-size:13px;line-height:1.65;color:var(--txt2);padding-left:13px;border-left:2px solid rgba(245,166,35,.4);opacity:0;animation:aiIn .5s ease forwards;}
+@keyframes aiIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── News List ── */
+.news-list{display:flex;flex-direction:column;gap:10px;}
+.news-item{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;gap:16px;transition:transform .15s,box-shadow .15s,border-color .15s;text-decoration:none;color:inherit;}
+.news-item:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);border-color:var(--border2);}
+.news-item.rank-1{border-left:3px solid var(--gold);}
+.news-item.rank-2{border-left:3px solid var(--txt2);}
+.news-item.rank-3{border-left:3px solid #cd7f32;}
+.ni-rank{font-size:22px;font-weight:900;color:var(--txt3);width:32px;flex-shrink:0;text-align:center;padding-top:2px;}
+.ni-rank.r1{color:var(--gold);}
+.ni-rank.r2{color:var(--txt2);}
+.ni-rank.r3{color:#cd7f32;}
+.ni-body{flex:1;min-width:0;}
+.ni-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.ni-source{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--txt3);}
+.ni-cat{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.ni-time{font-size:10px;color:var(--txt3);margin-left:auto;}
+.ni-score-wrap{display:flex;align-items:center;gap:6px;}
+.ni-score-bar{width:40px;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.ni-score-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--red));}
+.ni-title{font-size:15px;font-weight:700;line-height:1.5;margin-bottom:6px;color:var(--txt);}
+.ni-desc{font-size:12px;color:var(--txt3);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.ni-title:hover{color:var(--gold);}
+
+/* ── Loading / Error ── */
+.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:14px;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{display:inline-block;animation:spin .7s linear infinite;}
+.err-box{background:var(--red2);border:1px solid rgba(255,77,94,.3);border-radius:12px;padding:20px;color:var(--red);text-align:center;}
+.no-data{text-align:center;padding:40px;color:var(--txt3);font-size:13px;}
+
+/* ── Sources Info ── */
+.sources-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.src-chip{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--txt3);}
+.src-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);}
+.src-dot.ok{background:var(--green);}
+.src-dot.fail{background:var(--red);}
+
+/* ── Responsive ── */
+@media(max-width:768px){.hdr-nav{display:none;}.news-item{flex-direction:column;gap:10px;}.ni-rank{width:auto;text-align:left;}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="hdr-left">
+    <div class="hdr-logo">📰</div>
+    <div class="hdr-title">
+      <h1>Macro News</h1>
+      <p>거시경제 주요 뉴스 · 중요도 자동 선별 · KST 기준</p>
+    </div>
+    <nav class="hdr-nav">
+      <a href="index.html"          class="nav-link">홈</a>
+      <a href="sector-flow.html"    class="nav-link">섹터 수급</a>
+      <a href="crypto-flow.html"    class="nav-link">코인 수급</a>
+      <a href="flow-compare.html"   class="nav-link">크로스에셋</a>
+      <a href="macro-news.html"     class="nav-link active">매크로 뉴스</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span class="last-update">업데이트: <span id="lastUpdate">—</span></span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- AI Summary -->
+  <div class="ai-summary" id="aiSummary">
+    <div class="ai-hd">
+      <span class="ai-badge">✨ AI 요약</span>
+      <span class="ai-time" id="aiTime"></span>
+    </div>
+    <div class="ai-lines" id="aiLines"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="ctrl-left">
+      <div class="source-tabs">
+        <button class="stab active" data-filter="all">전체</button>
+        <button class="stab" data-filter="연준·금리">연준·금리</button>
+        <button class="stab" data-filter="물가·인플레이션">물가</button>
+        <button class="stab" data-filter="고용·노동">고용</button>
+        <button class="stab" data-filter="성장·경기">성장</button>
+        <button class="stab" data-filter="무역·관세">무역</button>
+      </div>
+      <button class="refresh-btn" id="refreshBtn">↻ 새로고침</button>
+    </div>
+    <span class="result-count" id="resultCount"></span>
+  </div>
+
+  <!-- Source status chips -->
+  <div class="sources-bar" id="sourcesBar"></div>
+
+  <!-- News -->
+  <div id="newsList">
+    <div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">뉴스 수집 중...</span></div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+// ─── RSS 소스 정의 ───
+const FEEDS = [
+  {
+    url: 'https://feeds.reuters.com/reuters/businessNews',
+    name: 'Reuters', icon: 'R', color: '#f7921a'
+  },
+  {
+    url: 'https://www.cnbc.com/id/20910258/device/rss/rss.html',
+    name: 'CNBC', icon: 'C', color: '#0078d4'
+  },
+  {
+    url: 'https://feeds.marketwatch.com/marketwatch/topstories/',
+    name: 'MarketWatch', icon: 'M', color: '#00d09c'
+  },
+  {
+    url: 'https://finance.yahoo.com/news/rssindex',
+    name: 'Yahoo Finance', icon: 'Y', color: '#a78bfa'
+  },
+  {
+    url: 'https://www.federalreserve.gov/feeds/press_all.xml',
+    name: 'Federal Reserve', icon: 'F', color: '#4f8ef7'
+  },
+];
+
+// ─── 거시경제 키워드 스코어링 ───
+const SCORE_MAP = [
+  // 핵심 거시 지표 (+5)
+  { w: ['federal reserve','fomc','powell','rate cut','rate hike','interest rate hike','interest rate cut',
+        'basis points','bps cut','bps hike','quantitative tightening','quantitative easing'], s: 5 },
+  // 주요 경제지표 (+4)
+  { w: ['cpi','core cpi','inflation rate','consumer price','pce','core pce','ppi','producer price',
+        'nonfarm payroll','nfp','jobs report','unemployment rate','jobless claims','gdp growth',
+        'gdp contraction','recession'], s: 4 },
+  // 중요 거시 이벤트 (+3)
+  { w: ['tariff','trade war','trade deficit','debt ceiling','treasury yield','yield curve','10-year yield',
+        '2-year yield','fed minutes','beige book','pmi','ism','retail sales','housing starts',
+        'consumer confidence','michigan sentiment','dollar index','dxy'], s: 3 },
+  // 거시 관련 일반 (+2)
+  { w: ['economy','economic','fiscal policy','monetary policy','central bank','interest rate',
+        'bond market','treasury','fed funds','inflation','deflation','stagflation',
+        'soft landing','hard landing','labor market'], s: 2 },
+  // 시장 관련 (+1)
+  { w: ['wall street','s&p 500','nasdaq','market','stocks','earnings','oil price',
+        'crude oil','gold price','dollar'], s: 1 },
+];
+
+// ─── 카테고리 분류 ───
+const CATEGORIES = [
+  { ko:'연준·금리', color:'#4f8ef7', bg:'rgba(79,142,247,.15)',
+    re:/fed|federal reserve|fomc|powell|rate cut|rate hike|basis point|interest rate decision/ },
+  { ko:'물가·인플레이션', color:'#ff4d5e', bg:'rgba(255,77,94,.15)',
+    re:/cpi|inflation|pce|price index|consumer price|producer price|deflat/ },
+  { ko:'고용·노동', color:'#00d09c', bg:'rgba(0,208,156,.15)',
+    re:/jobs?|unemployment|nfarm|nfp|labor|employment|payroll|jobless/ },
+  { ko:'성장·경기', color:'#a78bfa', bg:'rgba(167,139,250,.15)',
+    re:/gdp|recession|growth|contraction|slowdown|soft landing|hard landing|output/ },
+  { ko:'무역·관세', color:'#f5a623', bg:'rgba(245,166,35,.15)',
+    re:/tariff|trade war|trade deficit|export|import|china trade|customs/ },
+  { ko:'국채·채권', color:'#f5c842', bg:'rgba(245,200,66,.15)',
+    re:/treasury|yield curve|bond market|10-year|2-year|debt ceiling/ },
+  { ko:'달러·환율', color:'#f7921a', bg:'rgba(247,146,26,.15)',
+    re:/dollar index|dxy|dollar|currency|forex|yen|euro|exchange rate/ },
+  { ko:'에너지·원자재', color:'#e06c4c', bg:'rgba(224,108,76,.15)',
+    re:/oil|crude|opec|energy|natural gas|commodity|gold price/ },
+];
+
+function categorize(text) {
+  const t = text.toLowerCase();
+  for (const c of CATEGORIES) if (c.re.test(t)) return c;
+  return { ko:'거시경제', color:'#8a94b8', bg:'rgba(138,148,184,.12)' };
+}
+
+function scoreArticle(title, desc) {
+  const text = (title + ' ' + (desc||'')).toLowerCase();
+  let score = 0;
+  for (const { w, s } of SCORE_MAP)
+    for (const kw of w)
+      if (text.includes(kw)) { score += s; break; }
+  // 연준/인플레이션/GDP 두 번 이상 = 보너스
+  const highCount = (text.match(/fed|fomc|inflation|gdp|cpi|tariff|recession/g) || []).length;
+  if (highCount >= 3) score += 3;
+  return score;
+}
+
+// ─── 시간 포맷 ───
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const pub = new Date(dateStr);
+  if (isNaN(pub)) return '';
+  const diff = Date.now() - pub.getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return '방금';
+  if (m < 60) return `${m}분 전`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}시간 전`;
+  return `${Math.floor(h/24)}일 전`;
+}
+
+// ─── RSS 파싱 ───
+function parseRSS(xml, sourceName) {
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  const items = doc.querySelectorAll('item');
+  return Array.from(items).map(item => {
+    const title = item.querySelector('title')?.textContent?.trim() || '';
+    const link  = item.querySelector('link')?.textContent?.trim()
+               || item.querySelector('link')?.getAttribute('href') || '#';
+    const desc  = item.querySelector('description')?.textContent?.replace(/<[^>]+>/g,'').trim() || '';
+    const pub   = item.querySelector('pubDate')?.textContent
+               || item.querySelector('published')?.textContent || '';
+    return { title, link, desc, pub, source: sourceName };
+  }).filter(a => a.title && a.title.length > 5);
+}
+
+// ─── Fetch with proxies ───
+async function timedFetch(url, ms) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!r.ok) throw new Error(r.status);
+    return await r.text();
+  } catch(e) { clearTimeout(tid); throw e; }
+}
+
+async function fetchFeed(url) {
+  const enc = encodeURIComponent(url);
+  // 1) allorigins.win
+  try { return await timedFetch(`https://api.allorigins.win/raw?url=${enc}`, 12000); } catch(_) {}
+  // 2) corsproxy.io
+  try { return await timedFetch(`https://corsproxy.io/?${enc}`, 12000); } catch(_) {}
+  // 3) thingproxy
+  return await timedFetch(`https://thingproxy.freeboard.io/fetch/${url}`, 12000);
+}
+
+// ─── State ───
+let allArticles  = [];
+let filterCat    = 'all';
+let sourceStatus = {};
+let loading      = false;
+
+// ─── Main load ───
+async function loadNews() {
+  if (loading) return;
+  loading = true;
+  document.getElementById('refreshBtn').innerHTML = '<span class="spin">↻</span> 로딩중';
+  document.getElementById('newsList').innerHTML =
+    '<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">RSS 피드 수집 중...</span></div>';
+  document.getElementById('aiSummary').style.display = 'none';
+
+  const results = await Promise.allSettled(
+    FEEDS.map(feed => fetchFeed(feed.url).then(xml => ({ feed, xml })))
+  );
+
+  const rawArticles = [];
+  sourceStatus = {};
+
+  results.forEach((res, i) => {
+    const feed = FEEDS[i];
+    if (res.status === 'fulfilled') {
+      sourceStatus[feed.name] = 'ok';
+      const parsed = parseRSS(res.value.xml, feed.name);
+      parsed.forEach(a => rawArticles.push(a));
+    } else {
+      sourceStatus[feed.name] = 'fail';
+    }
+  });
+
+  renderSourcesBar();
+
+  if (!rawArticles.length) {
+    document.getElementById('newsList').innerHTML =
+      '<div class="err-box"><strong>뉴스를 불러올 수 없습니다</strong><br><small>네트워크 또는 CORS 프록시 문제입니다. 잠시 후 다시 시도해주세요.</small></div>';
+    loading = false;
+    document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+    return;
+  }
+
+  // 스코어링 + 카테고리
+  const scored = rawArticles.map(a => ({
+    ...a,
+    score:    scoreArticle(a.title, a.desc),
+    category: categorize(a.title + ' ' + a.desc),
+    pubMs:    a.pub ? new Date(a.pub).getTime() : 0,
+  }))
+  // 거시경제 무관 기사 제거 (score 1 미만)
+  .filter(a => a.score >= 1)
+  // 최근 72시간 이내
+  .filter(a => !a.pubMs || (Date.now() - a.pubMs) < 72 * 3600 * 1000);
+
+  // 제목 중복 제거
+  const seen = new Set();
+  const deduped = scored.filter(a => {
+    const key = a.title.slice(0, 40).toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  // 점수 내림차순 → 같은 점수면 최신순
+  deduped.sort((a, b) => b.score - a.score || b.pubMs - a.pubMs);
+
+  allArticles = deduped;
+
+  renderNews();
+  generateAISummary();
+  updateTimestamp();
+
+  loading = false;
+  document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+}
+
+// ─── 렌더 ───
+function renderNews() {
+  const filtered = filterCat === 'all'
+    ? allArticles
+    : allArticles.filter(a => a.category.ko === filterCat);
+  const top10 = filtered.slice(0, 10);
+
+  if (!top10.length) {
+    document.getElementById('newsList').innerHTML =
+      '<div class="no-data">해당 카테고리의 기사가 없습니다.</div>';
+    document.getElementById('resultCount').textContent = '';
+    return;
+  }
+
+  const maxScore = top10[0]?.score || 1;
+  document.getElementById('resultCount').textContent =
+    `${filtered.length}개 기사 중 상위 ${top10.length}개 표시`;
+
+  const html = top10.map((a, i) => {
+    const rank = i + 1;
+    const pct  = Math.round((a.score / maxScore) * 100);
+    const feed = FEEDS.find(f => f.name === a.source);
+    const rankCls = rank <= 3 ? `r${rank}` : '';
+    const itemCls = rank <= 3 ? `rank-${rank}` : '';
+    return `
+    <a href="${escHtml(a.link)}" target="_blank" rel="noopener noreferrer" class="news-item ${itemCls}">
+      <div class="ni-rank ${rankCls}">${rank}</div>
+      <div class="ni-body">
+        <div class="ni-meta">
+          <span class="ni-source" style="border-color:${feed?.color||'var(--border)'};color:${feed?.color||'var(--txt3)'};">
+            ${escHtml(a.source)}
+          </span>
+          <span class="ni-cat" style="background:${a.category.bg};color:${a.category.color};">
+            ${a.category.ko}
+          </span>
+          <span class="ni-time">${timeAgo(a.pub)}</span>
+          <div class="ni-score-wrap" title="중요도 점수: ${a.score}">
+            <div class="ni-score-bar"><div class="ni-score-fill" style="width:${pct}%"></div></div>
+          </div>
+        </div>
+        <div class="ni-title">${escHtml(a.title)}</div>
+        ${a.desc ? `<div class="ni-desc">${escHtml(a.desc.slice(0, 180))}</div>` : ''}
+      </div>
+    </a>`;
+  }).join('');
+
+  document.getElementById('newsList').innerHTML = `<div class="news-list">${html}</div>`;
+}
+
+function renderSourcesBar() {
+  const html = FEEDS.map(f => {
+    const st = sourceStatus[f.name] || 'fail';
+    return `<div class="src-chip">
+      <div class="src-dot ${st}"></div>
+      <span style="color:${f.color};font-weight:700;font-size:10px;">${f.name}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('sourcesBar').innerHTML = html;
+}
+
+function updateTimestamp() {
+  const kst = new Date(Date.now() + 9*3600000);
+  const p = n => String(n).padStart(2,'0');
+  document.getElementById('lastUpdate').textContent =
+    `${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())} KST`;
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── AI 요약 ───
+function renderAISummary(lines) {
+  const box = document.getElementById('aiSummary');
+  if (!box || !lines.length) return;
+  box.style.display = 'block';
+  const cont = document.getElementById('aiLines');
+  cont.innerHTML = '';
+  lines.forEach((text, i) => {
+    const el = document.createElement('div');
+    el.className = 'ai-line';
+    el.style.animationDelay = `${i * 0.28}s`;
+    el.textContent = text;
+    cont.appendChild(el);
+  });
+  const kst = new Date(Date.now() + 9*3600000);
+  const p = n => String(n).padStart(2,'0');
+  const tEl = document.getElementById('aiTime');
+  if (tEl) tEl.textContent = `${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())} KST 기준`;
+}
+
+function generateAISummary() {
+  const top10 = allArticles.slice(0, 10);
+  if (!top10.length) return;
+
+  // 카테고리 빈도 집계
+  const catCount = {};
+  top10.forEach(a => {
+    catCount[a.category.ko] = (catCount[a.category.ko] || 0) + 1;
+  });
+  const topCats = Object.entries(catCount)
+    .sort((a,b) => b[1]-a[1])
+    .slice(0, 3)
+    .map(([k,v]) => `${k}(${v}건)`)
+    .join(' · ');
+
+  // 연준 관련 기사 수
+  const fedCount = top10.filter(a => a.category.ko === '연준·금리').length;
+  const inflCount = top10.filter(a => a.category.ko === '물가·인플레이션').length;
+  const tradeCount = top10.filter(a => a.category.ko === '무역·관세').length;
+
+  const top1 = top10[0];
+  const shortTitle = top1.title.length > 55 ? top1.title.slice(0, 55) + '…' : top1.title;
+
+  const line1 = `📌 오늘의 핵심 기사: "${shortTitle}"`;
+  const line2 = `📊 주요 이슈: ${topCats} — 총 ${allArticles.length}개 기사에서 거시경제 상위 10개를 선별했습니다.`;
+
+  let line3;
+  if (fedCount >= 3) {
+    line3 = `🏦 연준·금리 관련 기사가 ${fedCount}건으로 집중 — 통화정책 방향에 시장의 이목이 쏠려 있습니다.`;
+  } else if (tradeCount >= 2) {
+    line3 = `🌐 무역·관세 이슈가 ${tradeCount}건 상위권 진입 — 글로벌 교역 불확실성이 시장의 주요 관심사입니다.`;
+  } else if (inflCount >= 2) {
+    line3 = `📈 물가·인플레이션 기사 ${inflCount}건 집중 — 인플레이션 경로가 핵심 변수로 부각되고 있습니다.`;
+  } else {
+    line3 = `🔄 다양한 거시 이슈가 혼재하는 장세 — 개별 지표 발표와 정책 발언에 주목이 필요합니다.`;
+  }
+
+  renderAISummary([line1, line2, line3]);
+}
+
+// ─── 필터 탭 ───
+document.querySelectorAll('.stab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterCat = btn.dataset.filter;
+    renderNews();
+  });
+});
+
+document.getElementById('refreshBtn').addEventListener('click', () => loadNews());
+
+// 30분 자동 갱신
+setInterval(loadNews, 30 * 60 * 1000);
+
+loadNews();
+</script>
+</body>
+</html>
