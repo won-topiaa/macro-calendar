@@ -261,12 +261,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 async function initVisitorCount() {
   const box = document.getElementById('visitorBox');
   const num = document.getElementById('visitorNum');
-  // 1차: counterapi.dev (무료, CORS 허용)
+  // 1차: counterapi.dev (무료, CORS 허용) — 5초 타임아웃 (없으면 hang → fallback 도달 불가)
   try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 5000);
     const r = await fetch(
       'https://api.counterapi.dev/v1/macro-hub-juwon/index/up',
-      { cache: 'no-store' }
+      { cache: 'no-store', signal: ctrl.signal }
     );
+    clearTimeout(tid);
     if (r.ok) {
       const d = await r.json();
       const count = d.count ?? d.value ?? d.hits;
