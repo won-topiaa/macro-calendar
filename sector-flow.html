@@ -482,8 +482,9 @@ async function fetchTicker(sym, range) {
 
   // 현재가: meta 우선, 없으면 마지막 종가
   const price  = meta.regularMarketPrice ?? closes[closes.length - 1] ?? null;
-  // 전일 종가: meta.previousClose 또는 배열 마지막 전 값
-  const prev   = meta.previousClose ?? meta.chartPreviousClose
+  // 전일 종가: previousClose 우선, 없으면 배열 전날값
+  // chartPreviousClose = 차트 범위 시작 직전 가격 → 절대 사용 금지 (5일/1달 전값이 1D로 표시되는 버그)
+  const prev   = meta.previousClose
               ?? (closes.length >= 2 ? closes[closes.length - 2] : null);
   // 1일 변화율
   const chg1d  = (price && prev) ? ((price - prev) / prev) * 100
@@ -889,12 +890,13 @@ function renderAISummary(lines) {
 }
 
 function generateAISummary() {
-  const valid = SECTORS.map(s => ({ ...s, chg: td[s.etf]?.change1d ?? null })).filter(s => s.chg !== null);
+  // change1d 대신 getChange() 사용 → 선택된 기간(1D/5D/1M/3M) 기준으로 요약
+  const valid = SECTORS.map(s => ({ ...s, chg: getChange(s.etf) })).filter(s => s.chg !== null);
   if (valid.length < 3) return;
   const sorted = [...valid].sort((a,b) => b.chg - a.chg);
   const top = sorted[0], bot = sorted[sorted.length-1];
-  const onAvg  = RISK_ON .reduce((s,e) => s+(td[e]?.change1d??0),0) / RISK_ON.length;
-  const offAvg = RISK_OFF.reduce((s,e) => s+(td[e]?.change1d??0),0) / RISK_OFF.length;
+  const onAvg  = RISK_ON .reduce((s,e) => s+(getChange(e)??0),0) / RISK_ON.length;
+  const offAvg = RISK_OFF.reduce((s,e) => s+(getChange(e)??0),0) / RISK_OFF.length;
   const isOn = onAvg > offAvg;
   const diff = Math.abs(onAvg - offAvg).toFixed(2);
   const spikes = valid.filter(s => (td[s.etf]?.volRatio??0) > 1.5)
@@ -1169,11 +1171,19 @@ function renderCommodities() {
 }
 
 // ─── Events ───
+
+// 기간 탭: 중복 리스너 제거 → 하나로 통합
+// std/ctd 캐시 초기화 후 메인·세부섹터·원자재 모두 재로드
 document.querySelectorAll('.ptab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    loadAll(btn.dataset.p);
+    std = {};   // 세부섹터 캐시 초기화 (기간 바뀌면 구 범위 데이터 무효)
+    ctd = {};   // 원자재 캐시 초기화
+    loadAll(btn.dataset.p).then(() => {
+      loadSubsector(ssActive);
+      loadCommodities();
+    });
   });
 });
 
@@ -1200,20 +1210,15 @@ document.querySelectorAll('.sstab').forEach(btn => {
   });
 });
 
-// Auto-refresh every 3 minutes
+// 3분 자동갱신: 메인 + 세부섹터 + 원자재 모두 갱신
 setInterval(() => {
   std = {};
-  loadAll(period);
-}, 3 * 60 * 1000);
-
-// 기간 탭 변경 시 원자재 캐시 무효화 후 재로드
-document.querySelectorAll('.ptab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    // 원자재 캐시 초기화 (기간 바뀌면 새로 fetch)
-    ctd = {};
+  ctd = {};
+  loadAll(period).then(() => {
+    loadSubsector(ssActive);
     loadCommodities();
   });
-});
+}, 3 * 60 * 1000);
 
 // Init: 메인 → 세부섹터 → 원자재 순서로 로드
 (async () => {
