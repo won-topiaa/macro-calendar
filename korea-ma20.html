@@ -454,7 +454,7 @@ function analyze(stock, closes) {
   const price    = closes[last];
   const ma20Val  = ma20[last];
   const pctVsMa  = ((price - ma20Val) / ma20Val) * 100;
-  const weekChg  = closes[last - 1] ? ((price - closes[last - 1]) / closes[last - 1]) * 100 : null;
+  const weekChg  = closes[last - 1] != null ? ((price - closes[last - 1]) / closes[last - 1]) * 100 : null;
 
   return {
     ...stock,
@@ -510,7 +510,7 @@ function buildSparkSVG(r) {
 
   const isUp = r.pctVsMa >= 0;
   const lineColor = isUp ? '#00d09c' : '#ff4d5e';
-  const fillId = `fill_${r.s.replace('.','_')}`;
+  const fillId = `fill_${r.s.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
   return `<svg class="sc-spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
   <defs>
