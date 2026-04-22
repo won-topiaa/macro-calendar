@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>국장 20주선 돌파 | Macro Hub</title>
+<title>미장 20주선 돌파 | Macro Hub</title>
 <style>
 :root {
   --bg:#0c0f1a;--bg2:#141828;--bg3:#1c2238;--bg4:#242a42;
@@ -21,17 +21,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── Header ── */
 .site-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;}
 .hdr-left{display:flex;align-items:center;gap:14px;}
-.hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#00d09c,#4f8ef7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#4f8ef7,#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
 .hdr-title h1{font-size:17px;font-weight:700;}
 .hdr-title p{font-size:11px;color:var(--txt3);margin-top:1px;}
 .hdr-nav{display:flex;gap:4px;margin-left:8px;}
 .nav-link{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:500;color:var(--txt3);text-decoration:none;transition:all .15s;white-space:nowrap;}
 .nav-link:hover{color:var(--txt2);background:var(--bg3);}
-.nav-link.active{color:var(--green);background:var(--green2);}
+.nav-link.active{color:var(--blue);background:var(--blue2);}
 .hdr-right{display:flex;align-items:center;gap:14px;}
 .last-update{font-size:11px;color:var(--txt3);}
 .refresh-btn{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:6px 13px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;font-weight:600;}
-.refresh-btn:hover{color:var(--green);border-color:var(--green);}
+.refresh-btn:hover{color:var(--blue);border-color:var(--blue);}
 .spin{display:inline-block;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @media(max-width:760px){.hdr-nav{display:none;}}
@@ -41,12 +41,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── Intro Card ── */
 .intro-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:18px;position:relative;overflow:hidden;}
-.intro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00d09c,#4f8ef7,#a78bfa);}
+.intro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4f8ef7,#a78bfa,#00d09c);}
 .intro-top{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;}
 .intro-icon{font-size:38px;flex-shrink:0;line-height:1;}
 .intro-body{flex:1;min-width:220px;}
 .intro-title{font-size:19px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.intro-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:var(--green2);color:var(--green);border:1px solid rgba(0,208,156,.3);}
+.intro-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:var(--blue2);color:var(--blue);border:1px solid rgba(79,142,247,.3);}
 .intro-desc{font-size:13px;color:var(--txt2);line-height:1.75;}
 .intro-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
 .intro-pill{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:20px;font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--border);color:var(--txt2);}
@@ -66,9 +66,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .progress-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:18px;}
 .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
 .progress-lbl{font-size:12px;color:var(--txt2);font-weight:600;}
-.progress-pct{font-size:13px;font-weight:800;color:var(--green);}
+.progress-pct{font-size:13px;font-weight:800;color:var(--blue);}
 .progress-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
-.progress-fill{height:100%;background:linear-gradient(90deg,#00d09c,#4f8ef7);border-radius:4px;transition:width .3s ease;width:0%;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4f8ef7,#a78bfa);border-radius:4px;transition:width .3s ease;width:0%;}
 .progress-detail{font-size:11px;color:var(--txt3);margin-top:8px;}
 
 /* ── Controls ── */
@@ -76,7 +76,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ctrl-left{display:flex;align-items:center;gap:8px;}
 .section-label{font-size:13px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;}
 .sort-sel{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:6px 11px;border-radius:8px;font-size:12px;cursor:pointer;outline:none;}
-.auto-badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;background:var(--green2);color:var(--green);border:1px solid rgba(0,208,156,.3);}
+.auto-badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;background:var(--blue2);color:var(--blue);border:1px solid rgba(79,142,247,.3);}
 
 /* ── Two-Column Layout ── */
 .sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
@@ -121,7 +121,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .empty-icon{font-size:28px;margin-bottom:8px;}
 .empty-text{font-size:13px;}
 .loading-state{padding:36px 20px;text-align:center;}
-.spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px;}
+.spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px;}
 .loading-text{font-size:12px;color:var(--txt3);}
 
 /* ── Error Banner ── */
@@ -135,10 +135,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <header class="site-header">
   <div class="hdr-left">
-    <div class="hdr-logo">📈</div>
+    <div class="hdr-logo">🦅</div>
     <div class="hdr-title">
-      <h1>국장 20주선 돌파</h1>
-      <p>KOSPI · KOSDAQ 주봉 20주 이평선 상향 돌파 스크리너</p>
+      <h1>미장 20주선 돌파</h1>
+      <p>S&amp;P 500 · NASDAQ 주봉 20주 이평선 상향 돌파 스크리너</p>
     </div>
     <nav class="hdr-nav">
       <a href="index.html"          class="nav-link">홈</a>
@@ -146,8 +146,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <a href="crypto-flow.html"    class="nav-link">코인 수급</a>
       <a href="flow-compare.html"   class="nav-link">크로스에셋</a>
       <a href="macro-news.html"     class="nav-link">매크로 뉴스</a>
-      <a href="korea-ma20.html"     class="nav-link active">국장 20주선</a>
-      <a href="us-ma20.html"        class="nav-link">미장 20주선</a>
+      <a href="korea-ma20.html"     class="nav-link">국장 20주선</a>
+      <a href="us-ma20.html"        class="nav-link active">미장 20주선</a>
     </nav>
   </div>
   <div class="hdr-right">
@@ -175,8 +175,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="intro-pills">
           <div class="intro-pill"><span class="dot" style="background:#00d09c;"></span>20주선 돌파 = 기관 매수 전환 신호</div>
           <div class="intro-pill"><span class="dot" style="background:#4f8ef7;"></span>돌파 후 지지 = 추세 확인 (2차 진입)</div>
-          <div class="intro-pill"><span class="dot" style="background:#a78bfa;"></span>KOSPI · KOSDAQ 시총 상위 종목만 필터</div>
-          <div class="intro-pill"><span class="dot" style="background:#f5a623;"></span>주봉 기준 · 매주 자동 업데이트</div>
+          <div class="intro-pill"><span class="dot" style="background:#a78bfa;"></span>S&amp;P 500 · NASDAQ 시총 상위 종목 필터</div>
+          <div class="intro-pill"><span class="dot" style="background:#f5a623;"></span>주봉 기준 · 3분 자동 갱신</div>
         </div>
         <div class="intro-notice">
           <span class="notice-icon">⚠️</span>
@@ -184,7 +184,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <strong>주중 신호는 임시적일 수 있습니다.</strong>
             Yahoo Finance 주봉 데이터의 마지막 캔들은 <em>현재 진행 중인 주(week)</em>의 미완성 데이터입니다.
             월~목 사이에 보이는 돌파 신호는 금요일 종가 기준으로 달라질 수 있으므로,
-            <strong>금요일 장 마감 후 확인하는 것이 가장 정확합니다.</strong>
+            <strong>금요일 장 마감(ET 16:00) 후 확인하는 것이 가장 정확합니다.</strong>
           </div>
         </div>
       </div>
@@ -295,80 +295,83 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <footer class="footer">
-  <p>데이터 출처: Yahoo Finance (주봉, 최대 15분 지연) · 주봉 기준 20주 이동평균선 · KOSPI/KOSDAQ 시총 주요 종목 <span id="footerTime"></span></p>
+  <p>데이터 출처: Yahoo Finance (주봉, 최대 15분 지연) · 주봉 기준 20주 이동평균선 · S&amp;P 500 · NASDAQ 시총 주요 종목 <span id="footerTime"></span></p>
 </footer>
 
 <script>
 // ─────────────────────────────────────────
-//  Stock Universe (KOSPI/KOSDAQ 시총 주요 55종목)
+//  Stock Universe (S&P 500 · NASDAQ 시총 주요 57종목)
 // ─────────────────────────────────────────
 const STOCKS = [
-  // 반도체·전자
-  { s:'005930.KS', n:'삼성전자',          g:'반도체' },
-  { s:'000660.KS', n:'SK하이닉스',        g:'반도체' },
-  { s:'042700.KQ', n:'한미반도체',         g:'반도체' },
-  { s:'058470.KQ', n:'리노공업',           g:'반도체' },
-  { s:'009150.KS', n:'삼성전기',           g:'전자부품' },
-  { s:'011070.KS', n:'LG이노텍',           g:'전자부품' },
-  { s:'066570.KS', n:'LG전자',             g:'전자' },
-  // 2차전지
-  { s:'373220.KS', n:'LG에너지솔루션',    g:'2차전지' },
-  { s:'006400.KS', n:'삼성SDI',            g:'2차전지' },
-  { s:'051910.KS', n:'LG화학',             g:'2차전지' },
-  { s:'247540.KQ', n:'에코프로비엠',       g:'2차전지' },
-  { s:'086520.KQ', n:'에코프로',            g:'2차전지' },
-  { s:'003670.KS', n:'POSCO퓨처엠',        g:'2차전지' },
-  // 자동차
-  { s:'005380.KS', n:'현대차',             g:'자동차' },
-  { s:'000270.KS', n:'기아',               g:'자동차' },
-  { s:'012330.KS', n:'현대모비스',         g:'자동차' },
-  // 바이오
-  { s:'207940.KS', n:'삼성바이오로직스',   g:'바이오' },
-  { s:'068270.KS', n:'셀트리온',            g:'바이오' },
-  { s:'000100.KS', n:'유한양행',            g:'바이오' },
-  { s:'196170.KQ', n:'알테오젠',            g:'바이오' },
-  { s:'326030.KS', n:'SK바이오팜',          g:'바이오' },
-  { s:'214150.KQ', n:'클래시스',            g:'바이오' },
-  // IT
-  { s:'035420.KS', n:'NAVER',              g:'IT' },
-  { s:'035720.KS', n:'카카오',              g:'IT' },
-  { s:'323410.KS', n:'카카오뱅크',          g:'IT' },
-  // 게임·엔터
-  { s:'259960.KS', n:'크래프톤',            g:'게임' },
-  { s:'036570.KS', n:'엔씨소프트',          g:'게임' },
-  { s:'352820.KS', n:'HYBE',               g:'엔터' },
-  { s:'041510.KQ', n:'에스엠',              g:'엔터' },
-  { s:'035900.KQ', n:'JYP엔터',            g:'엔터' },
+  // 반도체
+  { s:'NVDA',  n:'엔비디아',           g:'반도체' },
+  { s:'AMD',   n:'AMD',                g:'반도체' },
+  { s:'AVGO',  n:'브로드컴',           g:'반도체' },
+  { s:'QCOM',  n:'퀄컴',              g:'반도체' },
+  { s:'MU',    n:'마이크론',           g:'반도체' },
+  { s:'AMAT',  n:'어플라이드 머티리얼즈', g:'반도체' },
+  { s:'LRCX',  n:'램리서치',           g:'반도체' },
+  { s:'KLAC',  n:'KLA',               g:'반도체' },
+  { s:'TSM',   n:'TSMC (ADR)',         g:'반도체' },
+  // 빅테크
+  { s:'AAPL',  n:'애플',              g:'빅테크' },
+  { s:'MSFT',  n:'마이크로소프트',     g:'빅테크' },
+  { s:'GOOGL', n:'알파벳',            g:'빅테크' },
+  { s:'META',  n:'메타',              g:'빅테크' },
+  { s:'AMZN',  n:'아마존',            g:'빅테크' },
+  { s:'NFLX',  n:'넷플릭스',          g:'빅테크' },
+  // 소프트웨어·AI
+  { s:'CRM',   n:'세일즈포스',         g:'소프트웨어' },
+  { s:'ADBE',  n:'어도비',            g:'소프트웨어' },
+  { s:'ORCL',  n:'오라클',            g:'소프트웨어' },
+  { s:'NOW',   n:'서비스나우',         g:'소프트웨어' },
+  { s:'PLTR',  n:'팔란티어',          g:'AI' },
+  { s:'PANW',  n:'팔로알토',          g:'사이버보안' },
+  { s:'CRWD',  n:'크라우드스트라이크', g:'사이버보안' },
+  // 전기차
+  { s:'TSLA',  n:'테슬라',            g:'전기차' },
   // 금융
-  { s:'105560.KS', n:'KB금융',              g:'금융' },
-  { s:'055550.KS', n:'신한지주',            g:'금융' },
-  { s:'086790.KS', n:'하나금융지주',        g:'금융' },
-  { s:'316140.KS', n:'우리금융지주',        g:'금융' },
-  { s:'032830.KS', n:'삼성생명',            g:'금융' },
-  { s:'000810.KS', n:'삼성화재',            g:'금융' },
-  { s:'016360.KS', n:'삼성증권',            g:'증권' },
-  { s:'006800.KS', n:'미래에셋증권',        g:'증권' },
-  // 조선·방산
-  { s:'009540.KS', n:'HD한국조선해양',      g:'조선' },
-  { s:'329180.KS', n:'HD현대중공업',        g:'조선' },
-  { s:'042660.KS', n:'한화오션',             g:'조선' },
-  { s:'012450.KS', n:'한화에어로스페이스',  g:'방산' },
-  { s:'047810.KS', n:'한국항공우주',         g:'방산' },
-  // 소재·에너지·철강
-  { s:'005490.KS', n:'POSCO홀딩스',         g:'철강' },
-  { s:'010950.KS', n:'S-Oil',               g:'에너지' },
-  { s:'010130.KS', n:'고려아연',             g:'소재' },
-  { s:'004020.KS', n:'현대제철',             g:'철강' },
-  { s:'034020.KS', n:'두산에너빌리티',       g:'기계' },
+  { s:'JPM',   n:'JP모건',            g:'금융' },
+  { s:'BAC',   n:'뱅크오브아메리카',  g:'금융' },
+  { s:'WFC',   n:'웰스파고',          g:'금융' },
+  { s:'GS',    n:'골드만삭스',        g:'금융' },
+  { s:'MS',    n:'모건스탠리',        g:'금융' },
+  { s:'V',     n:'비자',             g:'결제' },
+  { s:'MA',    n:'마스터카드',        g:'결제' },
+  { s:'AXP',   n:'아메리칸 익스프레스', g:'결제' },
+  { s:'BRK-B', n:'버크셔 해서웨이',  g:'금융' },
+  // 헬스케어·바이오
+  { s:'LLY',   n:'일라이릴리',        g:'바이오' },
+  { s:'UNH',   n:'유나이티드헬스',    g:'헬스케어' },
+  { s:'JNJ',   n:'존슨앤존슨',       g:'헬스케어' },
+  { s:'ABBV',  n:'애브비',           g:'바이오' },
+  { s:'MRK',   n:'머크',             g:'바이오' },
+  { s:'AMGN',  n:'암젠',             g:'바이오' },
+  { s:'ISRG',  n:'인튜이티브서지컬', g:'헬스케어' },
+  // 소비재·유통
+  { s:'COST',  n:'코스트코',          g:'유통' },
+  { s:'WMT',   n:'월마트',           g:'유통' },
+  { s:'HD',    n:'홈디포',           g:'유통' },
+  { s:'MCD',   n:'맥도날드',         g:'소비재' },
+  { s:'NKE',   n:'나이키',           g:'소비재' },
+  { s:'SBUX',  n:'스타벅스',         g:'소비재' },
+  // 에너지
+  { s:'XOM',   n:'엑슨모빌',         g:'에너지' },
+  { s:'CVX',   n:'셰브론',           g:'에너지' },
+  { s:'COP',   n:'코노코필립스',     g:'에너지' },
+  // 방산·산업
+  { s:'LMT',   n:'록히드마틴',       g:'방산' },
+  { s:'RTX',   n:'RTX (레이시온)',   g:'방산' },
+  { s:'NOC',   n:'노스럽그루먼',     g:'방산' },
+  { s:'GE',    n:'GE 에어로스페이스', g:'방산' },
+  { s:'CAT',   n:'캐터필러',         g:'산업' },
+  { s:'BA',    n:'보잉',             g:'산업' },
+  // 소재
+  { s:'FCX',   n:'프리포트맥모란',   g:'소재' },
+  { s:'NEM',   n:'뉴몬트',           g:'소재' },
   // 통신
-  { s:'017670.KS', n:'SK텔레콤',            g:'통신' },
-  { s:'030200.KS', n:'KT',                  g:'통신' },
-  // 지주·기타
-  { s:'003550.KS', n:'LG',                  g:'지주' },
-  { s:'034730.KS', n:'SK',                  g:'지주' },
-  { s:'028260.KS', n:'삼성물산',             g:'지주' },
-  { s:'096770.KS', n:'SK이노베이션',         g:'에너지' },
-  { s:'033780.KS', n:'KT&G',               g:'담배' },
+  { s:'TMUS',  n:'T-모바일',         g:'통신' },
+  { s:'VZ',    n:'버라이즌',         g:'통신' },
 ];
 
 // ─────────────────────────────────────────
@@ -380,7 +383,7 @@ let isLoading = false;
 let refreshTimer = null;
 
 // ─────────────────────────────────────────
-//  CORS Proxies (same as other pages)
+//  CORS Proxies
 // ─────────────────────────────────────────
 const PROXIES = [
   url => url,
@@ -410,15 +413,13 @@ async function fetchWithProxy(url, timeout = 8000) {
 //  Fetch weekly data for one stock
 // ─────────────────────────────────────────
 async function fetchWeekly(symbol) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1wk&range=2y`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1wk&range=2y`;
   const data = await fetchWithProxy(url, 9000);
   if (!data) return null;
   try {
     const result = data.chart.result[0];
     const quotes = result.indicators.quote[0];
-    const rawClose = quotes.close;
-    // Filter nulls (keep only valid weekly closes)
-    const closes = rawClose.filter(v => v != null && !isNaN(v));
+    const closes = quotes.close.filter(v => v != null && !isNaN(v));
     if (closes.length < 22) return null;
     return closes;
   } catch (e) {
@@ -433,7 +434,6 @@ function analyze(stock, closes) {
   const n = closes.length;
   if (n < 22) return null;
 
-  // Compute 20-week MA
   const ma20 = new Array(n).fill(null);
   for (let i = 19; i < n; i++) {
     let sum = 0;
@@ -444,17 +444,18 @@ function analyze(stock, closes) {
   const last = n - 1;
   if (ma20[last] == null) return null;
 
-  // Count consecutive weeks above MA20 from most recent back
   let weeksAbove = 0;
   for (let i = last; i >= 19; i--) {
     if (closes[i] > ma20[i]) weeksAbove++;
     else break;
   }
 
-  const price    = closes[last];
-  const ma20Val  = ma20[last];
-  const pctVsMa  = ((price - ma20Val) / ma20Val) * 100;
-  const weekChg  = closes[last - 1] ? ((price - closes[last - 1]) / closes[last - 1]) * 100 : null;
+  const price   = closes[last];
+  const ma20Val = ma20[last];
+  const pctVsMa = ((price - ma20Val) / ma20Val) * 100;
+  const weekChg = closes[last - 1] != null
+    ? ((price - closes[last - 1]) / closes[last - 1]) * 100
+    : null;
 
   return {
     ...stock,
@@ -471,7 +472,7 @@ function analyze(stock, closes) {
 }
 
 // ─────────────────────────────────────────
-//  Build sparkline SVG path
+//  Build sparkline SVG
 // ─────────────────────────────────────────
 function buildSparkSVG(r) {
   const W = 260, H = 46;
@@ -488,13 +489,11 @@ function buildSparkSVG(r) {
   const xOf = i => (i / (n - 1)) * W;
   const yOf = v => H - ((v - minV) / range) * H;
 
-  // Price line (gold/green)
   let pricePath = '';
   for (let i = 0; i < n; i++) {
     pricePath += (i === 0 ? 'M' : 'L') + xOf(i).toFixed(1) + ',' + yOf(closes[i]).toFixed(1);
   }
 
-  // MA20 dashed line (blue)
   let maPath = '';
   let maStarted = false;
   for (let i = 0; i < n; i++) {
@@ -504,13 +503,9 @@ function buildSparkSVG(r) {
     maStarted = true;
   }
 
-  // Price area fill
-  const areaPath = pricePath +
-    `L${xOf(n-1).toFixed(1)},${H} L${xOf(0).toFixed(1)},${H} Z`;
-
-  const isUp = r.pctVsMa >= 0;
-  const lineColor = isUp ? '#00d09c' : '#ff4d5e';
-  const fillId = `fill_${r.s.replace('.','_')}`;
+  const areaPath = pricePath + `L${xOf(n-1).toFixed(1)},${H} L${xOf(0).toFixed(1)},${H} Z`;
+  const lineColor = r.pctVsMa >= 0 ? '#00d09c' : '#ff4d5e';
+  const fillId = `fill_${r.s.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
   return `<svg class="sc-spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
   <defs>
@@ -534,25 +529,27 @@ function fmtPct(v, decimals = 1) {
   return sign + v.toFixed(decimals) + '%';
 }
 
-function pctClass(v) {
+function pctColor(v) {
   return v == null ? '' : (v >= 0 ? 'style="color:var(--green)"' : 'style="color:var(--red)"');
 }
 
-function naverLink(symbol) {
-  const code = symbol.replace('.KS','').replace('.KQ','');
-  return `https://finance.naver.com/item/main.naver?code=${code}`;
+function fmtUSD(v) {
+  if (v >= 1000) return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return '$' + v.toFixed(2);
+}
+
+function yahooLink(symbol) {
+  return `https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}`;
 }
 
 // ─────────────────────────────────────────
-//  Render stock card HTML
+//  Render stock card
 // ─────────────────────────────────────────
 function renderCard(r) {
   const weekBadgeClass = r.isBreakout ? 'sc-week-new' : 'sc-week-conf';
-  const weekBadgeText  = r.isBreakout
-    ? '🚀 이번 주 돌파'
-    : `✅ ${r.weeksAbove}주 유지`;
+  const weekBadgeText  = r.isBreakout ? '🚀 이번 주 돌파' : `✅ ${r.weeksAbove}주 유지`;
 
-  return `<a href="${naverLink(r.s)}" target="_blank" rel="noopener" class="stock-card">
+  return `<a href="${yahooLink(r.s)}" target="_blank" rel="noopener" class="stock-card">
   <div class="sc-top">
     <div class="sc-left">
       <div>
@@ -566,14 +563,14 @@ function renderCard(r) {
     </div>
   </div>
   <div class="sc-mid">
-    <div class="sc-price">₩${r.price.toLocaleString('ko-KR')}</div>
+    <div class="sc-price">${fmtUSD(r.price)}</div>
     <div class="sc-metrics">
       <div class="sc-metric">
-        <span class="sc-metric-val" ${pctClass(r.weekChg)}>${fmtPct(r.weekChg)}</span>
+        <span class="sc-metric-val" ${pctColor(r.weekChg)}>${fmtPct(r.weekChg)}</span>
         <span class="sc-metric-lbl">주간 등락</span>
       </div>
       <div class="sc-metric">
-        <span class="sc-metric-val" ${pctClass(r.pctVsMa)}>${fmtPct(r.pctVsMa)}</span>
+        <span class="sc-metric-val" ${pctColor(r.pctVsMa)}>${fmtPct(r.pctVsMa)}</span>
         <span class="sc-metric-lbl">MA괴리율</span>
       </div>
     </div>
@@ -583,17 +580,16 @@ function renderCard(r) {
 }
 
 // ─────────────────────────────────────────
-//  Render all cards
+//  Render all
 // ─────────────────────────────────────────
 function renderAll() {
-  if (isLoading) return;  // 스캔 중 정렬 변경 시 미완성 결과 렌더 방지
+  if (isLoading) return;
   const sortKey = document.getElementById('sortSel').value;
 
   const breakouts  = results.filter(r => r.isBreakout);
   const confirmed  = results.filter(r => r.isConfirmed);
   const totalAbove = results.filter(r => r.weeksAbove > 0).length;
 
-  // Sort
   const sortFn = (a, b) => {
     if (sortKey === 'weeksAbove') return b.weeksAbove - a.weeksAbove;
     if (sortKey === 'pctVsMa')   return b.pctVsMa - a.pctVsMa;
@@ -603,31 +599,22 @@ function renderAll() {
   breakouts.sort(sortFn);
   confirmed.sort(sortFn);
 
-  // Update stats
   document.getElementById('statTotal').textContent     = STOCKS.length;
   document.getElementById('statBreakout').textContent  = breakouts.length;
   document.getElementById('statConfirmed').textContent = confirmed.length;
   document.getElementById('statAbove').textContent     = totalAbove;
-
-  // Update badges
   document.getElementById('countBreakout').textContent  = breakouts.length + '종목';
   document.getElementById('countConfirmed').textContent = confirmed.length + '종목';
 
-  // Render breakouts
   const lb = document.getElementById('listBreakout');
-  if (breakouts.length === 0) {
-    lb.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">이번 주 신규 돌파 종목이 없습니다</div></div>`;
-  } else {
-    lb.innerHTML = breakouts.map(renderCard).join('');
-  }
+  lb.innerHTML = breakouts.length === 0
+    ? `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">이번 주 신규 돌파 종목이 없습니다</div></div>`
+    : breakouts.map(renderCard).join('');
 
-  // Render confirmed
   const lc = document.getElementById('listConfirmed');
-  if (confirmed.length === 0) {
-    lc.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">돌파 후 지지 중인 종목이 없습니다</div></div>`;
-  } else {
-    lc.innerHTML = confirmed.map(renderCard).join('');
-  }
+  lc.innerHTML = confirmed.length === 0
+    ? `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">돌파 후 지지 중인 종목이 없습니다</div></div>`
+    : confirmed.map(renderCard).join('');
 }
 
 // ─────────────────────────────────────────
@@ -639,13 +626,12 @@ async function startScan() {
   results = [];
   loadedCount = 0;
 
-  // Reset UI
   document.getElementById('listBreakout').innerHTML  = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">스캔 중...</div></div>';
   document.getElementById('listConfirmed').innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">스캔 중...</div></div>';
   document.getElementById('progressWrap').style.display = 'block';
   document.getElementById('errorBanner').style.display  = 'none';
   document.getElementById('refreshBtn').innerHTML = '<span class="spin">⟳</span> 스캔 중';
-  document.getElementById('refreshBtn').disabled = true;
+  document.getElementById('refreshBtn').disabled  = true;
   document.getElementById('statTotal').textContent     = '—';
   document.getElementById('statBreakout').textContent  = '—';
   document.getElementById('statConfirmed').textContent = '—';
@@ -655,7 +641,6 @@ async function startScan() {
   let errorCount = 0;
 
   try {
-    // Fetch stocks in batches of 5 (avoid rate limiting)
     const BATCH = 5;
     for (let i = 0; i < total; i += BATCH) {
       const batch = STOCKS.slice(i, i + BATCH);
@@ -666,7 +651,7 @@ async function startScan() {
             const r = analyze(stock, closes);
             if (r) results.push(r);
           } else {
-            errorCount++;  // fetchWeekly returns null on failure (doesn't throw)
+            errorCount++;
           }
         } catch (e) {
           errorCount++;
@@ -675,19 +660,16 @@ async function startScan() {
           const pct = Math.round((loadedCount / total) * 100);
           document.getElementById('progressFill').style.width   = pct + '%';
           document.getElementById('progressPct').textContent    = pct + '%';
-          document.getElementById('progressDetail').textContent =
-            `${loadedCount} / ${total} 종목 처리 완료`;
+          document.getElementById('progressDetail').textContent = `${loadedCount} / ${total} 종목 처리 완료`;
         }
       }));
-      // Small delay between batches
       if (i + BATCH < total) await new Promise(resolve => setTimeout(resolve, 200));
     }
   } finally {
-    // 예외 발생 여부와 무관하게 isLoading 해제 및 UI 복구
     isLoading = false;
     document.getElementById('progressWrap').style.display = 'none';
-    document.getElementById('refreshBtn').innerHTML  = '🔄 새로고침';
-    document.getElementById('refreshBtn').disabled   = false;
+    document.getElementById('refreshBtn').innerHTML = '🔄 새로고침';
+    document.getElementById('refreshBtn').disabled  = false;
   }
 
   const now = new Date();
@@ -704,10 +686,8 @@ async function startScan() {
 
   renderAll();
 
-  // Schedule next auto-refresh (3 minutes)
   if (refreshTimer) clearTimeout(refreshTimer);
   refreshTimer = setTimeout(async () => {
-    // isLoading guard: if previous scan somehow still running, retry in 1 min
     if (isLoading) {
       refreshTimer = setTimeout(() => startScan(), 60 * 1000);
       return;
