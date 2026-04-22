@@ -665,6 +665,9 @@ async function startScan() {
       }));
       if (i + BATCH < total) await new Promise(resolve => setTimeout(resolve, 200));
     }
+  } catch (scanErr) {
+    // 예외 포착 — catch가 없으면 finally 후 예외가 전파되어 이하 후처리 코드가 전부 스킵됨
+    console.error('Unexpected scan error:', scanErr);
   } finally {
     isLoading = false;
     document.getElementById('progressWrap').style.display = 'none';

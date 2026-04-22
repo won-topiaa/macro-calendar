@@ -682,6 +682,9 @@ async function startScan() {
       // Small delay between batches
       if (i + BATCH < total) await new Promise(resolve => setTimeout(resolve, 200));
     }
+  } catch (scanErr) {
+    // 예외 포착 — catch가 없으면 finally 후 예외가 전파되어 이하 후처리 코드가 전부 스킵됨
+    console.error('Unexpected scan error:', scanErr);
   } finally {
     // 예외 발생 여부와 무관하게 isLoading 해제 및 UI 복구
     isLoading = false;
