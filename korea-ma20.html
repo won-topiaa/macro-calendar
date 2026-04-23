@@ -463,7 +463,7 @@ function analyze(stock, closes) {
     isBreakout:  weeksAbove === 1,
     isConfirmed: weeksAbove >= 2 && weeksAbove <= 10,
     sparkCloses: closes.slice(-24),
-    sparkMa20:   ma20.slice(-24),
+    sparkMa20:   ma20.slice(-24).filter(v => v !== null),
   };
 }
 

@@ -489,7 +489,7 @@ async function fetchTicker(sym, range) {
   const prev   = meta.previousClose
               ?? (closes.length >= 2 ? closes[closes.length - 2] : null);
   // 1일 변화율
-  const chg1d  = (price && prev) ? ((price - prev) / prev) * 100
+  const chg1d  = (price != null && prev != null) ? ((price - prev) / prev) * 100
               : (meta.regularMarketChangePercent ?? null);
   // 거래량 / 최근 평균 (오늘 제외)
   const todayVol = meta.regularMarketVolume ?? (vols.length ? vols[vols.length - 1] : null);

@@ -325,7 +325,7 @@ async function fetchYF(sym, range) {
   // chartPreviousClose = 차트 범위 시작 직전 가격(6개월 전) → 1D 계산에 절대 사용 금지
   const prev   = meta.previousClose
                ?? (closes.length >= 2 ? closes[closes.length-2] : null);
-  const chg1d  = (price && prev) ? ((price-prev)/prev)*100
+  const chg1d  = (price != null && prev != null) ? ((price-prev)/prev)*100
                : (meta.regularMarketChangePercent ?? null);
   const vol    = meta.regularMarketVolume ?? (vols.length ? vols[vols.length-1] : null);
   const mcap = meta.marketCap
@@ -357,8 +357,6 @@ function makeSpark(prices, color) {
   const W = 200, H = 50;
   const coords = pts.map((v,i) =>
     `${(i/(pts.length-1))*W},${H - ((v-mn)/rng)*H}`).join(' ');
-  const isUp = pts[pts.length-1] >= pts[0];
-  const fillColor = isUp ? 'rgba(0,208,156,.15)' : 'rgba(255,77,94,.15)';
   const last = `${W},${H} 0,${H}`;
   return `<svg class="spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
     <defs>
@@ -496,10 +494,10 @@ async function loadAll() {
   } catch(err) {
     document.getElementById('mainCards').innerHTML =
       `<div class="err-box"><strong>데이터를 불러올 수 없습니다</strong><br><small>${err.message}</small></div>`;
+  } finally {
+    loading = false;
+    document.getElementById('refreshBtn').textContent = '↻ 새로고침';
   }
-
-  loading = false;
-  document.getElementById('refreshBtn').textContent = '↻ 새로고침';
 }
 
 // ─── AI 요약 ───

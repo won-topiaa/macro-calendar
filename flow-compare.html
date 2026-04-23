@@ -303,7 +303,7 @@ async function fetchTicker(id, rng) {
   const vols   = (rawQ.volume || []).filter(v => v != null);
   const price  = meta.regularMarketPrice ?? closes[closes.length-1] ?? null;
   const prev   = meta.previousClose ?? (closes.length >= 2 ? closes[closes.length-2] : null);
-  const chg1d  = (price && prev) ? ((price - prev) / prev) * 100
+  const chg1d  = (price != null && prev != null) ? ((price - prev) / prev) * 100
                : (meta.regularMarketChangePercent ?? null);
   const todayVol = meta.regularMarketVolume ?? (vols.length ? vols[vols.length-1] : null);
   const histVols = vols.length > 1 ? vols.slice(0, -1) : vols;
@@ -367,6 +367,7 @@ function renderBanner() {
                     .map(a => ({ ...a, chg: getChange(a.id) }))
                     .filter(a => a.chg != null);
   all.sort((a,b) => b.chg - a.chg);
+  if (!all.length) return;
   const winner = all[0], loser = all[all.length-1];
 
   const growthAvg  = groupAvg('stock-growth');
@@ -592,17 +593,19 @@ async function loadAll() {
     if (r.status === 'fulfilled') td[r.value.id] = r.value;
   });
 
-  renderSignals();
-  renderBanner();
-  renderRanking();
-  renderGroupHeatmap();
-  renderFlowScores();
-  renderCorrelations();
-  generateAISummary();
-  updateTimestamp();
-
-  loading = false;
-  document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+  try {
+    renderSignals();
+    renderBanner();
+    renderRanking();
+    renderGroupHeatmap();
+    renderFlowScores();
+    renderCorrelations();
+    generateAISummary();
+    updateTimestamp();
+  } finally {
+    loading = false;
+    document.getElementById('refreshBtn').textContent = '↻ 새로고침';
+  }
 }
 
 // ─── AI 요약 ───
