@@ -417,11 +417,23 @@ async function fetchWeekly(symbol) {
   const data = await fetchWithProxy(url, 9000);
   if (!data) return null;
   try {
-    const result = data.chart.result[0];
-    const quotes = result.indicators.quote[0];
-    const closes = quotes.close.filter(v => v != null && !isNaN(v));
+    const result       = data.chart.result[0];
+    const meta         = result.meta || {};
+    const tss          = result.timestamp || [];
+    const rawClose     = result.indicators?.quote?.[0]?.close || [];
+    const currentPrice = meta.regularMarketPrice ?? null;
+
+    // Yahoo Finance sets the current (incomplete) week's close = previous week's
+    // close as a placeholder → closes[last] === closes[last-1] → weekChg = 0%.
+    // Detect and strip it using the candle's start timestamp.
+    const nowSec = Date.now() / 1000;
+    const lastTs = tss[tss.length - 1] ?? 0;
+    const endIdx = (lastTs > 0 && nowSec - lastTs < 7 * 24 * 3600)
+                 ? rawClose.length - 1 : rawClose.length;
+
+    const closes = rawClose.slice(0, endIdx).filter(v => v != null && !isNaN(v));
     if (closes.length < 22) return null;
-    return closes;
+    return { closes, currentPrice };
   } catch (e) {
     return null;
   }
@@ -430,7 +442,7 @@ async function fetchWeekly(symbol) {
 // ─────────────────────────────────────────
 //  Analyze: compute MA20 + crossover status
 // ─────────────────────────────────────────
-function analyze(stock, closes) {
+function analyze(stock, closes, currentPrice = null) {
   const n = closes.length;
   if (n < 22) return null;
 
@@ -449,10 +461,12 @@ function analyze(stock, closes) {
     else break;
   }
 
-  const price   = closes[last];
+  // closes[last] = last completed Friday close (current week stripped in fetchWeekly)
+  // currentPrice = meta.regularMarketPrice = live intraday price
+  const price   = currentPrice ?? closes[last];
   const ma20Val = ma20[last];
   const pctVsMa = ((price - ma20Val) / ma20Val) * 100;
-  const weekChg = ((price - closes[last - 1]) / closes[last - 1]) * 100;
+  const weekChg = ((price - closes[last]) / closes[last]) * 100;
 
   return {
     ...stock,
@@ -642,9 +656,9 @@ async function startScan() {
       const batch = STOCKS.slice(i, i + BATCH);
       await Promise.all(batch.map(async stock => {
         try {
-          const closes = await fetchWeekly(stock.s);
-          if (closes) {
-            const r = analyze(stock, closes);
+          const fetched = await fetchWeekly(stock.s);
+          if (fetched) {
+            const r = analyze(stock, fetched.closes, fetched.currentPrice);
             if (r) results.push(r);
           } else {
             errorCount++;
