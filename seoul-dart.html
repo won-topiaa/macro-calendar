@@ -114,6 +114,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="res-hero">
       <div class="res-pin">📍</div>
       <div class="res-district" id="resName">—</div>
+      <div id="resDong" style="font-size:18px;font-weight:700;color:var(--txt2);margin-top:4px;letter-spacing:-.3px;"></div>
       <div class="res-sub" id="resSub">서울특별시 — 주변 AI 추천 장소</div>
     </div>
     <div id="aiOut">
@@ -187,6 +188,37 @@ const D = [
 ];
 
 /* ══════════════════════════════════════════
+   DONG (neighborhood) DATA — nearest-center lookup
+══════════════════════════════════════════ */
+const DONGS = {
+  '은평구':   [{n:'불광동',x:185,y:88},{n:'역촌동',x:178,y:72},{n:'녹번동',x:205,y:75},{n:'응암동',x:168,y:98},{n:'수색동',x:133,y:102},{n:'구산동',x:155,y:85}],
+  '강북구':   [{n:'수유동',x:335,y:62},{n:'미아동',x:328,y:72},{n:'번동',x:314,y:56},{n:'우이동',x:340,y:42},{n:'인수동',x:348,y:38}],
+  '도봉구':   [{n:'도봉동',x:446,y:56},{n:'창동',x:438,y:66},{n:'방학동',x:434,y:50},{n:'쌍문동',x:428,y:62}],
+  '노원구':   [{n:'상계동',x:555,y:55},{n:'중계동',x:547,y:62},{n:'공릉동',x:545,y:66},{n:'월계동',x:528,y:72},{n:'하계동',x:552,y:70}],
+  '성북구':   [{n:'성신여대 동선동',x:346,y:157},{n:'안암동 고려대',x:365,y:152},{n:'정릉동',x:338,y:128},{n:'길음동',x:358,y:132},{n:'석관동',x:386,y:147},{n:'삼선동',x:342,y:160}],
+  '중랑구':   [{n:'면목동',x:508,y:197},{n:'묵동',x:528,y:177},{n:'상봉동',x:520,y:188},{n:'망우동',x:538,y:172},{n:'신내동',x:545,y:182}],
+  '서대문구': [{n:'신촌동',x:248,y:185},{n:'연희동',x:236,y:172},{n:'홍제동',x:226,y:162},{n:'충정로',x:254,y:192},{n:'북아현동',x:258,y:180}],
+  '마포구':   [{n:'홍대 서교동',x:175,y:257},{n:'합정동',x:158,y:268},{n:'망원동',x:138,y:260},{n:'공덕동',x:198,y:247},{n:'연남동',x:182,y:248},{n:'상수동',x:168,y:264},{n:'성산동',x:155,y:252}],
+  '종로구':   [{n:'경복궁 사직동',x:293,y:217},{n:'인사동',x:318,y:228},{n:'창신동',x:343,y:248},{n:'혜화동 대학로',x:332,y:216},{n:'부암동',x:278,y:206},{n:'통의동 서촌',x:300,y:220}],
+  '동대문구': [{n:'경희대 회기동',x:428,y:196},{n:'청량리',x:423,y:212},{n:'신설동',x:403,y:222},{n:'장안동',x:438,y:216},{n:'이문동',x:432,y:202}],
+  '광진구':   [{n:'건대입구 화양동',x:488,y:282},{n:'구의동',x:518,y:290},{n:'자양동',x:508,y:297},{n:'군자동',x:498,y:266},{n:'중곡동',x:505,y:275}],
+  '중구':     [{n:'명동',x:318,y:295},{n:'을지로',x:323,y:290},{n:'충무로',x:316,y:302},{n:'남대문시장',x:310,y:305},{n:'동대문',x:338,y:298}],
+  '성동구':   [{n:'성수동',x:460,y:296},{n:'왕십리',x:374,y:290},{n:'마장동',x:393,y:282},{n:'금호동',x:400,y:308},{n:'옥수동',x:388,y:315},{n:'행당동',x:405,y:292}],
+  '용산구':   [{n:'이태원동',x:256,y:300},{n:'한남동',x:270,y:307},{n:'이촌동',x:248,y:313},{n:'효창동',x:238,y:296},{n:'청파동',x:246,y:293},{n:'용산역',x:255,y:308}],
+  '강서구':   [{n:'화곡동',x:86,y:392},{n:'마곡동',x:58,y:352},{n:'가양동',x:73,y:367},{n:'염창동',x:128,y:357},{n:'등촌동',x:105,y:372}],
+  '양천구':   [{n:'목동',x:102,y:488},{n:'신정동',x:78,y:502},{n:'신월동',x:53,y:512}],
+  '구로구':   [{n:'구로디지털단지',x:208,y:490},{n:'신도림',x:193,y:478},{n:'고척동',x:176,y:507},{n:'개봉동',x:162,y:498}],
+  '금천구':   [{n:'가산디지털단지',x:214,y:520},{n:'독산동',x:204,y:526},{n:'시흥동',x:198,y:532}],
+  '영등포구': [{n:'여의도',x:166,y:360},{n:'영등포역',x:183,y:382},{n:'당산동',x:173,y:373},{n:'대림동',x:198,y:415},{n:'문래동',x:190,y:395}],
+  '동작구':   [{n:'노량진',x:253,y:397},{n:'흑석동',x:256,y:400},{n:'상도동',x:273,y:422},{n:'사당동',x:293,y:437},{n:'대방동',x:242,y:408}],
+  '관악구':   [{n:'신림동',x:266,y:490},{n:'봉천동',x:278,y:476},{n:'서울대입구',x:288,y:466},{n:'낙성대',x:280,y:470}],
+  '강남구':   [{n:'압구정동',x:393,y:332},{n:'청담동',x:443,y:327},{n:'삼성동 코엑스',x:453,y:347},{n:'역삼동',x:398,y:358},{n:'대치동',x:442,y:366},{n:'개포동',x:462,y:370},{n:'논현동',x:412,y:338}],
+  '강동구':   [{n:'천호동',x:553,y:377},{n:'강동역',x:563,y:387},{n:'길동',x:568,y:397},{n:'암사동',x:578,y:382},{n:'상일동',x:578,y:415},{n:'고덕동',x:570,y:408}],
+  '송파구':   [{n:'잠실동',x:488,y:402},{n:'석촌동',x:473,y:417},{n:'방이동',x:493,y:432},{n:'오금동',x:508,y:442},{n:'가락동',x:498,y:452},{n:'송파동',x:480,y:430}],
+  '서초구':   [{n:'강남역 서초동',x:368,y:417},{n:'방배동',x:356,y:437},{n:'반포동',x:366,y:400},{n:'양재동',x:398,y:472},{n:'잠원동',x:383,y:397},{n:'내곡동',x:412,y:490}],
+};
+
+/* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
 const W = 600, H = 540;
@@ -196,6 +228,7 @@ let pulling = false, px0=0, py0=0, pxC=0, pyC=0;
 const DART_HOME = {x:300, y:490};
 let dartX = DART_HOME.x, dartY = DART_HOME.y;
 let hitDist = null;
+let hitDong = null;
 let apiKey = localStorage.getItem('sdt_key') || '';
 let raf = null;
 let curtainProg = 0; // 0=fully covered, 1=fully revealed
@@ -526,7 +559,9 @@ function animFly(sx, sy, tx, ty, ang) {
     if (t < 1) { raf = requestAnimationFrame(frame); }
     else {
       drawDart(tx, ty, ang, true);
-      hitDist = findHit(tx, ty);
+      const hit = findHit(tx, ty);
+      hitDist = hit.district;
+      hitDong = hit.dong;
       highlightDistrict(hitDist);
       startReveal();
     }
@@ -538,19 +573,27 @@ function animFly(sx, sy, tx, ty, ang) {
    HIT DETECTION
 ══════════════════════════════════════════ */
 function findHit(x, y) {
-  // Reverse-rotate point to match unrotated map
   const cx=W/2, cy=H/2;
   const a = -mapRot * Math.PI/180;
   const rx = Math.cos(a)*(x-cx) - Math.sin(a)*(y-cy) + cx;
   const ry = Math.sin(a)*(x-cx) + Math.cos(a)*(y-cy) + cy;
+
+  let district = null;
   for (const d of D) {
-    if (pip(rx, ry, parsePts(d.p))) return d;
+    if (pip(rx, ry, parsePts(d.p))) { district = d; break; }
   }
-  // Fallback: nearest center
-  return D.reduce((best,d) => {
-    const dist = Math.hypot(rx-d.cx, ry-d.cy);
-    return dist < Math.hypot(rx-best.cx, ry-best.cy) ? d : best;
-  }, D[0]);
+  if (!district) {
+    district = D.reduce((best,d) =>
+      Math.hypot(rx-d.cx,ry-d.cy) < Math.hypot(rx-best.cx,ry-best.cy) ? d : best, D[0]);
+  }
+
+  // Find nearest dong within the district
+  const dongs = DONGS[district.n] || [];
+  const dong = dongs.length
+    ? dongs.reduce((best,d) => Math.hypot(rx-d.x,ry-d.y) < Math.hypot(rx-best.x,ry-best.y) ? d : best, dongs[0])
+    : null;
+
+  return {district, dong};
 }
 
 function parsePts(s) {
@@ -615,16 +658,18 @@ function startReveal() {
    RESULT SCREEN
 ══════════════════════════════════════════ */
 function showResult() {
+  const loc = hitDong ? `${hitDist.n} ${hitDong.n}` : hitDist.n;
   document.getElementById('resName').textContent = hitDist.n;
-  document.getElementById('resSub').textContent = `서울특별시 ${hitDist.n} 주변 AI 추천 장소`;
+  document.getElementById('resDong').textContent = hitDong ? hitDong.n : '';
+  document.getElementById('resSub').textContent = `서울특별시 ${loc} 주변 AI 추천 장소`;
   document.getElementById('aiLoading').style.display='block';
   document.getElementById('resGrid').style.display='none';
   document.getElementById('gameScreen').classList.add('out');
   document.getElementById('resultScreen').classList.remove('out');
-  if (apiKey) { fetchRecs(hitDist.n); }
+  if (apiKey) { fetchRecs(loc); }
   else {
     document.getElementById('aiLoading').innerHTML =
-      `<div style="color:var(--txt2);font-size:13px;margin-bottom:14px;">🔑 API 키가 없어요. 설정에서 Claude API 키를 입력하면<br>AI가 ${hitDist.n} 주변 핫플을 추천해줘요!</div>
+      `<div style="color:var(--txt2);font-size:13px;margin-bottom:14px;">🔑 API 키가 없어요. 설정에서 Claude API 키를 입력하면<br>AI가 <b>${loc}</b> 핫플을 추천해줘요!</div>
        <button class="hdr-btn" onclick="openModal()" style="margin:0 auto;display:block;">API 키 입력하기</button>`;
   }
 }
@@ -647,7 +692,7 @@ async function fetchRecs(district) {
         max_tokens: 1024,
         messages:[{
           role:'user',
-          content:`서울 ${district}에서 하루 놀기 좋은 장소를 추천해줘.
+          content:`서울 ${district} 에서 하루 놀기 좋은 장소를 추천해줘. 최대한 그 동네 특색에 맞는 실제 유명한 장소로 추천해줘.
 반드시 아래 JSON 형식만 반환해 (마크다운 코드블록 없이 순수 JSON):
 {"attractions":[{"name":"장소명","desc":"한줄 소개"},{"name":"","desc":""},{"name":"","desc":""}],"restaurants":[{"name":"식당명","desc":"메뉴/특징"},{"name":"","desc":""},{"name":"","desc":""}],"cafes":[{"name":"카페명","desc":"특징"},{"name":"","desc":""},{"name":"","desc":""}]}`
         }]
@@ -685,7 +730,7 @@ function renderRecs(json) {
 ══════════════════════════════════════════ */
 function resetGame() {
   if (raf) cancelAnimationFrame(raf);
-  state='idle'; pulling=false; curtainProg=0; hitDist=null;
+  state='idle'; pulling=false; curtainProg=0; hitDist=null; hitDong=null;
   mapRot = [0,90,180,270][Math.floor(Math.random()*4)];
   dartX=DART_HOME.x; dartY=DART_HOME.y;
   buildMap();
@@ -710,9 +755,10 @@ function saveKey() {
   closeModal();
   // If result screen showing with no recs, retry
   if (state==='done' && hitDist && apiKey) {
+    const loc = hitDong ? `${hitDist.n} ${hitDong.n}` : hitDist.n;
     document.getElementById('aiLoading').style.display='block';
     document.getElementById('resGrid').style.display='none';
-    fetchRecs(hitDist.n);
+    fetchRecs(loc);
   }
 }
 
