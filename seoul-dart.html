@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서울 다트 | P들을 위한 어디갈까</title>
+<style>
+:root{
+  --bg:#0a0d16;--bg2:#111520;--bg3:#171d2e;--bg4:#1e2540;
+  --border:#1e2538;--border2:#2a3255;
+  --txt:#e2e8f8;--txt2:#7a85a8;--txt3:#454f6e;
+  --gold:#f5a623;--gold2:rgba(245,166,35,.15);--gold3:rgba(245,166,35,.06);
+  --green:#00d09c;--red:#ff4d5e;--blue:#4f8ef7;
+  --tent1:#1c2a1a;--tent2:#253322;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;transition:opacity .5s,transform .5s;}
+.screen.out{opacity:0;pointer-events:none;transform:scale(.97);}
+
+/* ── HEADER ── */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(10,13,22,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:11px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.hdr-l{display:flex;align-items:center;gap:10px;}
+.hdr-logo{width:34px;height:34px;background:linear-gradient(135deg,#f5a623,#ff4d5e);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.hdr-name{font-size:15px;font-weight:800;letter-spacing:-.3px;}
+.hdr-desc{font-size:10px;color:var(--txt3);margin-top:1px;}
+.hdr-btn{padding:6px 13px;border-radius:8px;border:1px solid var(--border2);font-size:11px;color:var(--txt2);background:none;cursor:pointer;transition:all .15s;font-family:inherit;}
+.hdr-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── GAME SCREEN ── */
+#gameScreen{justify-content:center;}
+#arenaWrap{position:relative;margin-top:58px;touch-action:none;cursor:crosshair;}
+#seoulSvg{display:block;border-radius:16px;overflow:hidden;}
+#curtainCvs{position:absolute;top:0;left:0;border-radius:16px;pointer-events:none;z-index:4;}
+#dartCvs{position:absolute;top:0;left:0;pointer-events:none;z-index:6;}
+#guideTxt{position:absolute;bottom:-44px;left:0;right:0;text-align:center;font-size:12px;color:var(--txt3);pointer-events:none;transition:opacity .3s;}
+#guideTxt span{display:inline-block;animation:bob 1.8s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+
+/* ── RESULT SCREEN ── */
+#resultScreen{overflow-y:auto;padding:68px 16px 40px;gap:0;align-items:stretch;justify-content:flex-start;}
+.res-inner{max-width:860px;margin:0 auto;width:100%;}
+.res-hero{text-align:center;padding:28px 0 22px;}
+.res-pin{font-size:36px;margin-bottom:8px;}
+.res-district{font-size:34px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--gold),#ff9f43);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.res-sub{font-size:13px;color:var(--txt3);margin-top:6px;}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+@media(max-width:640px){.res-grid{grid-template-columns:1fr;}}
+.res-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 16px;}
+.res-card-hd{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.res-card-hd .ico{font-size:16px;}
+.place-list{list-style:none;}
+.place-item{padding:9px 0;border-bottom:1px solid var(--border);}
+.place-item:last-child{border-bottom:none;}
+.place-name{font-size:13px;font-weight:700;color:var(--txt);}
+.place-desc{font-size:11px;color:var(--txt3);margin-top:3px;line-height:1.5;}
+.ai-loading{text-align:center;padding:50px 0;color:var(--txt3);}
+.ai-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-err{text-align:center;padding:30px;color:var(--red);font-size:13px;}
+.res-actions{display:flex;gap:12px;justify-content:center;padding-bottom:20px;}
+.btn-retry{padding:12px 32px;background:linear-gradient(135deg,var(--gold),#ff9f43);color:#0a0d16;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;transition:opacity .15s;font-family:inherit;}
+.btn-retry:hover{opacity:.88;}
+.btn-api{padding:12px 20px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;font-size:13px;color:var(--txt2);cursor:pointer;transition:all .15s;font-family:inherit;}
+.btn-api:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-bg.hidden{display:none;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px;max-width:400px;width:90%;}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:6px;}
+.modal-desc{font-size:12px;color:var(--txt3);line-height:1.7;margin-bottom:18px;}
+.modal-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--txt);outline:none;font-family:inherit;margin-bottom:14px;transition:border-color .2s;}
+.modal-input:focus{border-color:var(--gold);}
+.modal-btns{display:flex;gap:10px;}
+.modal-save{flex:1;padding:11px;background:var(--gold);color:#0a0d16;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}
+.modal-cancel{padding:11px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--txt2);cursor:pointer;font-family:inherit;}
+
+/* ── DISTRICT LABEL ANIMATION ── */
+@keyframes distPulse{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.15);}}
+.dist-label-hit{animation:distPulse 1s ease-in-out 3;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-l">
+    <div class="hdr-logo">🎯</div>
+    <div>
+      <div class="hdr-name">서울 다트</div>
+      <div class="hdr-desc">P들을 위한 서울 탐험기</div>
+    </div>
+  </div>
+  <button class="hdr-btn" onclick="openModal()">⚙ API 설정</button>
+</header>
+
+<!-- GAME SCREEN -->
+<div class="screen" id="gameScreen">
+  <div id="arenaWrap">
+    <svg id="seoulSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <canvas id="curtainCvs"></canvas>
+    <canvas id="dartCvs"></canvas>
+  </div>
+  <div id="guideTxt"><span>🎯</span> 다트를 클릭해서 당기고 놓으세요</div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="screen out" id="resultScreen">
+  <div class="res-inner">
+    <div class="res-hero">
+      <div class="res-pin">📍</div>
+      <div class="res-district" id="resName">—</div>
+      <div class="res-sub" id="resSub">서울특별시 — 주변 AI 추천 장소</div>
+    </div>
+    <div id="aiOut">
+      <div class="ai-loading" id="aiLoading"><div class="ai-spinner"></div>AI가 주변 핫플을 분석하는 중...</div>
+      <div class="res-grid" id="resGrid" style="display:none">
+        <div class="res-card">
+          <div class="res-card-hd"><span class="ico">🗺</span> 갈만한 곳</div>
+          <ul class="place-list" id="list1"></ul>
+        </div>
+        <div class="res-card">
+          <div class="res-card-hd"><span class="ico">🍽</span> 맛집 식당</div>
+          <ul class="place-list" id="list2"></ul>
+        </div>
+        <div class="res-card">
+          <div class="res-card-hd"><span class="ico">☕</span> 카페</div>
+          <ul class="place-list" id="list3"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="res-actions">
+      <button class="btn-retry" onclick="resetGame()">🎯 다시 던지기</button>
+      <button class="btn-api" onclick="openModal()">⚙ API 설정</button>
+    </div>
+  </div>
+</div>
+
+<!-- API MODAL -->
+<div class="modal-bg hidden" id="modalBg">
+  <div class="modal">
+    <div class="modal-title">🔑 Claude API 키</div>
+    <div class="modal-desc">AI 장소 추천을 받으려면 Anthropic Claude API 키가 필요합니다.<br>키는 이 브라우저에만 저장되며 외부로 전송되지 않습니다.</div>
+    <input class="modal-input" id="apiInput" type="password" placeholder="sk-ant-..." />
+    <div class="modal-btns">
+      <button class="modal-save" onclick="saveKey()">저장</button>
+      <button class="modal-cancel" onclick="closeModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DISTRICT DATA (Seoul 25-gu, approx SVG coords)
+   viewBox 0 0 600 540
+══════════════════════════════════════════ */
+const D = [
+  {n:'은평구',   c:'#1c3d28', p:'90,0 280,0 272,62 262,130 194,148 128,124 93,75',                                    cx:192,cy:78},
+  {n:'강북구',   c:'#162e60', p:'280,0 392,0 394,94 312,104 272,62',                                                  cx:334,cy:55},
+  {n:'도봉구',   c:'#1a2658', p:'392,0 494,0 508,78 430,88 394,94',                                                   cx:444,cy:50},
+  {n:'노원구',   c:'#102050', p:'494,0 600,0 600,115 570,108 508,78',                                                 cx:548,cy:58},
+  {n:'성북구',   c:'#1a3870', p:'262,130 272,62 312,104 394,94 430,88 462,165 368,170 286,174',                       cx:358,cy:135},
+  {n:'중랑구',   c:'#102860', p:'430,88 508,78 570,108 600,115 600,255 566,255 456,248 462,165',                      cx:520,cy:183},
+  {n:'서대문구', c:'#1e4432', p:'194,148 262,130 286,174 278,205 245,218 200,204 184,178',                            cx:238,cy:178},
+  {n:'마포구',   c:'#153a28', p:'96,178 198,175 214,252 218,312 130,315 96,285',                                      cx:159,cy:249},
+  {n:'종로구',   c:'#2a4a8a', p:'286,174 368,170 382,192 384,258 354,272 292,278 263,252 252,228 256,200 278,205',    cx:322,cy:224},
+  {n:'동대문구', c:'#1e3878', p:'368,170 462,165 456,248 384,258 382,192',                                            cx:416,cy:210},
+  {n:'광진구',   c:'#143060', p:'456,248 566,255 600,255 600,318 490,318 456,318',                                    cx:528,cy:285},
+  {n:'중구',     c:'#2a5090', p:'292,278 354,272 363,312 308,326 285,306',                                            cx:322,cy:298},
+  {n:'성동구',   c:'#183870', p:'354,272 456,248 490,318 362,318 358,304',                                            cx:422,cy:290},
+  {n:'용산구',   c:'#1a4878', p:'220,285 292,278 308,326 316,315 220,315',                                            cx:265,cy:303},
+  {n:'강서구',   c:'#1e4028', p:'0,315 152,315 152,388 155,465 0,465',                                               cx:76, cy:390},
+  {n:'양천구',   c:'#172e1e', p:'0,465 155,465 168,498 152,538 0,538',                                               cx:76, cy:503},
+  {n:'구로구',   c:'#122418', p:'155,465 220,424 238,422 248,494 174,535 152,538 168,498',                            cx:196,cy:498},
+  {n:'금천구',   c:'#0e1e12', p:'174,535 248,494 262,538 152,538',                                                   cx:210,cy:527},
+  {n:'영등포구', c:'#1e4230', p:'152,315 220,308 232,350 238,422 220,424 155,465 152,388',                            cx:192,cy:393},
+  {n:'동작구',   c:'#183020', p:'220,378 328,372 334,398 330,445 252,454 228,424',                                   cx:278,cy:415},
+  {n:'관악구',   c:'#142a18', p:'210,424 252,454 337,444 342,494 326,538 218,538 206,506',                           cx:272,cy:491},
+  {n:'강남구',   c:'#0e3428', p:'334,318 535,322 536,376 456,380 336,377 326,357',                                   cx:435,cy:348},
+  {n:'강동구',   c:'#0a2c22', p:'535,322 600,322 600,462 535,462',                                                   cx:568,cy:392},
+  {n:'송파구',   c:'#0e3020', p:'456,377 536,377 535,462 460,462 460,418',                                           cx:497,cy:422},
+  {n:'서초구',   c:'#123020', p:'328,374 456,377 460,462 460,525 410,525 336,525 336,492 330,446 334,400',           cx:396,cy:455},
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+const W = 600, H = 540;
+let state = 'idle'; // idle|pull|fly|reveal|done
+let mapRot = [0,90,180,270][Math.floor(Math.random()*4)];
+let pulling = false, px0=0, py0=0, pxC=0, pyC=0;
+const DART_HOME = {x:300, y:490};
+let dartX = DART_HOME.x, dartY = DART_HOME.y;
+let hitDist = null;
+let apiKey = localStorage.getItem('sdt_key') || '';
+let raf = null;
+let curtainProg = 0; // 0=fully covered, 1=fully revealed
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+(function init() {
+  const svg = document.getElementById('seoulSvg');
+  const arena = document.getElementById('arenaWrap');
+  // Size SVG
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+  // Size canvases
+  ['curtainCvs','dartCvs'].forEach(id => {
+    const c = document.getElementById(id);
+    c.width = W; c.height = H;
+    c.style.width = W+'px'; c.style.height = H+'px';
+  });
+  buildMap();
+  drawCurtain(0);
+  drawDart(DART_HOME.x, DART_HOME.y, -90, false);
+
+  // Events
+  const dc = document.getElementById('dartCvs');
+  dc.addEventListener('mousedown', onDown);
+  dc.addEventListener('mousemove', onMove);
+  dc.addEventListener('mouseup', onUp);
+  dc.addEventListener('mouseleave', onLeave);
+  dc.addEventListener('touchstart', e=>{ e.preventDefault(); onDown(e.touches[0]); }, {passive:false});
+  dc.addEventListener('touchmove',  e=>{ e.preventDefault(); onMove(e.touches[0]); }, {passive:false});
+  dc.addEventListener('touchend',   e=>{ e.preventDefault(); onUp(e.changedTouches[0]); }, {passive:false});
+})();
+
+function buildMap() {
+  const svg = document.getElementById('seoulSvg');
+  svg.innerHTML = '';
+  // Background
+  const bg = mkSvg('rect');
+  setAttr(bg, {x:0,y:0,width:W,height:H,fill:'#0d1120'});
+  svg.appendChild(bg);
+
+  const g = mkSvg('g');
+  g.setAttribute('id','mapG');
+  g.setAttribute('transform', `rotate(${mapRot},${W/2},${H/2})`);
+
+  D.forEach((d, i) => {
+    const poly = mkSvg('polygon');
+    setAttr(poly, {points:d.p, fill:d.c, stroke:'#0a0d16', 'stroke-width':'1.5', 'data-i':i});
+    g.appendChild(poly);
+
+    const txt = mkSvg('text');
+    setAttr(txt, {
+      x: d.cx, y: d.cy,
+      'font-size':'9.5', fill:'rgba(200,220,255,0.55)',
+      'text-anchor':'middle', 'dominant-baseline':'middle',
+      'font-family':'sans-serif', 'font-weight':'600',
+      'pointer-events':'none', 'id':'lbl'+i
+    });
+    txt.textContent = d.n;
+    g.appendChild(txt);
+  });
+  svg.appendChild(g);
+}
+
+function mkSvg(tag){ return document.createElementNS('http://www.w3.org/2000/svg', tag); }
+function setAttr(el, attrs){ Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v)); }
+
+/* ══════════════════════════════════════════
+   CURTAIN DRAW
+══════════════════════════════════════════ */
+function drawCurtain(prog) {
+  const cvs = document.getElementById('curtainCvs');
+  const ctx = cvs.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  if (prog >= 1) return;
+
+  const revY = prog * (H + 60);
+  const covH = Math.max(0, H - revY);
+
+  // Tent cloth gradient
+  const grd = ctx.createLinearGradient(0,0,0,covH);
+  grd.addColorStop(0, '#1a2418');
+  grd.addColorStop(.4, '#222e1e');
+  grd.addColorStop(.8, '#1a2418');
+  grd.addColorStop(1, '#151e12');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, covH);
+
+  // Diagonal stripe pattern (tent)
+  ctx.save();
+  ctx.globalAlpha = .12;
+  ctx.strokeStyle = '#4a6040';
+  ctx.lineWidth = 22;
+  for (let x = -H; x < W + H; x += 46) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + covH * .7, covH);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Wavy reveal edge
+  if (prog > 0.02) {
+    const t = Date.now() * 0.004;
+    ctx.beginPath();
+    ctx.moveTo(0, covH);
+    for (let x = 0; x <= W; x += 8) {
+      const wave = Math.sin(x * 0.055 + t) * 7 + Math.sin(x * 0.022 + t * .6) * 5;
+      ctx.lineTo(x, covH + wave);
+    }
+    ctx.lineTo(W, H); ctx.lineTo(0, H);
+    ctx.closePath();
+    // Remove wavy excess (clear below wave)
+    ctx.fillStyle = 'rgba(10,13,22,0)';
+
+    // Golden edge glow
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 6) {
+      const wave = Math.sin(x * 0.055 + t) * 7 + Math.sin(x * 0.022 + t * .6) * 5;
+      x===0 ? ctx.moveTo(x, covH+wave) : ctx.lineTo(x, covH+wave);
+    }
+    ctx.strokeStyle = 'rgba(180,140,40,0.7)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Slight glow below edge
+    const grdEdge = ctx.createLinearGradient(0, covH-2, 0, covH+20);
+    grdEdge.addColorStop(0, 'rgba(180,140,40,0.15)');
+    grdEdge.addColorStop(1, 'transparent');
+    ctx.fillStyle = grdEdge;
+    ctx.fillRect(0, covH-2, W, 22);
+  }
+
+  // Text hint
+  if (prog < 0.05) {
+    ctx.globalAlpha = .2;
+    ctx.fillStyle = '#a0c080';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('⛺ 지도가 천막으로 가려져 있어요', W/2, H/2 - 18);
+    ctx.font = '11px sans-serif';
+    ctx.globalAlpha = .12;
+    ctx.fillText('지도는 무작위로 회전되어 방향을 알 수 없습니다', W/2, H/2 + 12);
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ══════════════════════════════════════════
+   DART DRAW
+══════════════════════════════════════════ */
+function drawDart(x, y, angleDeg, stuck) {
+  const cvs = document.getElementById('dartCvs');
+  const ctx = cvs.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  const rad = angleDeg * Math.PI / 180;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rad);
+
+  // Shadow
+  ctx.shadowColor = 'rgba(0,0,0,.5)';
+  ctx.shadowBlur = stuck ? 12 : 6;
+
+  // Tip
+  ctx.beginPath();
+  ctx.moveTo(0, -28); ctx.lineTo(3, -10); ctx.lineTo(-3, -10);
+  ctx.closePath();
+  ctx.fillStyle = stuck ? '#ff8844' : '#d4d4d4';
+  ctx.fill();
+
+  // Barrel
+  ctx.beginPath();
+  ctx.roundRect(-3.5, -10, 7, 18, 2);
+  ctx.fillStyle = '#888';
+  ctx.fill();
+
+  // Grip rings
+  [0,4,8].forEach(dy => {
+    ctx.beginPath();
+    ctx.rect(-3.5, -8+dy, 7, 2);
+    ctx.fillStyle = '#666';
+    ctx.fill();
+  });
+
+  // Flights
+  const fc = stuck ? '#ff4444' : '#4f8ef7';
+  [[-9,18],[-4,14],[4,14],[9,18]].forEach(([fx,fy],i) => {
+    ctx.beginPath();
+    ctx.moveTo(0, 8);
+    ctx.lineTo(fx, fy);
+    if (i<2) ctx.lineTo(0, 14); else ctx.lineTo(0,14);
+    ctx.closePath();
+    ctx.fillStyle = i<2 ? fc : fc;
+    ctx.globalAlpha = .9;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  // Slingshot (idle/pull state)
+  if (!stuck) {
+    drawSlingshot(ctx, pulling ? pxC : DART_HOME.x, pulling ? pyC : DART_HOME.y);
+  }
+
+  // Rubber band during pull
+  if (pulling && state === 'pull') {
+    const ax1 = DART_HOME.x - 24, ay1 = DART_HOME.y + 32;
+    const ax2 = DART_HOME.x + 24, ay2 = DART_HOME.y + 32;
+    ctx.beginPath();
+    ctx.moveTo(ax1, ay1); ctx.lineTo(pxC, pyC); ctx.lineTo(ax2, ay2);
+    ctx.strokeStyle = 'rgba(160,120,60,0.9)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Pull distance ring
+    const dist = Math.hypot(pxC - DART_HOME.x, pyC - DART_HOME.y);
+    const power = Math.min(dist / MAX_PULL, 1);
+    ctx.beginPath();
+    ctx.arc(DART_HOME.x, DART_HOME.y, 6, 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(245,166,35,${power * .8})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
+
+function drawSlingshot(ctx, dx, dy) {
+  ctx.save();
+  ctx.strokeStyle = '#5a3818';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  // Y arms
+  ctx.beginPath(); ctx.moveTo(dx-16, dy+20); ctx.lineTo(dx-28, dy+52); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(dx+16, dy+20); ctx.lineTo(dx+28, dy+52); ctx.stroke();
+  // Handle
+  ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.moveTo(dx-28, dy+52); ctx.lineTo(dx+28, dy+52); ctx.stroke();
+  ctx.restore();
+}
+
+/* ══════════════════════════════════════════
+   PULL MECHANICS
+══════════════════════════════════════════ */
+const MAX_PULL = 130;
+
+function getXY(e) {
+  const r = document.getElementById('dartCvs').getBoundingClientRect();
+  return {x: e.clientX - r.left, y: e.clientY - r.top};
+}
+
+function onDown(e) {
+  if (state !== 'idle') return;
+  const {x,y} = getXY(e);
+  if (Math.hypot(x - DART_HOME.x, y - DART_HOME.y) > 70) return;
+  state = 'pull';
+  pulling = true;
+  px0 = DART_HOME.x; py0 = DART_HOME.y;
+  pxC = x; pyC = y;
+  document.getElementById('guideTxt').style.opacity = '0';
+}
+
+function onMove(e) {
+  if (state !== 'pull') return;
+  let {x,y} = getXY(e);
+  const dx = x - DART_HOME.x, dy = y - DART_HOME.y;
+  const dist = Math.hypot(dx,dy);
+  if (dist > MAX_PULL) { x = DART_HOME.x + dx/dist*MAX_PULL; y = DART_HOME.y + dy/dist*MAX_PULL; }
+  pxC = x; pyC = y;
+  const ang = Math.atan2(DART_HOME.y - y, DART_HOME.x - x) * 180/Math.PI - 90;
+  drawDart(pxC, pyC, ang, false);
+  drawCurtain(curtainProg);
+}
+
+function onUp(e) {
+  if (state !== 'pull') return;
+  const fdx = DART_HOME.x - pxC, fdy = DART_HOME.y - pyC;
+  const power = Math.hypot(fdx, fdy);
+  if (power < 25) { cancelPull(); return; }
+  pulling = false;
+  state = 'fly';
+  const nx = fdx/power, ny = fdy/power;
+  const flyD = power * 3.5 + Math.random()*60 - 30;
+  const tx = Math.max(15, Math.min(W-15, pxC + nx*flyD));
+  const ty = Math.max(15, Math.min(H-80, pyC + ny*flyD));
+  animFly(pxC, pyC, tx, ty, Math.atan2(-ny,-nx)*180/Math.PI - 90);
+}
+
+function onLeave() { if(state==='pull') cancelPull(); }
+function cancelPull() {
+  state='idle'; pulling=false;
+  drawDart(DART_HOME.x, DART_HOME.y, -90, false);
+  drawCurtain(curtainProg);
+  document.getElementById('guideTxt').style.opacity='1';
+}
+
+/* ══════════════════════════════════════════
+   DART FLIGHT ANIMATION
+══════════════════════════════════════════ */
+function animFly(sx, sy, tx, ty, ang) {
+  const dur = 550, start = performance.now();
+  const dxT = tx-sx, dyT = ty-sy;
+  function frame(now) {
+    const t = Math.min((now-start)/dur, 1);
+    const e = 1 - Math.pow(1-t, 3);
+    const cx = sx + dxT*e;
+    const cy = sy + dyT*e - Math.sin(t*Math.PI)*35;
+    drawDart(cx, cy, ang, false);
+    drawCurtain(curtainProg);
+    if (t < 1) { raf = requestAnimationFrame(frame); }
+    else {
+      drawDart(tx, ty, ang, true);
+      hitDist = findHit(tx, ty);
+      highlightDistrict(hitDist);
+      startReveal();
+    }
+  }
+  raf = requestAnimationFrame(frame);
+}
+
+/* ══════════════════════════════════════════
+   HIT DETECTION
+══════════════════════════════════════════ */
+function findHit(x, y) {
+  // Reverse-rotate point to match unrotated map
+  const cx=W/2, cy=H/2;
+  const a = -mapRot * Math.PI/180;
+  const rx = Math.cos(a)*(x-cx) - Math.sin(a)*(y-cy) + cx;
+  const ry = Math.sin(a)*(x-cx) + Math.cos(a)*(y-cy) + cy;
+  for (const d of D) {
+    if (pip(rx, ry, parsePts(d.p))) return d;
+  }
+  // Fallback: nearest center
+  return D.reduce((best,d) => {
+    const dist = Math.hypot(rx-d.cx, ry-d.cy);
+    return dist < Math.hypot(rx-best.cx, ry-best.cy) ? d : best;
+  }, D[0]);
+}
+
+function parsePts(s) {
+  return s.trim().split(/\s+/).map(p => { const [x,y]=p.split(','); return {x:+x,y:+y}; });
+}
+
+function pip(px, py, poly) {
+  let inside=false;
+  for(let i=0,j=poly.length-1; i<poly.length; j=i++) {
+    const xi=poly[i].x,yi=poly[i].y,xj=poly[j].x,yj=poly[j].y;
+    if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+
+function highlightDistrict(d) {
+  const idx = D.indexOf(d);
+  const poly = document.querySelector(`[data-i="${idx}"]`);
+  if (poly) {
+    poly.setAttribute('fill', '#f5a62380');
+    poly.setAttribute('stroke', '#f5a623');
+    poly.setAttribute('stroke-width', '2.5');
+  }
+  const lbl = document.getElementById('lbl'+idx);
+  if (lbl) {
+    lbl.setAttribute('fill','#f5a623');
+    lbl.setAttribute('font-size','12');
+    lbl.classList.add('dist-label-hit');
+  }
+}
+
+/* ══════════════════════════════════════════
+   CURTAIN REVEAL
+══════════════════════════════════════════ */
+function startReveal() {
+  state = 'reveal';
+  const dur = 2000, start = performance.now();
+  // Start wavy animation loop
+  function revealFrame(now) {
+    const t = Math.min((now-start)/dur, 1);
+    const ease = t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    curtainProg = ease;
+    drawCurtain(ease);
+    const dvs = document.getElementById('dartCvs');
+    const dx = dvs.width, dy = dvs.height;
+    // Redraw dart stuck
+    if (hitDist) {
+      // dart already drawn stuck from animFly end
+    }
+    if (t < 1) { raf = requestAnimationFrame(revealFrame); }
+    else {
+      curtainProg = 1;
+      drawCurtain(1);
+      state = 'done';
+      setTimeout(showResult, 300);
+    }
+  }
+  raf = requestAnimationFrame(revealFrame);
+}
+
+/* ══════════════════════════════════════════
+   RESULT SCREEN
+══════════════════════════════════════════ */
+function showResult() {
+  document.getElementById('resName').textContent = hitDist.n;
+  document.getElementById('resSub').textContent = `서울특별시 ${hitDist.n} 주변 AI 추천 장소`;
+  document.getElementById('aiLoading').style.display='block';
+  document.getElementById('resGrid').style.display='none';
+  document.getElementById('gameScreen').classList.add('out');
+  document.getElementById('resultScreen').classList.remove('out');
+  if (apiKey) { fetchRecs(hitDist.n); }
+  else {
+    document.getElementById('aiLoading').innerHTML =
+      `<div style="color:var(--txt2);font-size:13px;margin-bottom:14px;">🔑 API 키가 없어요. 설정에서 Claude API 키를 입력하면<br>AI가 ${hitDist.n} 주변 핫플을 추천해줘요!</div>
+       <button class="hdr-btn" onclick="openModal()" style="margin:0 auto;display:block;">API 키 입력하기</button>`;
+  }
+}
+
+/* ══════════════════════════════════════════
+   CLAUDE API
+══════════════════════════════════════════ */
+async function fetchRecs(district) {
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages:[{
+          role:'user',
+          content:`서울 ${district}에서 하루 놀기 좋은 장소를 추천해줘.
+반드시 아래 JSON 형식만 반환해 (마크다운 코드블록 없이 순수 JSON):
+{"attractions":[{"name":"장소명","desc":"한줄 소개"},{"name":"","desc":""},{"name":"","desc":""}],"restaurants":[{"name":"식당명","desc":"메뉴/특징"},{"name":"","desc":""},{"name":"","desc":""}],"cafes":[{"name":"카페명","desc":"특징"},{"name":"","desc":""},{"name":"","desc":""}]}`
+        }]
+      })
+    });
+    if (!resp.ok) { const e=await resp.json(); throw new Error(e.error?.message||'API 오류'); }
+    const data = await resp.json();
+    let text = data.content[0].text.trim();
+    // Strip markdown code blocks if present
+    text = text.replace(/^```json?\s*/,'').replace(/\s*```$/,'');
+    const json = JSON.parse(text);
+    renderRecs(json);
+  } catch(err) {
+    document.getElementById('aiLoading').innerHTML =
+      `<div class="ai-err">⚠ ${err.message}</div>
+       <button class="btn-retry" style="margin:0 auto;display:block;font-size:13px;padding:10px 22px" onclick="fetchRecs('${district}')">다시 시도</button>`;
+  }
+}
+
+function renderRecs(json) {
+  document.getElementById('aiLoading').style.display='none';
+  const fillList = (id, items) => {
+    document.getElementById(id).innerHTML = (items||[]).map(it=>
+      `<li class="place-item"><div class="place-name">${it.name||''}</div><div class="place-desc">${it.desc||''}</div></li>`
+    ).join('');
+  };
+  fillList('list1', json.attractions);
+  fillList('list2', json.restaurants);
+  fillList('list3', json.cafes);
+  document.getElementById('resGrid').style.display='grid';
+}
+
+/* ══════════════════════════════════════════
+   RESET
+══════════════════════════════════════════ */
+function resetGame() {
+  if (raf) cancelAnimationFrame(raf);
+  state='idle'; pulling=false; curtainProg=0; hitDist=null;
+  mapRot = [0,90,180,270][Math.floor(Math.random()*4)];
+  dartX=DART_HOME.x; dartY=DART_HOME.y;
+  buildMap();
+  drawCurtain(0);
+  drawDart(DART_HOME.x, DART_HOME.y, -90, false);
+  document.getElementById('resultScreen').classList.add('out');
+  document.getElementById('gameScreen').classList.remove('out');
+  document.getElementById('guideTxt').style.opacity='1';
+}
+
+/* ══════════════════════════════════════════
+   API MODAL
+══════════════════════════════════════════ */
+function openModal() {
+  document.getElementById('apiInput').value = apiKey;
+  document.getElementById('modalBg').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modalBg').classList.add('hidden'); }
+function saveKey() {
+  apiKey = document.getElementById('apiInput').value.trim();
+  localStorage.setItem('sdt_key', apiKey);
+  closeModal();
+  // If result screen showing with no recs, retry
+  if (state==='done' && hitDist && apiKey) {
+    document.getElementById('aiLoading').style.display='block';
+    document.getElementById('resGrid').style.display='none';
+    fetchRecs(hitDist.n);
+  }
+}
+
+/* ══════════════════════════════════════════
+   CURTAIN WAVE ANIMATION (idle loop)
+══════════════════════════════════════════ */
+function idleLoop() {
+  if (state==='idle' || state==='pull') drawCurtain(curtainProg);
+  requestAnimationFrame(idleLoop);
+}
+idleLoop();
+</script>
+</body>
+</html>
