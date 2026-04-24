@@ -57,6 +57,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .place-item:last-child{border-bottom:none;}
 .place-name{font-size:13px;font-weight:700;color:var(--txt);}
 .place-desc{font-size:11px;color:var(--txt3);margin-top:3px;line-height:1.5;}
+.place-addr{font-size:10px;color:var(--txt3);margin-top:2px;opacity:.7;}
+.place-dist{display:inline-block;font-size:10px;font-weight:700;background:var(--gold2);color:var(--gold);border-radius:4px;padding:1px 5px;margin-left:5px;}
+.place-item a{text-decoration:none;display:block;transition:opacity .15s;}
+.place-item a:hover .place-name{color:var(--gold);}
+.place-empty{font-size:12px;color:var(--txt3);padding:8px 0;}
 .ai-loading{text-align:center;padding:50px 0;color:var(--txt3);}
 .ai-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -144,8 +149,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- API MODAL -->
 <div class="modal-bg hidden" id="modalBg">
   <div class="modal">
-    <div class="modal-title">🔑 Claude API 키</div>
-    <div class="modal-desc">AI 장소 추천을 받으려면 Anthropic Claude API 키가 필요합니다.<br>키는 이 브라우저에만 저장되며 외부로 전송되지 않습니다.</div>
+    <div class="modal-title">🗝 카카오 REST API 키</div>
+    <div class="modal-desc">주변 맛집·카페·명소를 검색하려면 카카오 REST API 키가 필요합니다.<br>키는 이 브라우저에만 저장되며 외부로 전송되지 않습니다.</div>
     <input class="modal-input" id="apiInput" type="password" placeholder="sk-ant-..." />
     <div class="modal-btns">
       <button class="modal-save" onclick="saveKey()">저장</button>
@@ -229,7 +234,19 @@ const DART_HOME = {x:300, y:490};
 let dartX = DART_HOME.x, dartY = DART_HOME.y;
 let hitDist = null;
 let hitDong = null;
-let apiKey = localStorage.getItem('sdt_key') || '';
+let hitLatLng = null;
+let kakaoKey = localStorage.getItem('sdt_kakao_key') || '';
+
+/* SVG 좌표 → 서울 위경도 변환 (Seoul bounds: lat 37.413–37.715, lng 126.734–127.184) */
+function svgToLatLng(sx, sy) {
+  const cx=W/2, cy=H/2, a=-mapRot*Math.PI/180;
+  const rx = Math.cos(a)*(sx-cx) - Math.sin(a)*(sy-cy) + cx;
+  const ry = Math.sin(a)*(sx-cx) + Math.cos(a)*(sy-cy) + cy;
+  return {
+    lat: +(37.715 - (ry/H)*0.302).toFixed(6),
+    lng: +(126.734 + (rx/W)*0.450).toFixed(6)
+  };
+}
 let raf = null;
 let curtainProg = 0; // 0=fully covered, 1=fully revealed
 
@@ -562,6 +579,7 @@ function animFly(sx, sy, tx, ty, ang) {
       const hit = findHit(tx, ty);
       hitDist = hit.district;
       hitDong = hit.dong;
+      hitLatLng = svgToLatLng(tx, ty);
       highlightDistrict(hitDist);
       startReveal();
     }
@@ -661,67 +679,85 @@ function showResult() {
   const loc = hitDong ? `${hitDist.n} ${hitDong.n}` : hitDist.n;
   document.getElementById('resName').textContent = hitDist.n;
   document.getElementById('resDong').textContent = hitDong ? hitDong.n : '';
-  document.getElementById('resSub').textContent = `서울특별시 ${loc} 주변 AI 추천 장소`;
+  document.getElementById('resSub').textContent = `서울특별시 ${loc} 반경 800m 주변`;
   document.getElementById('aiLoading').style.display='block';
+  document.getElementById('aiLoading').innerHTML = '<div class="ai-spinner"></div>주변 장소를 검색하는 중...';
   document.getElementById('resGrid').style.display='none';
   document.getElementById('gameScreen').classList.add('out');
   document.getElementById('resultScreen').classList.remove('out');
-  if (apiKey) { fetchRecs(loc); }
+  if (kakaoKey) { fetchRecs(); }
   else {
     document.getElementById('aiLoading').innerHTML =
-      `<div style="color:var(--txt2);font-size:13px;margin-bottom:14px;">🔑 API 키가 없어요. 설정에서 Claude API 키를 입력하면<br>AI가 <b>${loc}</b> 핫플을 추천해줘요!</div>
+      `<div style="color:var(--txt2);font-size:13px;margin-bottom:14px;">🗝 카카오 API 키가 없어요.<br><b>${loc}</b> 주변 장소를 검색하려면 키를 입력해주세요.</div>
        <button class="hdr-btn" onclick="openModal()" style="margin:0 auto;display:block;">API 키 입력하기</button>`;
   }
 }
 
 /* ══════════════════════════════════════════
-   CLAUDE API
+   KAKAO LOCAL API
 ══════════════════════════════════════════ */
-async function fetchRecs(district) {
+async function fetchRecs() {
+  const {lat, lng} = hitLatLng;
+  const headers = {'Authorization': `KakaoAK ${kakaoKey}`};
+  const base = 'https://dapi.kakao.com/v2/local/search/category.json';
+  const r = 800;
+
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body: JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        messages:[{
-          role:'user',
-          content:`서울 ${district} 에서 하루 놀기 좋은 장소를 추천해줘. 최대한 그 동네 특색에 맞는 실제 유명한 장소로 추천해줘.
-반드시 아래 JSON 형식만 반환해 (마크다운 코드블록 없이 순수 JSON):
-{"attractions":[{"name":"장소명","desc":"한줄 소개"},{"name":"","desc":""},{"name":"","desc":""}],"restaurants":[{"name":"식당명","desc":"메뉴/특징"},{"name":"","desc":""},{"name":"","desc":""}],"cafes":[{"name":"카페명","desc":"특징"},{"name":"","desc":""},{"name":"","desc":""}]}`
-        }]
-      })
+    const [at, ct, fd, ce] = await Promise.all([
+      fetch(`${base}?category_group_code=AT4&x=${lng}&y=${lat}&radius=${r}&sort=distance&size=5`, {headers}).then(r=>r.json()),
+      fetch(`${base}?category_group_code=CT1&x=${lng}&y=${lat}&radius=${r}&sort=distance&size=5`, {headers}).then(r=>r.json()),
+      fetch(`${base}?category_group_code=FD6&x=${lng}&y=${lat}&radius=${r}&sort=distance&size=5`, {headers}).then(r=>r.json()),
+      fetch(`${base}?category_group_code=CE7&x=${lng}&y=${lat}&radius=${r}&sort=distance&size=5`, {headers}).then(r=>r.json()),
+    ]);
+
+    // 관광명소 + 문화시설 합쳐서 갈만한 곳
+    const attractions = [...(at.documents||[]), ...(ct.documents||[])]
+      .sort((a,b)=>+a.distance - +b.distance).slice(0,4);
+
+    renderRecs({
+      attractions,
+      restaurants: (fd.documents||[]).slice(0,4),
+      cafes:       (ce.documents||[]).slice(0,4),
     });
-    if (!resp.ok) { const e=await resp.json(); throw new Error(e.error?.message||'API 오류'); }
-    const data = await resp.json();
-    let text = data.content[0].text.trim();
-    // Strip markdown code blocks if present
-    text = text.replace(/^```json?\s*/,'').replace(/\s*```$/,'');
-    const json = JSON.parse(text);
-    renderRecs(json);
   } catch(err) {
     document.getElementById('aiLoading').innerHTML =
       `<div class="ai-err">⚠ ${err.message}</div>
-       <button class="btn-retry" style="margin:0 auto;display:block;font-size:13px;padding:10px 22px" onclick="fetchRecs('${district}')">다시 시도</button>`;
+       <button class="btn-retry" style="margin:0 auto;display:block;font-size:13px;padding:10px 22px" onclick="fetchRecs()">다시 시도</button>`;
   }
 }
 
-function renderRecs(json) {
+function shortCat(cat) {
+  if (!cat) return '';
+  const parts = cat.split(' > ');
+  return parts[parts.length - 1] || parts[0];
+}
+
+function fmtDist(d) {
+  const n = +d;
+  return n >= 1000 ? (n/1000).toFixed(1)+'km' : n+'m';
+}
+
+function renderRecs({attractions, restaurants, cafes}) {
   document.getElementById('aiLoading').style.display='none';
+
   const fillList = (id, items) => {
-    document.getElementById(id).innerHTML = (items||[]).map(it=>
-      `<li class="place-item"><div class="place-name">${it.name||''}</div><div class="place-desc">${it.desc||''}</div></li>`
-    ).join('');
+    if (!items.length) {
+      document.getElementById(id).innerHTML = '<li class="place-empty">반경 800m 내 결과 없음</li>';
+      return;
+    }
+    document.getElementById(id).innerHTML = items.map(p => `
+      <li class="place-item">
+        <a href="${p.place_url}" target="_blank" rel="noopener">
+          <div class="place-name">${p.place_name}<span class="place-dist">${fmtDist(p.distance)}</span></div>
+          <div class="place-desc">${shortCat(p.category_name)}</div>
+          <div class="place-addr">${p.road_address_name || p.address_name}</div>
+        </a>
+      </li>`).join('');
   };
-  fillList('list1', json.attractions);
-  fillList('list2', json.restaurants);
-  fillList('list3', json.cafes);
+
+  fillList('list1', attractions);
+  fillList('list2', restaurants);
+  fillList('list3', cafes);
   document.getElementById('resGrid').style.display='grid';
 }
 
@@ -730,7 +766,7 @@ function renderRecs(json) {
 ══════════════════════════════════════════ */
 function resetGame() {
   if (raf) cancelAnimationFrame(raf);
-  state='idle'; pulling=false; curtainProg=0; hitDist=null; hitDong=null;
+  state='idle'; pulling=false; curtainProg=0; hitDist=null; hitDong=null; hitLatLng=null;
   mapRot = [0,90,180,270][Math.floor(Math.random()*4)];
   dartX=DART_HOME.x; dartY=DART_HOME.y;
   buildMap();
@@ -745,20 +781,19 @@ function resetGame() {
    API MODAL
 ══════════════════════════════════════════ */
 function openModal() {
-  document.getElementById('apiInput').value = apiKey;
+  document.getElementById('apiInput').value = kakaoKey;
   document.getElementById('modalBg').classList.remove('hidden');
 }
 function closeModal() { document.getElementById('modalBg').classList.add('hidden'); }
 function saveKey() {
-  apiKey = document.getElementById('apiInput').value.trim();
-  localStorage.setItem('sdt_key', apiKey);
+  kakaoKey = document.getElementById('apiInput').value.trim();
+  localStorage.setItem('sdt_kakao_key', kakaoKey);
   closeModal();
-  // If result screen showing with no recs, retry
-  if (state==='done' && hitDist && apiKey) {
-    const loc = hitDong ? `${hitDist.n} ${hitDong.n}` : hitDist.n;
+  if (state==='done' && hitLatLng && kakaoKey) {
     document.getElementById('aiLoading').style.display='block';
+    document.getElementById('aiLoading').innerHTML='<div class="ai-spinner"></div>주변 장소를 검색하는 중...';
     document.getElementById('resGrid').style.display='none';
-    fetchRecs(loc);
+    fetchRecs();
   }
 }
 
