@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>국장 VWMA 일봉 돌파 | Macro Hub</title>
+<style>
+:root {
+  --bg:#0c0f1a;--bg2:#141828;--bg3:#1c2238;--bg4:#242a42;
+  --border:#2a3050;--border2:#353d5e;
+  --txt:#e4e8f5;--txt2:#8a94b8;--txt3:#555f80;
+  --blue:#4f8ef7;--blue2:rgba(79,142,247,.12);
+  --green:#00d09c;--green2:rgba(0,208,156,.12);
+  --red:#ff4d5e;--red2:rgba(255,77,94,.12);
+  --gold:#f5a623;--gold2:rgba(245,166,35,.12);
+  --orange:#ff7c3a;--orange2:rgba(255,124,58,.12);
+  --purple:#a78bfa;--purple2:rgba(167,139,250,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
+.site-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-logo{width:38px;height:38px;background:linear-gradient(135deg,#00d09c,#4f8ef7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.hdr-title h1{font-size:17px;font-weight:700;}
+.hdr-title p{font-size:11px;color:var(--txt3);margin-top:1px;}
+.hdr-nav{display:flex;gap:4px;margin-left:8px;}
+.nav-link{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:500;color:var(--txt3);text-decoration:none;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:var(--txt2);background:var(--bg3);}
+.nav-link.active{color:var(--green);background:var(--green2);}
+.hdr-right{display:flex;align-items:center;gap:14px;}
+.last-update{font-size:11px;color:var(--txt3);}
+.refresh-btn{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:6px 13px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;font-weight:600;}
+.refresh-btn:hover{color:var(--green);border-color:var(--green);}
+.spin{display:inline-block;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:760px){.hdr-nav{display:none;}}
+.container{max-width:1400px;margin:0 auto;padding:22px 20px 80px;}
+.intro-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:18px;position:relative;overflow:hidden;}
+.intro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00d09c,#4f8ef7,#a78bfa);}
+.intro-top{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;}
+.intro-icon{font-size:38px;flex-shrink:0;line-height:1;}
+.intro-body{flex:1;min-width:220px;}
+.intro-title{font-size:19px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.intro-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:var(--green2);color:var(--green);border:1px solid rgba(0,208,156,.3);}
+.intro-desc{font-size:13px;color:var(--txt2);line-height:1.75;}
+.intro-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.intro-pill{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:20px;font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--border);color:var(--txt2);}
+.intro-pill .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.intro-notice{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:12px 16px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:10px;font-size:12px;color:var(--txt2);line-height:1.65;}
+.notice-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+@media(max-width:700px){.stats-bar{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px 18px;display:flex;align-items:center;gap:14px;}
+.stat-icon{font-size:22px;flex-shrink:0;}
+.stat-val{font-size:24px;font-weight:900;line-height:1;}
+.stat-lbl{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.progress-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:18px;}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.progress-lbl{font-size:12px;color:var(--txt2);font-weight:600;}
+.progress-pct{font-size:13px;font-weight:800;color:var(--green);}
+.progress-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00d09c,#4f8ef7);border-radius:4px;transition:width .3s ease;width:0%;}
+.progress-detail{font-size:11px;color:var(--txt3);margin-top:8px;}
+.strength-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+.tab-group{display:flex;gap:6px;}
+.tab-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;border:1px solid var(--border);background:var(--bg2);color:var(--txt3);cursor:pointer;transition:all .15s;}
+.tab-btn:hover{border-color:var(--border2);color:var(--txt2);}
+.tab-btn.active-all{background:var(--bg3);color:var(--txt);border-color:var(--border2);}
+.tab-btn.active-strong{background:var(--green2);color:var(--green);border-color:rgba(0,208,156,.4);}
+.tab-btn.active-mid{background:var(--orange2);color:var(--orange);border-color:rgba(255,124,58,.4);}
+.tab-btn.active-weak{background:rgba(245,166,35,.12);color:var(--gold);border-color:rgba(245,166,35,.4);}
+.sort-sel{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:6px 11px;border-radius:8px;font-size:12px;cursor:pointer;outline:none;}
+.sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:900px){.sections-grid{grid-template-columns:1fr;}}
+.section-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.section-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.section-head-left{display:flex;align-items:center;gap:10px;}
+.section-head-icon{font-size:20px;}
+.section-head-title{font-size:14px;font-weight:700;}
+.section-head-sub{font-size:11px;color:var(--txt3);margin-top:2px;}
+.section-count-badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.badge-strong{background:var(--green2);color:var(--green);border:1px solid rgba(0,208,156,.3);}
+.badge-mid{background:var(--orange2);color:var(--orange);border:1px solid rgba(255,124,58,.3);}
+.section-body{padding:12px;}
+.stock-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:13px 14px 10px;margin-bottom:8px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;text-decoration:none;display:block;color:inherit;}
+.stock-card:last-child{margin-bottom:0;}
+.stock-card:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.35);border-color:var(--border2);}
+.sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px;}
+.sc-left{display:flex;align-items:center;gap:9px;min-width:0;}
+.sc-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sc-code{font-size:10px;color:var(--txt3);margin-top:1px;}
+.sc-right{display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
+.sc-strength-badge{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-s3{background:rgba(0,208,156,.2);color:var(--green);border:1px solid rgba(0,208,156,.4);}
+.badge-s2{background:rgba(255,124,58,.2);color:var(--orange);border:1px solid rgba(255,124,58,.4);}
+.badge-s1{background:rgba(245,166,35,.2);color:var(--gold);border:1px solid rgba(245,166,35,.4);}
+.sc-market-badge{padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;background:var(--bg4);color:var(--txt2);}
+.sc-mid{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px;}
+.sc-price{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+.sc-metrics{display:flex;gap:10px;align-items:center;}
+.sc-metric{display:flex;flex-direction:column;align-items:flex-end;}
+.sc-metric-val{font-size:13px;font-weight:700;}
+.sc-metric-lbl{font-size:9px;color:var(--txt3);}
+.sc-filters{display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap;}
+.sc-filter-pill{padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;background:var(--bg4);color:var(--txt3);border:1px solid var(--border);}
+.sc-filter-pill.ok{background:rgba(0,208,156,.1);color:var(--green);border-color:rgba(0,208,156,.3);}
+.sc-spark-wrap{height:46px;position:relative;}
+.sc-spark-svg{width:100%;height:100%;}
+.empty-state{padding:36px 20px;text-align:center;color:var(--txt3);}
+.empty-icon{font-size:28px;margin-bottom:8px;}
+.empty-text{font-size:13px;}
+.loading-state{padding:36px 20px;text-align:center;}
+.spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px;}
+.loading-text{font-size:12px;color:var(--txt3);}
+.error-banner{background:var(--red2);border:1px solid rgba(255,77,94,.3);border-radius:10px;padding:14px 18px;margin-bottom:14px;color:var(--red);font-size:13px;display:none;}
+.footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;color:var(--txt3);font-size:12px;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="hdr-left">
+    <div class="hdr-logo">📈</div>
+    <div class="hdr-title">
+      <h1>국장 VWMA 일봉 돌파</h1>
+      <p>KOSPI · KOSDAQ 일봉 VWMA 20 상향 돌파 스크리너</p>
+    </div>
+    <nav class="hdr-nav">
+      <a href="index.html"        class="nav-link">홈</a>
+      <a href="sector-flow.html"  class="nav-link">섹터 수급</a>
+      <a href="crypto-flow.html"  class="nav-link">코인 수급</a>
+      <a href="flow-compare.html" class="nav-link">크로스에셋</a>
+      <a href="macro-news.html"   class="nav-link">매크로 뉴스</a>
+      <a href="korea-ma20.html"   class="nav-link">국장 20주선</a>
+      <a href="us-ma20.html"      class="nav-link">미장 20주선</a>
+      <a href="korea-vwma.html"   class="nav-link active">국장 VWMA</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span class="last-update" id="lastUpdate">로딩 중...</span>
+    <button class="refresh-btn" id="refreshBtn" onclick="startScan()">🔄 새로고침</button>
+  </div>
+</header>
+<div class="container">
+  <div class="intro-card">
+    <div class="intro-top">
+      <div class="intro-icon">📐</div>
+      <div class="intro-body">
+        <div class="intro-title">VWMA 20 일봉 돌파 스크리너 <span class="intro-badge">거래량 가중 이평선</span></div>
+        <div class="intro-desc">VWMA(Volume Weighted Moving Average)는 거래량이 많은 날의 가격에 더 높은 가중치를 부여한 이동평균선입니다. 단순 이평선(SMA)과 달리 <strong>수급을 반영한 가격 중심선</strong>으로, 일봉 기준에서 특히 유효합니다. 종가가 VWMA 20을 상향 돌파할 때 RSI·ATR·BB Squeeze 세 가지 필터를 통해 <strong>신호 강도(강/중/약)</strong>를 분류합니다.</div>
+        <div class="intro-pills">
+          <div class="intro-pill"><span class="dot" style="background:#00d09c;"></span>강 돌파 = RSI + ATR + Squeeze 모두 충족</div>
+          <div class="intro-pill"><span class="dot" style="background:#ff7c3a;"></span>중 돌파 = 3개 중 2개 충족</div>
+          <div class="intro-pill"><span class="dot" style="background:#f5a623;"></span>약 돌파 = 3개 중 1개 충족</div>
+          <div class="intro-pill"><span class="dot" style="background:#4f8ef7;"></span>거래량 평균 1.2배 이상 필수</div>
+        </div>
+        <div class="intro-notice">
+          <span class="notice-icon">⚠️</span>
+          <div><strong>장중 신호는 임시적일 수 있습니다.</strong> Yahoo Finance 일봉 마지막 캔들은 장중에는 미완성 데이터입니다. <strong>오후 3시 30분 장 마감 후 확인하는 것이 가장 정확합니다.</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-card"><span class="stat-icon">🔍</span><div><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">스캔 종목</div></div></div>
+    <div class="stat-card"><span class="stat-icon">▲▲▲</span><div><div class="stat-val" id="statStrong" style="color:var(--green)">—</div><div class="stat-lbl">강 돌파</div></div></div>
+    <div class="stat-card"><span class="stat-icon">▲▲</span><div><div class="stat-val" id="statMid" style="color:var(--orange)">—</div><div class="stat-lbl">중 돌파</div></div></div>
+    <div class="stat-card"><span class="stat-icon">▲</span><div><div class="stat-val" id="statWeak" style="color:var(--gold)">—</div><div class="stat-lbl">약 돌파</div></div></div>
+  </div>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-top"><span class="progress-lbl">📡 데이터 수신 중...</span><span class="progress-pct" id="progressPct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-detail" id="progressDetail">종목 데이터를 불러오는 중입니다</div>
+  </div>
+  <div class="error-banner" id="errorBanner"></div>
+  <div class="strength-tabs">
+    <div class="tab-group">
+      <button class="tab-btn active-all" id="tabAll"    onclick="setTab('all')">전체 <span id="cntAll">—</span></button>
+      <button class="tab-btn"            id="tabStrong" onclick="setTab('strong')">▲▲▲ 강 돌파 <span id="cntStrong">0</span></button>
+      <button class="tab-btn"            id="tabMid"    onclick="setTab('mid')">▲▲ 중 돌파 <span id="cntMid">0</span></button>
+      <button class="tab-btn"            id="tabWeak"   onclick="setTab('weak')">▲ 약 돌파 <span id="cntWeak">0</span></button>
+    </div>
+    <select class="sort-sel" id="sortSel" onchange="renderAll()">
+      <option value="score">강도 순</option>
+      <option value="volRatio">거래량배수 순</option>
+      <option value="rsi">RSI 순</option>
+    </select>
+  </div>
+  <div class="sections-grid">
+    <div class="section-panel">
+      <div class="section-head">
+        <div class="section-head-left"><span class="section-head-icon">🟢</span><div><div class="section-head-title">강 돌파</div><div class="section-head-sub">RSI + ATR + Squeeze 모두 충족</div></div></div>
+        <span class="section-count-badge badge-strong" id="countStrong">0</span>
+      </div>
+      <div class="section-body" id="listStrong"><div class="loading-state"><div class="spinner"></div><div class="loading-text">스캔 중...</div></div></div>
+    </div>
+    <div class="section-panel">
+      <div class="section-head">
+        <div class="section-head-left"><span class="section-head-icon">🟠</span><div><div class="section-head-title">중 돌파 · 약 돌파</div><div class="section-head-sub">필터 1~2개 충족</div></div></div>
+        <span class="section-count-badge badge-mid" id="countMidWeak">0</span>
+      </div>
+      <div class="section-body" id="listMidWeak"><div class="loading-state"><div class="spinner"></div><div class="loading-text">스캔 중...</div></div></div>
+    </div>
+  </div>
+</div>
+<footer class="footer">
+  <p>데이터 출처: Yahoo Finance (일봉, 최대 15분 지연) · 일봉 기준 VWMA 20 · KOSPI/KOSDAQ 주요 종목 <span id="footerTime"></span></p>
+</footer>
+<script>
+const MA_LEN=20,VOL_LEN=20,VOL_MULT=1.2,RSI_LEN=14,RSI_THR=50,ATR_LEN=14,ATR_MULT=0.3,BB_LEN=20,BB_MULT=2.0,SQ_LEN=20,MIN_BARS=60;
+const STOCKS=[
+  {s:'005930.KS',n:'삼성전자',g:'반도체'},{s:'000660.KS',n:'SK하이닉스',g:'반도체'},
+  {s:'000990.KS',n:'DB하이텍',g:'반도체'},{s:'042700.KS',n:'한미반도체',g:'반도체'},
+  {s:'058470.KQ',n:'리노공업',g:'반도체'},{s:'039030.KQ',n:'이오테크닉스',g:'반도체'},
+  {s:'036930.KQ',n:'주성엔지니어링',g:'반도체'},{s:'240810.KS',n:'원익IPS',g:'반도체'},
+  {s:'009150.KS',n:'삼성전기',g:'전자부품'},{s:'066570.KS',n:'LG전자',g:'전자'},
+  {s:'373220.KS',n:'LG에너지솔루션',g:'배터리'},{s:'006400.KS',n:'삼성SDI',g:'배터리'},
+  {s:'051910.KS',n:'LG화학',g:'배터리'},{s:'247540.KQ',n:'에코프로비엠',g:'배터리'},
+  {s:'086520.KQ',n:'에코프로',g:'배터리'},{s:'096770.KS',n:'SK이노베이션',g:'배터리'},
+  {s:'009830.KS',n:'한화솔루션',g:'소재'},{s:'011790.KS',n:'SKC',g:'소재'},
+  {s:'207940.KS',n:'삼성바이오로직스',g:'바이오'},{s:'068270.KS',n:'셀트리온',g:'바이오'},
+  {s:'000100.KS',n:'유한양행',g:'제약'},{s:'128940.KS',n:'한미약품',g:'제약'},
+  {s:'326030.KS',n:'SK바이오팜',g:'바이오'},{s:'196170.KQ',n:'알테오젠',g:'바이오'},
+  {s:'141080.KQ',n:'레고켐바이오',g:'바이오'},{s:'009420.KS',n:'한미사이언스',g:'바이오'},
+  {s:'005380.KS',n:'현대차',g:'자동차'},{s:'000270.KS',n:'기아',g:'자동차'},
+  {s:'012330.KS',n:'현대모비스',g:'자동차부품'},{s:'018880.KS',n:'한온시스템',g:'자동차부품'},
+  {s:'035420.KS',n:'NAVER',g:'플랫폼'},{s:'035720.KS',n:'카카오',g:'플랫폼'},
+  {s:'293490.KS',n:'카카오뱅크',g:'핀테크'},{s:'323410.KS',n:'카카오페이',g:'핀테크'},
+  {s:'352820.KS',n:'하이브',g:'엔터'},{s:'041510.KQ',n:'에스엠',g:'엔터'},
+  {s:'035900.KQ',n:'JYP엔터',g:'엔터'},{s:'122870.KQ',n:'와이지엔터테인먼트',g:'엔터'},
+  {s:'259960.KS',n:'크래프톤',g:'게임'},{s:'251270.KS',n:'넷마블',g:'게임'},
+  {s:'036570.KS',n:'엔씨소프트',g:'게임'},
+  {s:'105560.KS',n:'KB금융',g:'금융'},{s:'055550.KS',n:'신한지주',g:'금융'},
+  {s:'086790.KS',n:'하나금융지주',g:'금융'},{s:'316140.KS',n:'우리금융지주',g:'금융'},
+  {s:'032830.KS',n:'삼성생명',g:'보험'},{s:'000810.KS',n:'삼성화재',g:'보험'},
+  {s:'016360.KS',n:'삼성증권',g:'증권'},{s:'006800.KS',n:'미래에셋증권',g:'증권'},
+  {s:'009540.KS',n:'HD한국조선해양',g:'조선'},{s:'329180.KS',n:'HD현대중공업',g:'조선'},
+  {s:'042660.KS',n:'한화오션',g:'조선'},{s:'012450.KS',n:'한화에어로스페이스',g:'방산'},
+  {s:'047810.KS',n:'한국항공우주',g:'방산'},{s:'064350.KS',n:'현대로템',g:'방산'},
+  {s:'000880.KS',n:'한화',g:'방산'},
+  {s:'005490.KS',n:'POSCO홀딩스',g:'철강'},{s:'004020.KS',n:'현대제철',g:'철강'},
+  {s:'010130.KS',n:'고려아연',g:'소재'},{s:'010950.KS',n:'S-Oil',g:'에너지'},
+  {s:'034020.KS',n:'두산에너빌리티',g:'기계'},{s:'267250.KS',n:'HD현대',g:'지주'},
+  {s:'017670.KS',n:'SK텔레콤',g:'통신'},{s:'030200.KS',n:'KT',g:'통신'},
+  {s:'032640.KS',n:'LG유플러스',g:'통신'},
+  {s:'004170.KS',n:'신세계',g:'유통'},{s:'069960.KS',n:'현대백화점',g:'유통'},
+  {s:'139480.KS',n:'이마트',g:'유통'},{s:'282330.KS',n:'BGF리테일',g:'유통'},
+  {s:'271560.KS',n:'오리온',g:'식품'},{s:'097950.KS',n:'CJ제일제당',g:'식품'},
+  {s:'003230.KS',n:'삼양식품',g:'식품'},
+  {s:'003550.KS',n:'LG',g:'지주'},{s:'034730.KS',n:'SK',g:'지주'},
+  {s:'028260.KS',n:'삼성물산',g:'지주'},{s:'033780.KS',n:'KT&G',g:'기타'},
+  {s:'000720.KS',n:'현대건설',g:'건설'},{s:'047040.KS',n:'대우건설',g:'건설'},
+];
+let results=[],loadedCnt=0,isLoading=false,activeTab='all',refreshTimer=null;
+const PROXIES=[url=>url,url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`];
+async function fetchWithProxy(url,timeout=9000){for(const proxy of PROXIES){const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),timeout);try{const res=await fetch(proxy(url),{signal:ctrl.signal});clearTimeout(tid);if(!res.ok)continue;return await res.json();}catch(e){clearTimeout(tid);}}return null;}
+async function fetchDaily(symbol){const url=`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=6mo`;const data=await fetchWithProxy(url);if(!data)return null;try{const result=data.chart.result[0];const meta=result.meta||{};const tss=result.timestamp||[];const q=result.indicators?.quote?.[0]||{};const closes=q.close||[];const highs=q.high||[];const lows=q.low||[];const volumes=q.volume||[];const nowSec=Date.now()/1000;const lastTs=tss[tss.length-1]??0;const todayUTC=new Date();const afterClose=todayUTC.getUTCHours()>6||(todayUTC.getUTCHours()===6&&todayUTC.getUTCMinutes()>=30);const isWeekday=todayUTC.getUTCDay()>=1&&todayUTC.getUTCDay()<=5;const lastBarIsToday=(nowSec-lastTs)<86400;const endIdx=(lastBarIsToday&&!(afterClose&&isWeekday))?closes.length-1:closes.length;const c=closes.slice(0,endIdx).map(v=>v??NaN);const h=highs.slice(0,endIdx).map(v=>v??NaN);const l=lows.slice(0,endIdx).map(v=>v??NaN);const v=volumes.slice(0,endIdx).map(v=>v??0);if(c.filter(x=>!isNaN(x)).length<MIN_BARS)return null;return{c,h,l,v,price:meta.regularMarketPrice??c[c.length-1]};}catch(e){return null;}}
+function calcSMA(arr,period){const n=arr.length,out=new Array(n).fill(NaN);for(let i=period-1;i<n;i++){let s=0,cnt=0;for(let j=i-period+1;j<=i;j++)if(!isNaN(arr[j])){s+=arr[j];cnt++;}if(cnt===period)out[i]=s/period;}return out;}
+function calcVWMA(c,v,period){const n=c.length,out=new Array(n).fill(NaN);for(let i=period-1;i<n;i++){let sp=0,sv=0;for(let j=i-period+1;j<=i;j++){sp+=c[j]*v[j];sv+=v[j];}if(sv>0)out[i]=sp/sv;}return out;}
+function calcRSI(c,period){const n=c.length,out=new Array(n).fill(NaN);if(n<=period)return out;let ag=0,al=0;for(let i=1;i<=period;i++){const d=c[i]-c[i-1];if(d>0)ag+=d;else al-=d;}ag/=period;al/=period;if(al===0)out[period]=100;else out[period]=100-(100/(1+ag/al));for(let i=period+1;i<n;i++){const d=c[i]-c[i-1];const g=d>0?d:0,lo=d<0?-d:0;ag=(ag*(period-1)+g)/period;al=(al*(period-1)+lo)/period;out[i]=al===0?100:100-(100/(1+ag/al));}return out;}
+function calcATR(h,l,c,period){const n=h.length,tr=new Array(n).fill(NaN),out=new Array(n).fill(NaN);for(let i=1;i<n;i++){tr[i]=Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1]));}let s=0;for(let i=1;i<=period;i++)s+=tr[i];out[period]=s/period;for(let i=period+1;i<n;i++)out[i]=(out[i-1]*(period-1)+tr[i])/period;return out;}
+function calcBBWidth(c,period,mult){const n=c.length,out=new Array(n).fill(NaN);for(let i=period-1;i<n;i++){let s=0,s2=0;for(let j=i-period+1;j<=i;j++){s+=c[j];s2+=c[j]*c[j];}const mean=s/period;const sd=Math.sqrt(Math.max(0,s2/period-mean*mean));if(mean>0)out[i]=(sd*mult*2)/mean;}return out;}
+function checkSignal(stock,d){const{c,h,l,v,price}=d,n=c.length,last=n-1;const vwma=calcVWMA(c,v,MA_LEN);if(isNaN(vwma[last])||isNaN(vwma[last-1]))return null;if(!(c[last]>vwma[last]&&c[last-1]<=vwma[last-1]))return null;const volSMA=calcSMA(v,VOL_LEN);if(isNaN(volSMA[last])||volSMA[last]<=0)return null;if(v[last]<volSMA[last]*VOL_MULT)return null;const volRatio=Math.round(v[last]/volSMA[last]*10)/10;const rsiArr=calcRSI(c,RSI_LEN),rsiVal=rsiArr[last],rsiOk=!isNaN(rsiVal)&&rsiVal>RSI_THR;const atrArr=calcATR(h,l,c,ATR_LEN),atrOk=!isNaN(atrArr[last])&&c[last]>vwma[last]+atrArr[last]*ATR_MULT;const bbw=calcBBWidth(c,BB_LEN,BB_MULT),bbwSMA=calcSMA(bbw,SQ_LEN),sqOk=!isNaN(bbw[last-1])&&!isNaN(bbwSMA[last-1])&&bbw[last-1]<bbwSMA[last-1];const score=(rsiOk?1:0)+(atrOk?1:0)+(sqOk?1:0);if(score===0)return null;const sparkLen=Math.min(30,n);return{...stock,score,price,volRatio,rsi:isNaN(rsiVal)?null:Math.round(rsiVal),rsiOk,atrOk,sqOk,strength:score===3?'강 돌파':score===2?'중 돌파':'약 돌파',vwmaVal:Math.round(vwma[last]),sparkC:c.slice(-sparkLen),sparkV:vwma.slice(-sparkLen)};}
+function buildSpark(r){const W=260,H=46,{sparkC:closes,sparkV:vwmaArr}=r,n=closes.length;if(n<2)return'';const all=[...closes,...vwmaArr.filter(x=>!isNaN(x))];const minV=Math.min(...all)*0.99,maxV=Math.max(...all)*1.01,rng=maxV-minV||1;const xOf=i=>(i/(n-1))*W,yOf=v=>H-((v-minV)/rng)*H;let pp='';for(let i=0;i<n;i++)pp+=(i===0?'M':'L')+xOf(i).toFixed(1)+','+yOf(closes[i]).toFixed(1);let vp='',vs=false;for(let i=0;i<n;i++){if(isNaN(vwmaArr[i]))continue;vp+=(!vs?'M':'L')+xOf(i).toFixed(1)+','+yOf(vwmaArr[i]).toFixed(1);vs=true;}const ap=pp+`L${xOf(n-1).toFixed(1)},${H} L${xOf(0).toFixed(1)},${H} Z`;const fid=`f_${r.s.replace(/[^a-z0-9]/gi,'_')}`;return`<svg class="sc-spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="${fid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00d09c" stop-opacity="0.25"/><stop offset="100%" stop-color="#00d09c" stop-opacity="0.02"/></linearGradient></defs><path d="${ap}" fill="url(#${fid})"/><path d="${vp}" stroke="#4f8ef7" stroke-width="1.2" stroke-dasharray="4 3" fill="none" opacity="0.8"/><path d="${pp}" stroke="#00d09c" stroke-width="1.8" fill="none"/></svg>`;}
+function naverLink(s){return`https://finance.naver.com/item/main.naver?code=${s.replace('.KS','').replace('.KQ','')}`;}
+function renderCard(r){const bCls=r.score===3?'badge-s3':r.score===2?'badge-s2':'badge-s1';const arrow=r.score===3?'▲▲▲ 강 돌파':r.score===2?'▲▲ 중 돌파':'▲ 약 돌파';const mkt=r.s.endsWith('.KS')?'KOSPI':'KOSDAQ';return`<a href="${naverLink(r.s)}" target="_blank" rel="noopener" class="stock-card"><div class="sc-top"><div class="sc-left"><div><div class="sc-name">${r.n}</div><div class="sc-code">${r.s} · ${r.g}</div></div></div><div class="sc-right"><span class="sc-market-badge">${mkt}</span><span class="sc-strength-badge ${bCls}">${arrow}</span></div></div><div class="sc-mid"><div class="sc-price">&#8361;${Math.round(r.price).toLocaleString('ko-KR')}</div><div class="sc-metrics"><div class="sc-metric"><span class="sc-metric-val" style="color:var(--blue)">${r.volRatio}x</span><span class="sc-metric-lbl">거래량배수</span></div><div class="sc-metric"><span class="sc-metric-val" style="color:var(--green)">${r.rsi??'—'}</span><span class="sc-metric-lbl">RSI</span></div></div></div><div class="sc-filters"><span class="sc-filter-pill${r.rsiOk?' ok':''}">RSI&gt;50 ${r.rsiOk?'✅':'❌'}</span><span class="sc-filter-pill${r.atrOk?' ok':''}">ATR강도 ${r.atrOk?'✅':'❌'}</span><span class="sc-filter-pill${r.sqOk?' ok':''}">Squeeze ${r.sqOk?'✅':'❌'}</span></div><div class="sc-spark-wrap">${buildSpark(r)}</div></a>`;}
+function setTab(tab){activeTab=tab;['all','strong','mid','weak'].forEach(t=>{const btn=document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));const cls=t==='all'?'active-all':t==='strong'?'active-strong':t==='mid'?'active-mid':'active-weak';btn.className='tab-btn'+(tab===t?' '+cls:'');});renderAll();}
+function renderAll(){if(isLoading)return;const sortKey=document.getElementById('sortSel').value;const sortFn=(a,b)=>sortKey==='score'?b.score-a.score||b.volRatio-a.volRatio:sortKey==='volRatio'?b.volRatio-a.volRatio:(b.rsi??0)-(a.rsi??0);const strong=results.filter(r=>r.score===3).sort(sortFn);const mid=results.filter(r=>r.score===2).sort(sortFn);const weak=results.filter(r=>r.score===1).sort(sortFn);const midWeak=[...mid,...weak];document.getElementById('cntAll').textContent=results.length;document.getElementById('cntStrong').textContent=strong.length;document.getElementById('cntMid').textContent=mid.length;document.getElementById('cntWeak').textContent=weak.length;document.getElementById('statTotal').textContent=STOCKS.length;document.getElementById('statStrong').textContent=strong.length;document.getElementById('statMid').textContent=mid.length;document.getElementById('statWeak').textContent=weak.length;document.getElementById('countStrong').textContent=strong.length+'종목';document.getElementById('countMidWeak').textContent=midWeak.length+'종목';let showStrong=strong,showMidWeak=midWeak;if(activeTab==='strong')showMidWeak=[];else if(activeTab==='mid'){showStrong=[];showMidWeak=mid;}else if(activeTab==='weak'){showStrong=[];showMidWeak=weak;}const emptyHtml=(icon,msg)=>`<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-text">${msg}</div></div>`;document.getElementById('listStrong').innerHTML=showStrong.length===0?emptyHtml('🔍','강 돌파 종목이 없습니다'):showStrong.map(renderCard).join('');document.getElementById('listMidWeak').innerHTML=showMidWeak.length===0?emptyHtml('📊','해당 종목이 없습니다'):showMidWeak.map(renderCard).join('');}
+async function startScan(){if(isLoading)return;isLoading=true;results=[];loadedCnt=0;['listStrong','listMidWeak'].forEach(id=>{document.getElementById(id).innerHTML='<div class="loading-state"><div class="spinner"></div><div class="loading-text">스캔 중...</div></div>';});document.getElementById('progressWrap').style.display='block';document.getElementById('errorBanner').style.display='none';document.getElementById('refreshBtn').innerHTML='<span class="spin">⟳</span> 스캔 중';document.getElementById('refreshBtn').disabled=true;['statTotal','statStrong','statMid','statWeak'].forEach(id=>document.getElementById(id).textContent='—');const total=STOCKS.length;let errCnt=0;try{const BATCH=5;for(let i=0;i<total;i+=BATCH){const batch=STOCKS.slice(i,i+BATCH);await Promise.all(batch.map(async stock=>{try{const d=await fetchDaily(stock.s);if(d){const sig=checkSignal(stock,d);if(sig)results.push(sig);}else errCnt++;}catch(e){errCnt++;}finally{loadedCnt++;const pct=Math.round(loadedCnt/total*100);document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressPct').textContent=pct+'%';document.getElementById('progressDetail').textContent=`${loadedCnt} / ${total} 종목 처리 완료`;}}));if(i+BATCH<total)await new Promise(r=>setTimeout(r,250));}}catch(e){console.error(e);}finally{isLoading=false;document.getElementById('progressWrap').style.display='none';document.getElementById('refreshBtn').innerHTML='🔄 새로고침';document.getElementById('refreshBtn').disabled=false;}const now=new Date();document.getElementById('lastUpdate').textContent=`업데이트: ${now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}`;document.getElementById('footerTime').textContent=`· ${now.toLocaleDateString('ko-KR')} ${now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})} 기준`;if(errCnt>0){const eb=document.getElementById('errorBanner');eb.textContent=`⚠️ ${errCnt}개 종목 데이터 수신 실패. 나머지 ${total-errCnt}개 결과를 표시합니다.`;eb.style.display='block';}renderAll();if(refreshTimer)clearTimeout(refreshTimer);refreshTimer=setTimeout(async()=>{if(isLoading){refreshTimer=setTimeout(()=>startScan(),60000);return;}await startScan();},3*60*1000);}
+startScan();
+</script>
+</body>
+</html>
