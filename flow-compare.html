@@ -291,14 +291,14 @@ async function timedFetch(url, ms) {
 let lastGoodProxy = -1;
 async function safeFetch(url) {
   const enc = encodeURIComponent(url);
-  // 0번: 본인 Cloudflare Worker (전용)
+  // 0번: 본인 Cloudflare Worker (5s timeout)
   const proxies = [
-    [`https://yfinance-proxy.yangjuwon240.workers.dev/?url=${enc}`, 7000],
-    [`https://corsproxy.io/?${enc}`,                        7000],
-    [`https://api.codetabs.com/v1/proxy?quest=${enc}`,      8000],
-    [`https://api.allorigins.win/raw?url=${enc}`,           8000],
-    [`https://thingproxy.freeboard.io/fetch/${url}`,        8000],
-    [`https://api.cors.lol/?url=${enc}`,                    8000],
+    [`https://yfinance-proxy.yangjuwon240.workers.dev/?url=${enc}`, 5000],
+    [`https://corsproxy.io/?${enc}`,                        6000],
+    [`https://api.codetabs.com/v1/proxy?quest=${enc}`,      7000],
+    [`https://api.allorigins.win/raw?url=${enc}`,           7000],
+    [`https://thingproxy.freeboard.io/fetch/${url}`,        7000],
+    [`https://api.cors.lol/?url=${enc}`,                    7000],
   ];
   const order = lastGoodProxy >= 0
     ? [lastGoodProxy, ...proxies.map((_, i) => i).filter(i => i !== lastGoodProxy)]
@@ -313,13 +313,11 @@ async function safeFetch(url) {
   throw new Error('All proxies failed');
 }
 
-// 동시 요청 4개로 제한 (프록시 rate-limit 방지)
-async function pMap(items, fn, concurrency = 4) {
+// 동시 요청 6개 (전용 Worker 사용 → stagger 불필요)
+async function pMap(items, fn, concurrency = 6) {
   const results = new Array(items.length);
   let idx = 0;
-  async function worker(workerIdx) {
-    // cold-start stagger: 워커 시작 시점 분산 (모두 동시에 1번 프록시 두드리는 thundering herd 방지)
-    if (workerIdx > 0) await new Promise(r => setTimeout(r, workerIdx * 150));
+  async function worker() {
     while (idx < items.length) {
       const i = idx++;
       try       { results[i] = { status: 'fulfilled', value: await fn(items[i], i) }; }
@@ -327,19 +325,14 @@ async function pMap(items, fn, concurrency = 4) {
     }
   }
   const n = Math.min(concurrency, items.length);
-  await Promise.all(Array.from({ length: n }, (_, k) => worker(k)));
+  await Promise.all(Array.from({ length: n }, worker));
   return results;
 }
 
 async function fetchTicker(id, rng) {
   const url = `${YF}/v8/finance/chart/${id}?interval=1d&range=${rng}&includePrePost=false`;
-  let data;
-  try {
-    data = await safeFetch(url);
-  } catch (e) {
-    await new Promise(r => setTimeout(r, 600));
-    data = await safeFetch(url);   // 1회 재시도
-  }
+  // retry 제거: 6단 폴백으로 충분, retry는 7s+ 추가 지연
+  const data = await safeFetch(url);
   const res = data?.chart?.result?.[0];
   if (!res) throw new Error(`No data: ${id}`);
   const meta   = res.meta || {};
