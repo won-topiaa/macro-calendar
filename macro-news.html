@@ -134,13 +134,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Controls -->
   <div class="controls">
     <div class="ctrl-left">
-      <div class="source-tabs">
+      <div class="source-tabs" id="filterTabs">
         <button class="stab active" data-filter="all">전체</button>
-        <button class="stab" data-filter="연준·금리">연준·금리</button>
-        <button class="stab" data-filter="물가·인플레이션">물가</button>
-        <button class="stab" data-filter="고용·노동">고용</button>
-        <button class="stab" data-filter="성장·경기">성장</button>
-        <button class="stab" data-filter="무역·관세">무역</button>
       </div>
       <button class="refresh-btn" id="refreshBtn">↻ 새로고침</button>
     </div>
@@ -169,12 +164,16 @@ const FEEDS = [
     name: 'GN 연준·물가', color: '#4285f4'
   },
   {
-    url: 'https://news.google.com/rss/search?q=US+economy+GDP+recession+unemployment+jobs+tariff&hl=en-US&gl=US&ceid=US:en',
+    url: 'https://news.google.com/rss/search?q=US+economy+GDP+recession+unemployment+jobs&hl=en-US&gl=US&ceid=US:en',
     name: 'GN 경제·고용', color: '#0f9d58'
   },
   {
     url: 'https://news.google.com/rss/search?q=treasury+yield+dollar+index+oil+stock+market+s%26p&hl=en-US&gl=US&ceid=US:en',
     name: 'GN 시장·채권', color: '#db4437'
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=tariff+trade+war+china+trade+export+control+trade+policy&hl=en-US&gl=US&ceid=US:en',
+    name: 'GN 무역·관세', color: '#f5a623'
   },
   {
     url: 'https://finance.yahoo.com/news/rssindex',
@@ -209,29 +208,38 @@ const SCORE_MAP = [
 ];
 
 // ─── 카테고리 분류 ───
+// 주의: first-match-wins 방식이므로 좁고 구체적인 카테고리를 위로 배치
+// 성장·경기는 'economy|economic'을 포함해 광범위 → 다른 구체 카테고리들 뒤로 이동
 const CATEGORIES = [
-  { ko:'연준·금리', color:'#4f8ef7', bg:'rgba(79,142,247,.15)',
-    re:/fed|federal reserve|fomc|powell|rate cut|rate hike|basis point|interest rate decision/ },
-  { ko:'물가·인플레이션', color:'#ff4d5e', bg:'rgba(255,77,94,.15)',
-    re:/cpi|inflation|pce|price index|consumer price|producer price|deflat/ },
-  { ko:'고용·노동', color:'#00d09c', bg:'rgba(0,208,156,.15)',
-    re:/jobs?|unemployment|nfarm|nfp|labor|employment|payroll|jobless/ },
-  { ko:'성장·경기', color:'#a78bfa', bg:'rgba(167,139,250,.15)',
-    re:/gdp|recession|growth|contraction|slowdown|soft landing|hard landing|output/ },
+  // 무역·관세는 성장·경기 키워드(growth/recession)와 자주 동반 → 먼저 잡아야 함
   { ko:'무역·관세', color:'#f5a623', bg:'rgba(245,166,35,.15)',
-    re:/tariff|trade war|trade deficit|export|import|china trade|customs/ },
+    re:/tariff|trade war|trade deficit|china trade|\bcustoms dut|export control|trade policy|wto|supply chain|trade tension|trade dispute|trade talks|levies|trump tariff/ },
+  { ko:'연준·금리', color:'#4f8ef7', bg:'rgba(79,142,247,.15)',
+    re:/\bfed\b|federal reserve|fomc|powell|rate cut|rate hike|basis point|interest rate|monetary policy|hawkish|dovish|fed funds|rate decision|rate path/ },
+  { ko:'물가·인플레이션', color:'#ff4d5e', bg:'rgba(255,77,94,.15)',
+    re:/cpi|inflation|pce|price index|consumer price|producer price|deflat|disinflat/ },
+  { ko:'고용·노동', color:'#00d09c', bg:'rgba(0,208,156,.15)',
+    re:/\bjobs?\b|unemployment|nonfarm|\bnfp\b|\blabou?r\b|employment|payroll|jobless|hiring|layoff|\bworkers?\b|\bwages?\b/ },
+  // 국채·달러·원자재는 성장·경기보다 위로 — 'economic data' 같은 부수 키워드에 빼앗기지 않게
   { ko:'국채·채권', color:'#f5c842', bg:'rgba(245,200,66,.15)',
-    re:/treasury|yield curve|bond market|10-year|2-year|debt ceiling/ },
+    re:/treasury|yield curve|bond market|10-year|2-year|debt ceiling|bond yield/ },
   { ko:'달러·환율', color:'#f7921a', bg:'rgba(247,146,26,.15)',
-    re:/dollar index|dxy|dollar|currency|forex|yen|euro|exchange rate/ },
+    // \bcurrency\b 로 'cryptocurrency' 매치 방지
+    re:/dollar index|\bdxy\b|\bcurrency\b|forex|\byen\b|\beuro\b|exchange rate|fx market/ },
   { ko:'에너지·원자재', color:'#e06c4c', bg:'rgba(224,108,76,.15)',
-    re:/oil|crude|opec|energy|natural gas|commodity|gold price/ },
+    re:/\boil\b|crude|opec|\benergy\b|natural gas|commodity|gold price|silver price/ },
+  // 성장·경기는 마지막 catch-all (economy/economic 광범위 매치 → 다른 카테고리 미매치 시 흡수)
+  { ko:'성장·경기', color:'#a78bfa', bg:'rgba(167,139,250,.15)',
+    re:/gdp|recession|economic growth|contraction|slowdown|soft landing|hard landing|economic output|economy|economic|pmi|ism|retail sales|consumer confidence/ },
 ];
+
+const DEFAULT_CAT = { ko:'시장·기타', color:'#8a94b8', bg:'rgba(138,148,184,.12)' };
 
 function categorize(text) {
   const t = text.toLowerCase();
   for (const c of CATEGORIES) if (c.re.test(t)) return c;
-  return { ko:'거시경제', color:'#8a94b8', bg:'rgba(138,148,184,.12)' };
+  // 폴백: 일반 시장 키워드는 "시장·기타"로
+  return DEFAULT_CAT;
 }
 
 function scoreArticle(title, desc) {
@@ -295,14 +303,30 @@ async function timedFetch(url, ms) {
   } catch(e) { clearTimeout(tid); throw e; }
 }
 
+// 직전 성공 프록시 우선
+let lastGoodProxy = -1;
 async function fetchFeed(url) {
   const enc = encodeURIComponent(url);
-  // 1) allorigins.win
-  try { return await timedFetch(`https://api.allorigins.win/raw?url=${enc}`, 12000); } catch(_) {}
-  // 2) corsproxy.io
-  try { return await timedFetch(`https://corsproxy.io/?${enc}`, 12000); } catch(_) {}
-  // 3) thingproxy
-  return await timedFetch(`https://thingproxy.freeboard.io/fetch/${url}`, 12000);
+  // 0번: 본인 Cloudflare Worker (RSS XML도 정상 반환)
+  const proxies = [
+    `https://yfinance-proxy.yangjuwon240.workers.dev/?url=${enc}`,
+    `https://api.allorigins.win/raw?url=${enc}`,
+    `https://corsproxy.io/?${enc}`,
+    `https://api.codetabs.com/v1/proxy?quest=${enc}`,
+    `https://api.cors.lol/?url=${enc}`,
+    `https://thingproxy.freeboard.io/fetch/${url}`,
+  ];
+  const order = lastGoodProxy >= 0
+    ? [lastGoodProxy, ...proxies.map((_, i) => i).filter(i => i !== lastGoodProxy)]
+    : proxies.map((_, i) => i);
+  for (const i of order) {
+    try {
+      const result = await timedFetch(proxies[i], 9000);
+      lastGoodProxy = i;
+      return result;
+    } catch (_) {}
+  }
+  throw new Error('All proxies failed');
 }
 
 // ─── State ───
@@ -320,61 +344,64 @@ async function loadNews() {
     '<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">Google News · Fed RSS 수집 중...</span></div>';
   document.getElementById('aiSummary').style.display = 'none';
 
-  const results = await Promise.allSettled(
-    FEEDS.map(feed => fetchFeed(feed.url).then(xml => ({ feed, xml })))
-  );
-
-  const rawArticles = [];
-  sourceStatus = {};
-
-  results.forEach((res, i) => {
-    const feed = FEEDS[i];
-    if (res.status === 'fulfilled') {
-      sourceStatus[feed.name] = 'ok';
-      const parsed = parseRSS(res.value.xml, feed.name);
-      parsed.forEach(a => rawArticles.push(a));
-    } else {
-      sourceStatus[feed.name] = 'fail';
-    }
-  });
-
-  renderSourcesBar();
-
-  if (!rawArticles.length) {
-    document.getElementById('newsList').innerHTML =
-      '<div class="err-box"><strong>뉴스를 불러올 수 없습니다</strong><br><small>네트워크 또는 CORS 프록시 문제입니다. 잠시 후 다시 시도해주세요.</small></div>';
-    loading = false;
-    document.getElementById('refreshBtn').textContent = '↻ 새로고침';
-    return;
-  }
-
-  // 스코어링 + 카테고리
-  const scored = rawArticles.map(a => ({
-    ...a,
-    score:    scoreArticle(a.title, a.desc),
-    category: categorize(a.title + ' ' + a.desc),
-    pubMs:    a.pub ? new Date(a.pub).getTime() : 0,
-  }))
-  // 거시경제 무관 기사 제거 (score 1 미만)
-  .filter(a => a.score >= 1)
-  // 최근 72시간 이내
-  .filter(a => !a.pubMs || (Date.now() - a.pubMs) < 72 * 3600 * 1000);
-
-  // 제목 중복 제거
-  const seen = new Set();
-  const deduped = scored.filter(a => {
-    const key = a.title.slice(0, 40).toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  // 점수 내림차순 → 같은 점수면 최신순
-  deduped.sort((a, b) => b.score - a.score || b.pubMs - a.pubMs);
-
-  allArticles = deduped;
-
   try {
+    const results = await Promise.allSettled(
+      FEEDS.map(feed => fetchFeed(feed.url).then(xml => ({ feed, xml })))
+    );
+
+    const rawArticles = [];
+    sourceStatus = {};
+
+    results.forEach((res, i) => {
+      const feed = FEEDS[i];
+      if (res.status === 'fulfilled') {
+        sourceStatus[feed.name] = 'ok';
+        try {
+          const parsed = parseRSS(res.value.xml, feed.name);
+          parsed.forEach(a => rawArticles.push(a));
+        } catch (e) {
+          sourceStatus[feed.name] = 'fail';
+        }
+      } else {
+        sourceStatus[feed.name] = 'fail';
+      }
+    });
+
+    renderSourcesBar();
+
+    if (!rawArticles.length) {
+      document.getElementById('newsList').innerHTML =
+        '<div class="err-box"><strong>뉴스를 불러올 수 없습니다</strong><br><small>네트워크 또는 CORS 프록시 문제입니다. 잠시 후 다시 시도해주세요.</small></div>';
+      return;
+    }
+
+    // 스코어링 + 카테고리
+    const scored = rawArticles.map(a => ({
+      ...a,
+      score:    scoreArticle(a.title, a.desc),
+      category: categorize(a.title + ' ' + a.desc),
+      pubMs:    a.pub ? new Date(a.pub).getTime() : 0,
+    }))
+    // 거시경제 무관 기사 제거 (score 1 미만)
+    .filter(a => a.score >= 1)
+    // 최근 72시간 이내
+    .filter(a => !a.pubMs || (Date.now() - a.pubMs) < 72 * 3600 * 1000);
+
+    // 제목 중복 제거
+    const seen = new Set();
+    const deduped = scored.filter(a => {
+      const key = a.title.slice(0, 40).toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    // 점수 내림차순 → 같은 점수면 최신순
+    deduped.sort((a, b) => b.score - a.score || b.pubMs - a.pubMs);
+
+    allArticles = deduped;
+
+    renderFilterTabs();
     renderNews();
     generateAISummary();
     updateTimestamp();
@@ -431,6 +458,38 @@ function renderNews() {
   }).join('');
 
   document.getElementById('newsList').innerHTML = `<div class="news-list">${html}</div>`;
+}
+
+// ─── 필터 탭 동적 생성 ───
+// 짧은 라벨 매핑 (UI 폭 절약)
+const SHORT_LABEL = {
+  '연준·금리':'연준', '물가·인플레이션':'물가', '고용·노동':'고용',
+  '성장·경기':'성장', '무역·관세':'무역', '국채·채권':'채권',
+  '달러·환율':'달러', '에너지·원자재':'원자재', '시장·기타':'기타',
+};
+function renderFilterTabs() {
+  const counts = {};
+  allArticles.forEach(a => {
+    counts[a.category.ko] = (counts[a.category.ko] || 0) + 1;
+  });
+  // 등장 카테고리만 정의된 순서대로 노출 (CATEGORIES 순서 + DEFAULT_CAT 마지막)
+  const order = [...CATEGORIES.map(c => c.ko), DEFAULT_CAT.ko];
+  const visible = order.filter(ko => counts[ko] > 0);
+
+  // 활성 필터가 사라진 카테고리면 'all'로 리셋 (orphan active 상태 방지)
+  if (filterCat !== 'all' && !visible.includes(filterCat)) {
+    filterCat = 'all';
+  }
+
+  const tabs = document.getElementById('filterTabs');
+  if (!tabs) return;
+  let html = `<button class="stab ${filterCat==='all'?'active':''}" data-filter="all">전체 ${allArticles.length}</button>`;
+  for (const ko of visible) {
+    const label = SHORT_LABEL[ko] || ko;
+    const cls   = filterCat === ko ? 'active' : '';
+    html += `<button class="stab ${cls}" data-filter="${escHtml(ko)}">${escHtml(label)} ${counts[ko]}</button>`;
+  }
+  tabs.innerHTML = html;
 }
 
 function renderSourcesBar() {
@@ -515,14 +574,15 @@ function generateAISummary() {
   renderAISummary([line1, line2, line3]);
 }
 
-// ─── 필터 탭 ───
-document.querySelectorAll('.stab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    filterCat = btn.dataset.filter;
-    renderNews();
-  });
+// ─── 필터 탭 (위임) ───
+// 동적 생성되므로 부모(filterTabs)에 위임
+document.getElementById('filterTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.stab');
+  if (!btn) return;
+  document.querySelectorAll('#filterTabs .stab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCat = btn.dataset.filter;
+  renderNews();
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => loadNews());

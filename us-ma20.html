@@ -387,14 +387,24 @@ let refreshTimer = null;
 //  CORS Proxies
 // ─────────────────────────────────────────
 const PROXIES = [
-  url => url,
+  // 0번: 본인 Cloudflare Worker (전용 프록시)
+  url => `https://yfinance-proxy.yangjuwon240.workers.dev/?url=${encodeURIComponent(url)}`,
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+  url => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
 ];
 
+// 직전 성공 프록시 우선 시도
+let lastGoodProxy = -1;
+
 async function fetchWithProxy(url, timeout = 8000) {
-  for (const proxy of PROXIES) {
-    const proxied = proxy(url);
+  const order = lastGoodProxy >= 0
+    ? [lastGoodProxy, ...PROXIES.map((_, i) => i).filter(i => i !== lastGoodProxy)]
+    : PROXIES.map((_, i) => i);
+  for (const i of order) {
+    const proxied = PROXIES[i](url);
     const ctrl = new AbortController();
     const tid = setTimeout(() => ctrl.abort(), timeout);
     try {
@@ -402,6 +412,7 @@ async function fetchWithProxy(url, timeout = 8000) {
       clearTimeout(tid);
       if (!res.ok) continue;
       const data = await res.json();
+      lastGoodProxy = i;
       return data;
     } catch (e) {
       clearTimeout(tid);

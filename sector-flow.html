@@ -460,22 +460,70 @@ async function timedFetch(url, ms) {
   } catch(e) { clearTimeout(tid); throw e; }
 }
 
+// 직전에 성공한 프록시 인덱스 기억 → 다음 요청에 우선 시도 (rate-limit 누적 방지)
+let lastGoodProxy = -1;
+
 async function safeFetch(url) {
-  // 1) 직접 연결 (localhost 환경)
-  try { return await timedFetch(url, 6000); } catch(_) {}
-  // 2) corsproxy.io
-  try { return await timedFetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, 10000); } catch(_) {}
-  // 3) allorigins.win — file:// 프로토콜에서도 작동
-  try { return await timedFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, 12000); } catch(_) {}
-  // 4) thingproxy
-  return await timedFetch(`https://thingproxy.freeboard.io/fetch/${url}`, 12000);
+  const enc = encodeURIComponent(url);
+  // 각 항목: [endpoint URL, timeout]
+  // 0번: 본인 Cloudflare Worker (전용 프록시, 일 100K 무료, 30s 엣지 캐시)
+  const proxies = [
+    [`https://yfinance-proxy.yangjuwon240.workers.dev/?url=${enc}`, 7000],  // 본인 worker
+    [`https://corsproxy.io/?${enc}`,                        7000],
+    [`https://api.codetabs.com/v1/proxy?quest=${enc}`,      8000],
+    [`https://api.allorigins.win/raw?url=${enc}`,           8000],
+    [`https://thingproxy.freeboard.io/fetch/${url}`,        8000],
+    [`https://api.cors.lol/?url=${enc}`,                    8000],
+  ];
+
+  // sticky: 직전 성공 프록시 우선 → 나머지를 정의된 순서로
+  const order = lastGoodProxy >= 0
+    ? [lastGoodProxy, ...proxies.map((_, i) => i).filter(i => i !== lastGoodProxy)]
+    : proxies.map((_, i) => i);
+
+  for (const i of order) {
+    const [endpoint, ms] = proxies[i];
+    try {
+      const result = await timedFetch(endpoint, ms);
+      lastGoodProxy = i;   // 다음 요청에 재사용
+      return result;
+    } catch (_) { /* 다음 프록시로 */ }
+  }
+  throw new Error('All proxies failed');
+}
+
+// ─── 동시 요청 제한 (CORS 프록시 rate-limit 방지) ───
+// 모든 티커를 동시에 던지면 무료 프록시가 차단함 → 4개씩 직렬화
+async function pMap(items, fn, concurrency = 4) {
+  const results = new Array(items.length);
+  let idx = 0;
+  async function worker(workerIdx) {
+    // cold-start stagger: worker N waits N*150ms 시작 (모두 동시에 같은 프록시 안 두드리도록)
+    if (workerIdx > 0) await new Promise(r => setTimeout(r, workerIdx * 150));
+    while (idx < items.length) {
+      const i = idx++;
+      try       { results[i] = { status: 'fulfilled', value: await fn(items[i], i) }; }
+      catch (e) { results[i] = { status: 'rejected', reason: e }; }
+    }
+  }
+  const n = Math.min(concurrency, items.length);
+  const workers = Array.from({ length: n }, (_, k) => worker(k));
+  await Promise.all(workers);
+  return results;
 }
 
 // v8 chart API → 현재가·거래량·52주 고저·이력 종가 모두 포함
+// 1회 재시도: 첫 시도 실패 시 600ms 후 재시도 (프록시 transient 오류 회복)
 async function fetchTicker(sym, range) {
-  const url  = `${YF}/v8/finance/chart/${sym}?interval=1d&range=${range}&includePrePost=false`;
-  const data = await safeFetch(url);
-  const res  = data?.chart?.result?.[0];
+  const url = `${YF}/v8/finance/chart/${sym}?interval=1d&range=${range}&includePrePost=false`;
+  let data;
+  try {
+    data = await safeFetch(url);
+  } catch (e) {
+    await new Promise(r => setTimeout(r, 600));
+    data = await safeFetch(url);   // 재시도 1회 — 실패 시 throw 그대로
+  }
+  const res = data?.chart?.result?.[0];
   if (!res) throw new Error(`No data: ${sym}`);
 
   const meta   = res.meta || {};
@@ -834,23 +882,21 @@ async function loadAll(p) {
     `<div class="loader"><div class="spinner"></div><span style="color:var(--txt3);font-size:13px">Yahoo Finance 연결 중...</span></div>`;
   document.getElementById('refreshBtn').innerHTML = '<span class="spin">↻</span> 로딩중';
 
-  // 1D는 5d 범위 요청 (스파크라인용 이력 + 당일 메타 포함)
-  const range = p === '1d' ? '5d' : p;
-
-  // 모든 티커 병렬 fetch (v8 chart API)
-  const results = await Promise.allSettled(
-    ALL_SYMS.map(sym => fetchTicker(sym, range))
-  );
-
-  let successCount = 0;
-  results.forEach(r => {
-    if (r.status === 'fulfilled') {
-      td[r.value.symbol] = r.value;
-      successCount++;
-    }
-  });
-
   try {
+    // 1D는 5d 범위 요청 (스파크라인용 이력 + 당일 메타 포함)
+    const range = p === '1d' ? '5d' : p;
+
+    // 모든 티커 fetch (4개씩 직렬화 — 프록시 rate-limit 회피)
+    const results = await pMap(ALL_SYMS, sym => fetchTicker(sym, range), 4);
+
+    let successCount = 0;
+    results.forEach(r => {
+      if (r.status === 'fulfilled') {
+        td[r.value.symbol] = r.value;
+        successCount++;
+      }
+    });
+
     if (successCount === 0) {
       document.getElementById('heatmap').innerHTML =
         `<div class="err-box">
@@ -987,12 +1033,12 @@ async function loadSubsector(key) {
   const syms  = group.items.map(i => i.etf);
 
   // fetch only what's not cached (or refresh)
-  await Promise.allSettled(syms.map(async sym => {
+  await pMap(syms, async sym => {
     if (!std[sym]) {
       const data = await fetchTicker(sym, range).catch(() => null);
       if (data) std[sym] = data;
     }
-  }));
+  }, 4);
 
   renderSubsector(key);
 }
@@ -1079,14 +1125,12 @@ async function loadCommodities() {
 
   const range = period === '1d' ? '5d' : period;
 
-  await Promise.allSettled(
-    COMMS.map(async c => {
-      if (!ctd[c.etf]) {
-        const data = await fetchTicker(c.etf, range).catch(() => null);
-        if (data) ctd[c.etf] = data;
-      }
-    })
-  );
+  await pMap(COMMS, async c => {
+    if (!ctd[c.etf]) {
+      const data = await fetchTicker(c.etf, range).catch(() => null);
+      if (data) ctd[c.etf] = data;
+    }
+  }, 4);
 
   renderCommodities();
 }
@@ -1181,6 +1225,7 @@ function renderCommodities() {
 // std/ctd 캐시 초기화 후 메인·세부섹터·원자재 모두 재로드
 document.querySelectorAll('.ptab').forEach(btn => {
   btn.addEventListener('click', () => {
+    if (loading) return;   // 가장 먼저 가드 — UI 상태도 변경하기 전에 차단
     document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     std = {};   // 세부섹터 캐시 초기화 (기간 바뀌면 구 범위 데이터 무효)
@@ -1198,6 +1243,7 @@ document.getElementById('sortSel').addEventListener('change', e => {
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
+  if (loading) return;
   std = {};
   ctd = {};
   loadAll(period).then(() => {
@@ -1217,6 +1263,7 @@ document.querySelectorAll('.sstab').forEach(btn => {
 
 // 3분 자동갱신: 메인 + 세부섹터 + 원자재 모두 갱신
 setInterval(() => {
+  if (loading) return;   // 이전 로드 in-flight 시 skip
   std = {};
   ctd = {};
   loadAll(period).then(() => {

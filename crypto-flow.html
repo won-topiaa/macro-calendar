@@ -305,10 +305,30 @@ async function timedFetch(url, ms) {
   } catch(e) { clearTimeout(tid); throw e; }
 }
 
-async function safeFetch(url, timeout = 10000) {
-  try { return await timedFetch(url, timeout); } catch(_) {}
-  try { return await timedFetch(PROXY + encodeURIComponent(url), timeout + 4000); } catch(_) {}
-  return await timedFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, timeout + 6000);
+// 직전 성공 프록시 우선
+let lastGoodProxy = -1;
+async function safeFetch(url, timeout = 8000) {
+  const enc = encodeURIComponent(url);
+  // 0번: 본인 Cloudflare Worker
+  const proxies = [
+    [`https://yfinance-proxy.yangjuwon240.workers.dev/?url=${enc}`, timeout],
+    [`https://corsproxy.io/?${enc}`,                        timeout],
+    [`https://api.codetabs.com/v1/proxy?quest=${enc}`,      timeout],
+    [`https://api.allorigins.win/raw?url=${enc}`,           timeout + 2000],
+    [`https://thingproxy.freeboard.io/fetch/${url}`,        timeout],
+    [`https://api.cors.lol/?url=${enc}`,                    timeout],
+  ];
+  const order = lastGoodProxy >= 0
+    ? [lastGoodProxy, ...proxies.map((_, i) => i).filter(i => i !== lastGoodProxy)]
+    : proxies.map((_, i) => i);
+  for (const i of order) {
+    try {
+      const result = await timedFetch(proxies[i][0], proxies[i][1]);
+      lastGoodProxy = i;
+      return result;
+    } catch (_) {}
+  }
+  throw new Error('All proxies failed');
 }
 
 // ─── Yahoo Finance v8 fetch (BTC-USD, ETH-USD 등) ───
@@ -737,13 +757,19 @@ document.querySelectorAll('.ptab').forEach(btn => {
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
+  if (loading) return;
   chartCache  = {};
   multiPeriod = {};
   loadAll();
 });
 
 // Auto-refresh 3min
-setInterval(() => { chartCache = {}; multiPeriod = {}; loadAll(); }, 3*60*1000);
+setInterval(() => {
+  if (loading) return;
+  chartCache = {};
+  multiPeriod = {};
+  loadAll();
+}, 3*60*1000);
 
 loadAll();
 </script>
